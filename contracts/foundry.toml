@@ -17,3 +17,14 @@ remappings = [
   "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
   "forge-std/=lib/forge-std/src/",
 ]
+
+# ---------- 포매터 설정 (`forge fmt`) ----------
+# Prettier 같은 역할을 하는 Foundry 내장 포매터다. `forge fmt`로 전체 정리, `forge fmt --check`로 검사만 한다.
+[fmt]
+line_length = 120              # 한 줄 최대 길이 (기본 120)
+tab_width = 4                  # 들여쓰기 4칸 (Solidity 관례)
+bracket_spacing = false        # import {ERC20} 처럼 중괄호 안에 공백을 넣지 않는다
+int_types = "long"             # uint → uint256 처럼 타입을 항상 풀어서 쓴다
+quote_style = "double"         # 문자열은 큰따옴표
+number_underscore = "thousands" # 1000000 → 1_000_000 처럼 세 자리마다 _ 를 넣는다
+sort_imports = true            # import 문을 알파벳 순으로 정렬한다

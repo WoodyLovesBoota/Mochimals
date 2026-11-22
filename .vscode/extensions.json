@@ -1,0 +1,4 @@
+{
+  // 이 저장소를 열면 VSCode가 설치를 권해주는 확장 목록
+  "recommendations": ["NomicFoundation.hardhat-solidity"]
+}

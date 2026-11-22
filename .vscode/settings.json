@@ -1,0 +1,9 @@
+{
+  // ---- Solidity: 저장할 때마다 forge fmt로 자동 정리 ----
+  // NomicFoundation 확장(Solidity by Nomic Foundation)이 foundry.toml의 [fmt] 설정을 읽어 forge fmt를 실행한다.
+  "[solidity]": {
+    "editor.defaultFormatter": "NomicFoundation.hardhat-solidity",
+    "editor.formatOnSave": true
+  },
+  "solidity.formatter": "forge"
+}
