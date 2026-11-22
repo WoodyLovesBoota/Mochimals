@@ -1,0 +1,42 @@
+{
+ "anchors": {
+  "canvas": 400,
+  "ground_y": 352,
+  "center_x": 200,
+  "sprout": [
+   200,
+   92
+  ],
+  "face": [
+   200,
+   210
+  ],
+  "hand_r": [
+   344,
+   246
+  ],
+  "bubble": [
+   330,
+   96
+  ]
+ },
+ "stage_scale": {
+  "1": 0.78,
+  "2": 0.86,
+  "3": 0.95,
+  "4": 0.95
+ },
+ "layer_order": [
+  "fx_back",
+  "ears",
+  "sprout",
+  "body",
+  "pattern",
+  "mark",
+  "feet",
+  "face",
+  "item",
+  "arms",
+  "fx_front"
+ ]
+}

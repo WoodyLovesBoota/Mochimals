@@ -1,0 +1,23 @@
+# ---- 비밀값: 절대 커밋하지 않는다 (14장) ----
+.env
+.env.local
+.env.*.local
+
+# ---- Foundry 산출물 ----
+contracts/out/
+contracts/cache/
+# anvil 로컬 배포 기록은 매번 바뀌므로 제외
+contracts/broadcast/*/31337/
+
+# ---- Node / Next.js ----
+node_modules/
+web/.next/
+web/out/
+*.tsbuildinfo
+next-env.d.ts
+
+# ---- 기타 ----
+.DS_Store
+__pycache__/
+# generate.py 재실행 시 생기는 출력 폴더
+svg/v3/
