@@ -1,0 +1,19 @@
+# Foundry 설정 파일이다. `forge build`, `forge test`가 이 파일을 읽는다.
+[profile.default]
+src = "src"        # 컨트랙트 소스 폴더
+out = "out"        # 컴파일 결과(ABI, 바이트코드)가 나오는 폴더. 프론트의 ABI 생성(@wagmi/cli)이 여기를 읽는다
+libs = ["lib"]     # 외부 라이브러리(forge-std, OpenZeppelin)가 git submodule로 들어 있는 폴더
+
+# 컴파일러 버전을 고정한다. 소스의 `pragma ^0.8.24`를 만족하는 버전이다.
+# 고정하지 않으면 사람마다 다른 버전으로 컴파일돼 바이트코드가 달라질 수 있다.
+solc_version = "0.8.28"
+
+# Base(와 이더리움)는 Cancun 업그레이드를 지원하므로 그 기준으로 컴파일한다.
+evm_version = "cancun"
+
+# import 경로 별칭.
+# 소스에서 "@openzeppelin/contracts/..."라고 쓰면 lib/openzeppelin-contracts/contracts/... 를 찾는다.
+remappings = [
+  "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
+  "forge-std/=lib/forge-std/src/",
+]
