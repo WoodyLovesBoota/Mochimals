@@ -62,7 +62,7 @@ contract Energy is ERC20 {
     ///      일반 ERC20 같으면 "사용자가 approve → 컨트랙트가 transferFrom" 두 번의 트랜잭션이 필요하지만,
     ///      여기서는 game 권한으로 바로 소각하므로 사용자는 approve 없이 행동 1번 = 트랜잭션 1번이다.
     function burn(address from, uint256 amount) external onlyGame {
-        // 잔액이 모자라면 OZ의 _burn → _update 안에서
+        // * 잔액이 모자라면 OZ의 _burn → _update 안에서
         // ERC20InsufficientBalance(from, 잔액, 필요량) 에러로 revert된다.
         // 그래서 여기서 잔액을 따로 검사할 필요가 없다.
         _burn(from, amount);
@@ -75,6 +75,7 @@ contract Energy is ERC20 {
     ///      그러므로 "둘 다 0이 아닌 경우"만 막으면 전송만 정확히 막힌다.
     ///      (이런 토큰을 흔히 Soulbound 토큰이라고 부른다.)
     function _update(address from, address to, uint256 value) internal override {
+        // ! 보안 핵심: 이 한 줄이 사용자 간 전송을 전부 막는다
         if (from != address(0) && to != address(0)) revert NonTransferable();
         // 검사를 통과하면 OZ의 원래 로직(잔액 증감, Transfer 이벤트 발생)을 그대로 실행한다.
         super._update(from, to, value);
