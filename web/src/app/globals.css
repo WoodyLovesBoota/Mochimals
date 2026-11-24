@@ -4,38 +4,50 @@
      Tailwind가 src 아래 파일들을 훑어서, 실제로 쓰인 클래스(flex, p-4 ...)의 CSS만 만들어 여기에 넣는다. */
 @import "tailwindcss";
 
-/* * 일반 CSS 변수. 밝은 모드의 기본 배경색과 글자색이다. */
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* =====================================================================
+   디자인 토큰 (SPEC 12장 "UI 톤")
+   =====================================================================
+   * @theme: Tailwind에 토큰을 등록하는 v4 문법이다. 변수 이름의 "접두사"가 어떤 클래스가 될지 정한다.
+       --color-ink     → bg-ink, text-ink, border-ink, ring-ink ... (색이 들어가는 모든 유틸리티)
+       --radius-card   → rounded-card
+       --font-sans     → font-sans
+     ? 등록하지 않은 이름(bg-mochi 등)은 T1에서 실험한 대로 CSS가 아예 안 생긴다. 에러도 안 난다.
+     * 색 뒤에 /숫자를 붙이면 불투명도다: bg-energy/20 = #FFC93C를 20%로.
+     ! 토큰 값을 바꿀 때는 여기 한 곳만 고친다. 컴포넌트에 #22252F 같은 색 코드를 직접 쓰지 않는다. */
+@theme {
+  /* 글자색 */
+  --color-ink: #22252f; /* 본문, 주 버튼 배경 */
+  --color-muted: #6b7080; /* 보조 설명 */
+
+  /* 게임 수치 */
+  --color-energy: #ffc93c; /* 활동력 칸 */
+  --color-xp: #3faf5e; /* XP 바 */
+
+  /* 밥 주기 버튼 (배경 / 글자) */
+  --color-feed: #fff0e0;
+  --color-feed-ink: #b85c00;
+
+  /* 카드 모서리 (SPEC: 24~28px). 1.5rem = 24px */
+  --radius-card: 1.5rem;
 }
 
-/* * @theme: Tailwind에 "디자인 토큰"을 등록하는 v4 문법이다.
-     `--color-이름`을 등록하면 `bg-이름`, `text-이름`, `border-이름` 같은 클래스가 생긴다.
-       --color-background → bg-background, text-background ...
-       --font-sans        → font-sans
-     `inline`은 클래스가 var(--background)를 직접 참조하게 한다.
-     그래서 아래 다크 모드에서 :root 변수만 바꿔도 bg-background 색이 같이 바뀐다. */
+/* * `inline`: 값이 다른 CSS 변수(var(...))일 때 쓴다.
+     inline 없이 쓰면 font-sans 클래스는 var(--font-sans)가 되고, --font-sans의 값 var(--font-geist-sans)는
+     --font-sans가 정의된 :root 기준으로 풀린다. inline을 쓰면 클래스에 var(--font-geist-sans)가 직접 들어가서
+     그 클래스를 쓴 요소 기준으로 풀린다. 다른 변수를 가리키는 토큰은 inline으로 두는 것이 Tailwind 권장이다. */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   /* layout.tsx의 next/font가 만든 폰트 변수를 연결한다 */
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-/* * 운영체제가 다크 모드면 변수 값만 바꾼다. 클래스는 그대로 두고 색만 바뀐다. */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* * @layer base: 태그 자체(body, h1 ...)의 기본 스타일을 둔다.
+     여기서도 @apply로 Tailwind 클래스를 쓸 수 있다. 유틸리티 클래스보다 우선순위가 낮아서, 컴포넌트에서 덮어쓰기 쉽다.
+   ? 다크 모드: create-next-app이 넣어 준 "OS가 다크면 검은 배경" 설정은 지웠다. SPEC 12장의 UI 톤이 "흰 배경"이기 때문이다.
+     Tailwind의 `dark:` 접두사(예: page.tsx의 dark:bg-black)는 지금도 OS 다크 모드일 때 적용된다.
+     page.tsx는 5강에서 홈 화면으로 새로 쓰면서 dark: 클래스도 같이 정리한다. */
+@layer base {
+  body {
+    @apply bg-white font-sans text-ink;
   }
-}
-
-/* ? font-family가 Arial로 되어 있어서 위에서 연결한 Geist 폰트가 body에 적용되지 않는다.
-     T1 수업에서 font-sans 클래스로 바꿔 보면서 확인한다. */
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
 }
