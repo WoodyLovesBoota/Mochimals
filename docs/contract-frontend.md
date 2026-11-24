@@ -124,8 +124,22 @@ Provider 순서 (`providers.tsx` 32~36줄): `WagmiProvider` → `QueryClientProv
 | 78 | ⑤ 무효화 | `invalidateQueries()` 전체. `usePet`, `EnergyBadge`가 다시 읽는다 |
 | 83 | | `{ ...mutation, phase, hash }`. `mutation.variables.fn`으로 어떤 버튼이 눌렸는지 안다 |
 
-## 8. 아직 없는 것 (만들면 여기에 추가)
+## 8. 에러: Solidity `error` → 화면 문구
 
-- 4강: `lib/errors.ts`(에러 이름 → 문구), 내 펫 화면, 버튼 상태, 연출
+[web/src/lib/errors.ts](../web/src/lib/errors.ts) — `toErrorMessage(error)`.
+
+| 줄 | 내용 |
+| --- | --- |
+| 10~15 | 에러 이름 → 문구 표. 이름은 Solidity `error NotPetOwner();` 그대로 |
+| 28 | viem 에러(`BaseError`)는 원인을 `cause`로 겹겹이 감싼다. `walk`로 사슬을 따라 내려간다 |
+| 30 | `UserRejectedRequestError`(지갑 거절) → `null`. 문구 없이 버튼만 되돌린다 |
+| 34~39 | `ContractFunctionRevertedError`의 `data.errorName`. ABI에 그 에러 정의가 있어야 이름이 나온다 |
+| 43 | `TX_REVERTED`, 네트워크 에러 등 나머지 → 기본 문구 |
+
+[errors.test.ts](../web/src/lib/errors.test.ts)의 세 번째 테스트가 `contracts.ts` 39줄(Energy 에러 합치기)이 없으면 `ERC20InsufficientBalance`가 기본 문구로 떨어지는 것을 보여준다.
+
+## 9. 아직 없는 것 (만들면 여기에 추가)
+
+- 4강: 내 펫 화면, 버튼 상태, 연출
 - 5강: `useMyPets`(`Transfer` 로그 + `ownerOf`), 입양 후 `Adopted` 이벤트에서 petId, 랭킹 서버 읽기
 - 6강: 메타데이터 API (`tokenURI` → `/api/pet/[id]`)
