@@ -37,7 +37,7 @@
 | 2 | Tailwind 제거, CSS Modules + SCSS 전환 | `69b730e` |
 | 3 | `lib/look.ts` + 테스트 36개 | `4914d00` |
 | 3 | `art/flat-v1` 포팅 + 기준 SVG 비교 테스트 102개 | `8ea4d00` |
-| 3 | `PetSprite`, `/dev/art` | 이번 커밋 |
+| 3 | `PetSprite`, `/dev/art` | `bc465d8` |
 
 ## 수강생 기록 (수업 수준을 맞추기 위한 메모)
 
@@ -54,49 +54,95 @@
 - 앞으로 주의할 점: 조건문을 읽을 때 **경우별 표를 그려 값을 대입하는 연습**을 계속 시킨다.
   수강생은 계산 문제를 건너뛰고 감으로 답하는 경향이 있다. 1강-4에서는 표를 수강생이 직접 채우게 하거나, 테스트를 먼저 예측시키고 실행해서 맞춰보게 한다.
 
-## 개발 환경 (기기를 바꿨을 때)
+## 개발 환경 (새 기기에서 처음부터)
+
+필요한 것: git, Node.js 22 이상, MetaMask(브라우저 확장). 아래 순서대로 실행한다.
 
 ```bash
-# 1. 저장소 받기 (submodule까지 같이)
+# ---------- 1. 저장소 받기 (submodule까지 같이) ----------
 git clone --recurse-submodules https://github.com/WoodyLovesBoota/Mochimals.git
 cd Mochimals
 # 이미 clone했는데 contracts/lib가 비어 있으면:
 git submodule update --init --recursive
 
-# 2. Foundry 설치 (수강생이 직접 설치한다)
+# ---------- 2. 도구 설치 (한 번만) ----------
+# Foundry (forge, anvil, cast)
 curl -L https://foundry.paradigm.xyz | bash
 # 설치 스크립트가 PATH를 안 넣어주는 경우가 있었다. 그러면 직접 추가:
 echo 'export PATH="$HOME/.foundry/bin:$PATH"' >> ~/.zshrc
 source ~/.zshrc
 foundryup
+# pnpm
+npm install -g pnpm
 
-# 3. 확인
+# ---------- 3. 컨트랙트 확인 ----------
 cd contracts
 forge build
-forge test        # 현재 33 passed
+forge test                 # 33 passed
+cd ..
+
+# ---------- 4. 프론트 의존성 ----------
+cd web
+pnpm install
+pnpm test                  # 138 passed (look.ts 36 + 아트 비교 102)
+cd ..
 ```
 
 ```bash
-# 4. 프론트 (web)
+# ---------- 5. 실행 (터미널 3개) ----------
+# 터미널 1: 로컬 체인
+anvil
+
+# 터미널 2: 배포 (anvil을 켤 때마다 매번. anvil은 끄면 초기화된다)
+cd contracts
+forge script script/Deploy.s.sol --rpc-url http://127.0.0.1:8545 \
+  --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --broadcast
+
+# 터미널 3: 프론트 (.env.local을 먼저 만든다. 아래 "env 옮기기")
 cd web
-pnpm install
-# web/.env.local을 직접 만든다 (커밋하지 않음). 필요한 값:
-#   NEXT_PUBLIC_CHAIN_ID=31337            # 31337 anvil, 84532 Base Sepolia, 8453 Base
-#   NEXT_PUBLIC_RPC_URL=                  # 비우면 체인 내장 RPC (anvil = 127.0.0.1:8545)
-#   NEXT_PUBLIC_WC_PROJECT_ID=            # 비우면 RainbowKit 개발용 예제 ID
-#   NEXT_PUBLIC_PET_NFT_ADDRESS=          # Deploy.s.sol 출력값
-#   NEXT_PUBLIC_ENERGY_ADDRESS=           # Deploy.s.sol 출력값
-#   NEXT_PUBLIC_DEPLOY_BLOCK=             # Deploy.s.sol 출력값
-#   NEXT_PUBLIC_APP_URL=http://localhost:3000
-#   PAYMASTER_URL=                        # 선택, 서버 전용
-pnpm wagmi        # 컨트랙트를 고쳤을 때 ABI 다시 생성 (forge 필요)
-pnpm dev
+pnpm dev                   # http://localhost:3000 , 아트 확인 http://localhost:3000/dev/art
 ```
 
-로컬 지갑: anvil을 띄우고 MetaMask에 네트워크(RPC `http://127.0.0.1:8545`, 체인 ID 31337)를 추가한 뒤, anvil 0번 테스트 키를 가져온다. anvil을 재시작하면 체인이 초기화되므로 다시 배포하고, MetaMask에서 "활동 탭 데이터 지우기"를 한다.
+자주 쓰는 명령:
+
+| 명령 (위치) | 하는 일 |
+| --- | --- |
+| `forge test` (contracts) | 컨트랙트 테스트 |
+| `pnpm wagmi` (web) | 컨트랙트를 고친 뒤 ABI(`src/generated.ts`) 다시 생성. forge 필요 |
+| `pnpm test` (web) | look.ts, 아트 비교 테스트 |
+| `pnpm lint`, `npx tsc --noEmit` (web) | 린트, 타입 검사 |
+| `pnpm build` (web) | 배포용 빌드 확인 |
+
+### env 옮기기
+
+`web/.env.local`은 git에 올리지 않는다 (`.gitignore`). 새 기기에서는 파일을 직접 만든다.
+
+**로컬 개발(anvil)용은 아래 내용을 그대로 붙이면 된다.** 새로 띄운 anvil에 0번 키로 처음 배포하면 주소가 항상 같기 때문이다 (배포 주소 = 배포자 주소 + nonce로 정해진다). 비밀값도 없다.
+
+```bash
+cat > web/.env.local <<'ENV'
+NEXT_PUBLIC_CHAIN_ID=31337
+NEXT_PUBLIC_RPC_URL=
+NEXT_PUBLIC_WC_PROJECT_ID=
+NEXT_PUBLIC_PET_NFT_ADDRESS=0x5FbDB2315678afecb367f032d93F642f64180aa3
+NEXT_PUBLIC_ENERGY_ADDRESS=0xa16E02E87b7454126E5E10d957A927A7F5B5d2be
+NEXT_PUBLIC_DEPLOY_BLOCK=0
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+PAYMASTER_URL=
+ENV
+```
+
+- 배포 출력의 주소가 위와 다르면(배포 전에 anvil에서 다른 트랜잭션을 보낸 경우) 출력값으로 바꾼다.
+- 7강부터 생기는 실제 값(`NEXT_PUBLIC_RPC_URL`의 Alchemy 키, `NEXT_PUBLIC_WC_PROJECT_ID`, `PAYMASTER_URL`)은 git, 채팅, 문서에 쓰지 않는다. 비밀번호 관리자(1Password 등)에 넣어 두고 새 기기에서 붙인다. 배포 서버(Vercel)에는 Vercel 환경 변수 설정에 넣는다.
+
+### MetaMask (기기마다 한 번)
+
+1. 네트워크 추가: RPC `http://127.0.0.1:8545`, 체인 ID `31337`, 통화 기호 `ETH`
+2. 계정 가져오기: 위 배포 명령의 anvil 0번 테스트 키 (`0xac09…ff80`, 주소 `0xf39F…2266`). 공개된 테스트 키라 실제 자산을 넣으면 안 된다.
+3. anvil을 재시작했으면 MetaMask 설정 → 고급 → "활동 탭 데이터 지우기" (nonce 오류 방지)
 
 VSCode 확장: Solidity (Nomic Foundation), Better Comments. 저장소를 열면 추천 알림이 뜬다 (`.vscode/extensions.json`).
 
 ## 아직 안 만든 문서
 
-- `docs/contract-frontend.md`: 컨트랙트 ↔ 프론트엔드 연결 설명. 프론트 코드가 생기는 2강부터 실제 구현 코드를 기준으로 작성한다.
+- `docs/contract-frontend.md`: 컨트랙트 ↔ 프론트엔드 연결 설명. **CLAUDE.md 작업 방식 2번에 따라 2강부터 써야 했는데 아직 안 썼다.** 4강 시작 전에 지금까지의 실제 코드(chain.ts, wagmi.ts, wagmiServer.ts, contracts.ts, generated.ts, EnergyBadge의 balanceOf 읽기, 쿠키 복원) 기준으로 먼저 작성한다.
