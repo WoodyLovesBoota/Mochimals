@@ -149,8 +149,16 @@ Provider 순서 (`providers.tsx` 32~36줄): `WagmiProvider` → `QueryClientProv
 | | 46 | 주인 여부 `isAddressEqual(address, pet.owner)` |
 | | 103~107 | 표정: hungry(`isHungry`) → sleepy(활동력 0, 주인일 때만) → idle |
 
+| [useHungerTimer.ts](../web/src/hooks/useHungerTimer.ts) | 31~39 | `lastFedAt + 24시간 + 1초`에 `refetch` 1회. 블록마다 읽는 watch 대신 (SPEC 8장) |
+| [time.ts](../web/src/lib/time.ts) | 16 | `+ 1`: 컨트랙트 `isHungry`가 `>` 비교라서. 판정은 항상 컨트랙트 `pet.hungry`, 여기는 남은 시간 글자만 |
+| [PetActions.tsx](../web/src/components/PetActions.tsx) | 26, 40 | 지갑 `chainId`가 `chain.id`와 다르면 행동 버튼 대신 `useSwitchChain` 전환 버튼 |
+| | 30~31 | `usePetAction`의 `phase` + `variables.fn` → 누른 버튼만 "확인 중 / 지갑에서 확인 / 처리 중" |
+| | 34~36 | 잔액(`pet.energy`, bigint)으로 버튼 활성: 밥 ≥1, 훈련 ≥3, 0이면 충전 버튼 |
+| | 52 | `toErrorMessage(action.error)`. 지갑 거절은 null이라 문구 없음 |
+| | 102 | 확정 대기 중 `blockExplorers.default.url/tx/<hash>` 링크 (anvil은 탐색기가 없어 안 보임) |
+
 ## 10. 아직 없는 것 (만들면 여기에 추가)
 
-- 4강: XP 바·활동력 칸·배고픔 타이머, 버튼 상태, 연출
+- 4강: 연출 (영수증 이벤트 `Fed`/`Trained`/`LevelUp` → Motion)
 - 5강: `useMyPets`(`Transfer` 로그 + `ownerOf`), 입양 후 `Adopted` 이벤트에서 petId, 랭킹 서버 읽기
 - 6강: 메타데이터 API (`tokenURI` → `/api/pet/[id]`)

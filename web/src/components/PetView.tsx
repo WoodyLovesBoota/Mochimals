@@ -1,6 +1,6 @@
 // * 내 펫 화면 본문 (4강). usePet으로 읽고, PetSprite로 그린다.
 //   이번 교시: 펫 카드(그림, 이름, 레벨, 칩), 로딩/에러, 주인 여부.
-//   5교시: 수치(PetStats). 다음 교시: 행동 버튼 → 연출.
+//   5교시: 수치(PetStats). 6교시: 행동 버튼(PetActions). 다음 교시: 연출.
 "use client";
 
 import { useMemo } from "react";
@@ -17,6 +17,7 @@ import {
   type Emotion,
   type Stage,
 } from "@/lib/look";
+import { PetActions } from "./PetActions";
 import { PetSprite } from "./PetSprite";
 import { PetStats } from "./PetStats";
 import styles from "./PetView.module.scss";
@@ -52,8 +53,12 @@ export function PetView({ petId }: Props) {
       <PetCard petId={petId} pet={pet} isOwner={isOwner} />
       {/* refetch는 Promise를 돌려주지만 타이머는 결과를 기다리지 않는다. () => void로 감싸서 넘긴다 */}
       <PetStats pet={pet} isOwner={isOwner} onHungry={() => void refetch()} />
-      {/* SPEC 12장: 주인이 아니면 버튼 없이 읽기 전용 */}
-      {!isOwner && <p className={styles.readonly}>다른 집사의 펫이에요. 구경만 할 수 있어요</p>}
+      {/* SPEC 12장: 주인이면 행동 버튼, 아니면 버튼 없이 읽기 전용 */}
+      {isOwner ? (
+        <PetActions petId={id} pet={pet} />
+      ) : (
+        <p className={styles.readonly}>다른 집사의 펫이에요. 구경만 할 수 있어요</p>
+      )}
     </main>
   );
 }
