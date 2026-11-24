@@ -3,22 +3,19 @@
 > 다음 세션을 시작할 때 Claude는 이 파일부터 읽고 "다음 할 일"에서 이어간다.
 > 한 강이 끝날 때마다 이 파일을 갱신하고 같이 커밋한다.
 
-마지막 갱신: 2026-11-22
+마지막 갱신: 2026-11-24
 
 ## 현재 위치
 
-**1강 (컨트랙트) 진행 중.** Energy.sol 수업과 Energy 단독 테스트까지 끝났다. 다음은 PetNFT.sol이다.
+**1강 (컨트랙트) 진행 중.** PetNFT.sol 작성과 수업(①~⑤)까지 끝났다. 다음은 PetNFT 테스트다.
 
 ## 다음 할 일
 
-1. **1강-3: PetNFT.sol 수업**
-   - `contracts/src/PetNFT.sol`을 지시서([SPEC.md](SPEC.md) 4-2) 코드 그대로, 아주 자세한 주석을 달아 작성한다.
-   - `forge build`로 컴파일을 확인한다. 에러가 나면 외부 인터페이스(함수, 이벤트, 에러 이름과 인자)는 유지한 채 고친다.
-   - 한 번에 다 설명하지 말고 나눠서 수업한다. 예: ① 상수, struct, 상태 변수, 이벤트, 에러 ② adopt와 DNA ③ feed, train, refill과 `_spend`, `_gainXp` ④ levelOf, stageOf, isHungry ⑤ ERC-4906과 tokenURI
-   - 각 부분마다 실제 줄 번호를 짚고 확인 질문을 1~2개 낸다.
-2. **1강-4: PetNFT 테스트** (`contracts/test/PetNFT.t.sol`, SPEC 4-3의 항목 전부). `vm.warp`, `vm.expectEmit`, 이벤트 순서 검증을 새로 가르친다.
-3. **1강-5: 배포 스크립트** (`contracts/script/Deploy.s.sol`, SPEC 4-4)와 anvil 로컬 배포 실습.
-4. 그다음 2강(Next.js, wagmi)부터 [SPEC.md](SPEC.md) 13장 순서대로 진행한다.
+1. **1강-4: PetNFT 테스트** (`contracts/test/PetNFT.t.sol`, SPEC 4-3의 항목 전부). `vm.warp`, `vm.expectEmit`, 이벤트 순서 검증을 새로 가르친다.
+   - 수업에서 나온 함정을 테스트로 꼭 넣는다: 레벨 경계값(xp 1649/1650), 배고픔 경계(86400초/86401초), feed 후 `lastFedAt`과 `Fed` 이벤트 xp 값(storage→memory 버그를 잡는 테스트).
+   - `forge build`의 lint 경고 14개(block-timestamp, weak-prng, unsafe-typecast, unsafe-oz-erc721-mint, reentrancy-events 등)는 지시서 설계 그대로라 생기는 것이다. 아직 끄지 않았다.
+2. **1강-5: 배포 스크립트** (`contracts/script/Deploy.s.sol`, SPEC 4-4)와 anvil 로컬 배포 실습.
+3. 그다음 2강(Next.js, wagmi)부터 [SPEC.md](SPEC.md) 13장 순서대로 진행한다.
 
 ## 끝낸 것
 
@@ -29,6 +26,7 @@
 | - | `forge fmt` 포매터 설정, VSCode 저장 시 자동 정리 | `e235e40` |
 | - | 주석 색, Better Comments 태그 (`! ? * TODO`) | `8a2f82e` |
 | 1-2 | `test/Energy.t.sol` 테스트 7개 (전부 통과) | `ebc8051` |
+| 1-3 | `src/PetNFT.sol` (지시서 코드 그대로, 주석 포함, 컴파일 에러 없음) | `3592cef` |
 
 ## 수강생 기록 (수업 수준을 맞추기 위한 메모)
 
@@ -42,7 +40,21 @@
   - Q. `&&`를 `||`로 바꾸면? → **오답.** `if (조건) revert`의 조건을 "통과 조건"으로 거꾸로 읽었다. 실제로는 mint, burn, transfer가 전부 막힌다. 테스트로 직접 확인시켰다 (5개 FAIL).
   - Q. FAIL 원인 → 결론은 맞았지만 터진 줄을 잘못 짚었다 (burn이 아니라 첫 줄 mint). 에러 이름과 가스로 위치를 읽는 법을 가르쳤다.
   - Q. `vm.prank` 한 줄을 지우면? → 정답 (테스트 컨트랙트가 game이라 burn이 성공해서 expectRevert가 실패)
+  - (1강-3, 2026-11-24)
+  - Q. 없는 펫 `pets[999]`와 `isHungry(999)` → 절반. 0은 맞았지만 isHungry를 false로 답했다 (실제 true, lastFedAt=0 대입하면 바로 나옴).
+  - Q. `uint64 xp`→`uint256` → 정답(가스). 칸 1개→2개라는 이유는 보충해 줬다.
+  - Q. 86400초/86401초 isHungry → 정답. 단, 대입한 식은 안 썼다.
+  - Q. adopt의 검사·상태변경 순서를 뒤집으면 → 정답(항상 revert). 식은 안 썼다.
+  - Q. DNA에서 petId를 빼면 다른 지갑끼리 겹치나 → **오답.** 같은 블록이면 겹친다고 답했다. `cast`로 해시를 직접 계산해 보여줬다.
+  - Q. 지갑당 3마리 + petId 제거 + 같은 블록 → **오답.** "나머지는 실패"라고 답했다 (실제: 전부 성공, DNA 3개 동일). 마지막 표 채우기 문제는 수강생이 건너뛰었다.
+  - Q. `Pet storage`→`memory` → 절반. lastFedAt, isHungry는 맞았고 xp도 안 바뀐다고 답했다 (실제: _gainXp가 storage에 직접 써서 xp는 10, Fed 이벤트는 0). 임시 테스트로 직접 보여줬다.
+  - Q. 활동력 2로 train → 원인(burn)은 맞음. 줄 번호, 에러 이름(ERC20InsufficientBalance), revert 시 전체 되돌림은 빠졌다.
+  - Q. levelOf xp 1649/1650 → 건너뛰었다 (답: 11/12, stage 2/3).
+  - Q. stageOf if 순서 뒤집기, lv=5 → **오답.** 0이라고 답했다 (실제 3). return 값이 조건과 같이 움직인다는 걸 놓쳤다.
+  - Q. MetadataUpdate 삭제 → 절반. 마켓 이미지가 안 바뀐다는 건 맞았고 "레벨업이 안 된다"는 틀렸다.
+  - Q. refreshAllMetadata admin 검사 삭제 → 절반. 못 훔친다는 건 맞았고 "이상한 이미지로 바뀐다"는 틀렸다 (이벤트는 새로고침 요청일 뿐).
 - 앞으로 주의할 점: 조건문을 읽을 때 **경우별 표를 그려 값을 대입하는 연습**을 계속 시킨다.
+  수강생은 계산 문제를 건너뛰고 감으로 답하는 경향이 있다. 1강-4에서는 표를 수강생이 직접 채우게 하거나, 테스트를 먼저 예측시키고 실행해서 맞춰보게 한다.
 
 ## 개발 환경 (기기를 바꿨을 때)
 
@@ -63,7 +75,7 @@ foundryup
 # 3. 확인
 cd contracts
 forge build
-forge test        # 현재 7 passed
+forge test        # 현재 7 passed (PetNFT 테스트는 1강-4에서 추가)
 ```
 
 VSCode 확장: Solidity (Nomic Foundation), Better Comments. 저장소를 열면 추천 알림이 뜬다 (`.vscode/extensions.json`).
