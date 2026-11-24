@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "ES2017",
+    "target": "ES2020", // bigint 리터럴(10n)을 쓰려면 ES2020 이상. uint256 값이 bigint로 오므로 필요하다. (실제 빌드는 Next.js가 따로 변환한다)
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
