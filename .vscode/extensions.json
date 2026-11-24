@@ -2,6 +2,7 @@
   // 이 저장소를 열면 VSCode가 설치를 권해주는 확장 목록
   "recommendations": [
     "NomicFoundation.hardhat-solidity", // Solidity 문법 색칠, 에러 밑줄, forge fmt 연동
-    "aaron-bond.better-comments" // 주석 앞 기호(! ? * TODO)별 색칠
+    "aaron-bond.better-comments", // 주석 앞 기호(! ? * TODO)별 색칠
+    "bradlc.vscode-tailwindcss" // Tailwind 클래스 자동완성, 마우스를 올리면 실제 CSS 미리보기
   ]
 }

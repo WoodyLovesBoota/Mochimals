@@ -1,17 +1,30 @@
+/* 앱 전체에 적용되는 CSS. layout.tsx가 import한다. */
+
+/* * Tailwind v4는 이 한 줄이 설정의 전부다. (v3의 tailwind.config.js가 없다)
+     Tailwind가 src 아래 파일들을 훑어서, 실제로 쓰인 클래스(flex, p-4 ...)의 CSS만 만들어 여기에 넣는다. */
 @import "tailwindcss";
 
+/* * 일반 CSS 변수. 밝은 모드의 기본 배경색과 글자색이다. */
 :root {
   --background: #ffffff;
   --foreground: #171717;
 }
 
+/* * @theme: Tailwind에 "디자인 토큰"을 등록하는 v4 문법이다.
+     `--color-이름`을 등록하면 `bg-이름`, `text-이름`, `border-이름` 같은 클래스가 생긴다.
+       --color-background → bg-background, text-background ...
+       --font-sans        → font-sans
+     `inline`은 클래스가 var(--background)를 직접 참조하게 한다.
+     그래서 아래 다크 모드에서 :root 변수만 바꿔도 bg-background 색이 같이 바뀐다. */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  /* layout.tsx의 next/font가 만든 폰트 변수를 연결한다 */
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
+/* * 운영체제가 다크 모드면 변수 값만 바꾼다. 클래스는 그대로 두고 색만 바뀐다. */
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
@@ -19,6 +32,8 @@
   }
 }
 
+/* ? font-family가 Arial로 되어 있어서 위에서 연결한 Geist 폰트가 body에 적용되지 않는다.
+     T1 수업에서 font-sans 클래스로 바꿔 보면서 확인한다. */
 body {
   background: var(--background);
   color: var(--foreground);
