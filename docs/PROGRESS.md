@@ -17,6 +17,8 @@
    - 지시서와 다르게 구현한 것 (버전 차이 때문, 동작은 같음): `cacheComponents` 끔(SPEC의 `revalidate`와 layout 쿠키 읽기 때문), wagmi 설정을 `chain.ts`/`wagmi.ts`(클라이언트, RainbowKit)/`wagmiServer.ts`(서버, 쿠키 복원용)로 나눔(`getDefaultConfig`가 클라이언트 전용), `coinbaseWallet` 대신 RainbowKit `base` 지갑(deprecated 대체), 체인을 `NEXT_PUBLIC_CHAIN_ID`로 선택(31337 anvil / 84532 / 8453), `serverExternalPackages: ["@coinbase/cdp-sdk"]`(x402 선택 의존성 빌드 에러).
    - **스타일: Tailwind를 쓰지 않는다** (수강생 결정, 2026-11-24, "유지보수가 너무 힘들다"). SPEC 1장의 Tailwind 대신 CSS Modules + SCSS. 규칙: 디자인 토큰은 `src/app/globals.scss`의 `:root` CSS 변수(`--color-ink` 등, SPEC 12장 UI 톤), 화면 폭 기준은 `src/styles/_breakpoints.scss` mixin(`@include bp.sm`), 컴포넌트 스타일은 컴포넌트 옆 `X.module.scss`. 컴포넌트에 색 코드를 직접 쓰지 않는다.
    - `web/.env.example`은 수강생 결정으로 지웠다 (SPEC 7-1은 커밋하라고 함). env 목록은 아래 "개발 환경"에 있다.
+   - **4강 진행 중 (2026-11-24)**: `docs/contract-frontend.md` 작성, `hooks/usePet.ts`, `hooks/usePetAction.ts` 끝. 다음은 `lib/errors.ts` → 내 펫 화면 → 버튼 상태 → 연출.
+   - **TODO 4강 끝나고 (수강생 결정)**: 확정 대기 중 새로고침 대응. ① RainbowKit `showRecentTransactions` + `useAddRecentTransaction` (헤더 스피너, 계정 모달 최근 트랜잭션, localStorage 유지. 표시만 해줌) ② 서명 직후 `{ hash, fn, petId }`를 sessionStorage에 저장하고 `usePetAction`이 페이지 로드 때 이어서 기다리기 (버튼 잠금, 두 번 누르기 방지, 레벨업 연출 복원). 배경: 새로고침해도 트랜잭션은 취소되지 않지만 `phase`/`hash`는 사라져서, 충전을 두 번 누르면 두 번째가 `StillHasEnergy`로 revert해 가스비만 날린다.
 2. 이후 13장 순서: 5강 홈/입양·랭킹 → 6강 메타데이터 API → 7강 Base Sepolia 배포 → 8강(선택) 가스비 대납.
 
 ## 끝낸 것
