@@ -44,4 +44,11 @@ export interface ArtSet {
   /** 같은 세트 안에서 그림이 바뀌면 올린다 (마켓 새로고침 판단용) */
   version: number;
   render(look: PetLook, options?: RenderOptions): ArtOutput;
+  /**
+   * 펫 카드 무대의 배경색 (SPEC 12장 "펫 카드 무대 배경은 종별 bg 색").
+   * ? 왜 아트 세트에 둘까? 배경색은 그림과 어울려야 해서 아트마다 다를 수 있다.
+   *   화면이 flat-v1의 팔레트를 직접 import하면, 아트 세트를 바꿀 때 화면 코드도 고쳐야 한다 (SPEC 13장 완료 기준 위반).
+   * (SPEC 6장 인터페이스에 선택 메서드를 더한 것이다. 없으면 화면이 기본 회색을 쓴다.)
+   */
+  background?(look: PetLook): string;
 }

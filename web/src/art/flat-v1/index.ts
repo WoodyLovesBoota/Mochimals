@@ -3,7 +3,7 @@
 import type { PetLook } from "@/lib/look";
 import type { ArtOutput, ArtSet, RenderOptions } from "../types";
 import { layers } from "./layers";
-import { STAGE_SCALE } from "./palette";
+import { SPECIES, STAGE_SCALE } from "./palette";
 
 export const flatV1: ArtSet = {
   id: "flat-v1",
@@ -26,6 +26,11 @@ export const flatV1: ArtSet = {
       // 빈 레이어(예: 귀 없는 나무늘보의 ears)는 뺀다
       layers: ls.filter((l) => l.svg !== "").map((l) => ({ name: l.name, svg: wrap(l.svg) })),
     };
+  },
+  // * 종별 무대 배경색 (generate.py SPECIES[*].bg). 알(stage 0)일 때도 종 색을 쓰지만,
+  //   연한 파스텔이라 종을 알아맞히기 어렵다. 알 무늬 색과 함께 "힌트" 정도로만 보인다.
+  background(look: PetLook): string {
+    return SPECIES[look.species].bg;
   },
 };
 

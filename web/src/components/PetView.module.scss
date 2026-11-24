@@ -1,0 +1,92 @@
+@use "../styles/breakpoints" as bp;
+
+// 화면 본문: 가운데 정렬, 휴대폰에서는 꽉 차게, 넓은 화면에서는 카드 폭을 제한한다
+.main {
+  flex: 1; // layout.module.scss의 .shell(세로 flex)에서 남은 높이를 채운다
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4);
+
+  @include bp.sm {
+    padding: var(--space-8) var(--space-6);
+  }
+}
+
+// 펫 카드 (SPEC 12장 UI 톤: 흰 배경, 둥근 카드)
+.card {
+  width: 100%;
+  max-width: 26rem; // 416px. 넓은 화면에서도 휴대폰 카드 모양을 유지한다
+  overflow: hidden; // 무대 배경이 카드의 둥근 모서리 밖으로 나가지 않게
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+}
+
+// 무대: 펫 그림 뒤의 종별 배경
+.stage {
+  // * --stage-bg는 PetView.tsx가 style로 넣는다 (아트 세트의 background()).
+  //   var(이름, 대체값): 변수가 없으면 대체값을 쓴다. 아트 세트에 background가 없을 때를 대비한다.
+  background: var(--stage-bg, var(--color-stage-fallback));
+  display: flex;
+  justify-content: center;
+  padding: var(--space-4) 0;
+}
+
+// * PetSprite의 width/height(280)는 "최대 크기"로만 쓴다. 좁은 휴대폰에서는 카드 폭에 맞게 줄어든다.
+.sprite {
+  max-width: 100%;
+  height: auto;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-6) var(--space-6);
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.name {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+}
+
+// 레벨 배지: 어두운 알약
+.level {
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--color-ink);
+  color: var(--color-on-ink);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+// 단계·종·성격·색 칩
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  list-style: none;
+
+  li {
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-pill);
+    background: var(--color-line);
+    color: var(--color-muted);
+    font-size: var(--text-sm);
+  }
+}
+
+.readonly {
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+}

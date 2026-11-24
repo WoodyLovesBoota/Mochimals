@@ -16,6 +16,9 @@
   --color-ink: #22252f; // 본문, 주 버튼 배경
   --color-muted: #6b7080; // 보조 설명
   --color-line: rgb(34 37 47 / 10%); // 구분선 (ink를 10% 불투명도로)
+  --color-surface: #fff; // 카드 배경 (SPEC: 흰 배경)
+  --color-on-ink: #fff; // ink 배경 위의 글자 (레벨 배지, 주 버튼)
+  --color-stage-fallback: #f1f2f5; // 펫 무대 기본 배경 (아트 세트가 background()를 안 줄 때)
 
   // 게임 수치
   --color-energy: #ffc93c; // 활동력 칸
