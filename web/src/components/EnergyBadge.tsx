@@ -21,7 +21,7 @@ export function EnergyBadge() {
     //   다만 그대로 두면 인자 없이 호출하려다 실패하므로, 아래 enabled: false로 "실제 호출"을 막는다.
     args: address ? [address] : undefined,
     // * query: TanStack Query 옵션. enabled가 false면 요청을 보내지 않는다.
-    //   TODO 4강에서 행동(feed/train) 후 잔액을 다시 읽도록 invalidate를 붙인다.
+    //   행동(feed/train/refill) 후에는 usePetAction의 onSuccess가 캐시 전체를 invalidate해서 이 값도 다시 읽힌다.
     query: { enabled: !!address },
   });
 

@@ -97,10 +97,35 @@ Provider 순서 (`providers.tsx` 32~36줄): `WagmiProvider` → `QueryClientProv
 | 22, 25 | 주소가 없으면 `args: undefined` + `enabled: false`로 요청 자체를 안 보낸다 |
 | 36 | 반환값은 `bigint`. Energy의 decimals가 0이라 `toString()`만 한다 |
 
-남은 일: 24줄 TODO. 밥/훈련/충전 후 이 값이 안 바뀐다. 4강 행동 훅에서 캐시 무효화로 해결한다.
+행동 후 갱신: 아래 `usePetAction`의 `onSuccess`가 캐시 전체를 무효화하므로 이 값도 다시 읽힌다.
 
-## 7. 아직 없는 것 (만들면 여기에 추가)
+[web/src/hooks/usePet.ts](../web/src/hooks/usePet.ts) — 펫 화면 읽기 (4강).
 
-- 4강: `usePet`(multicall 읽기), `usePetAction`(시뮬레이션 → 서명 → 확정 → 이벤트 해석 → 무효화), `lib/errors.ts`
+| 줄 | 내용 |
+| --- | --- |
+| 11~21 | `PetState` 결과 타입. uint64/uint256은 `bigint`, uint32/uint8은 `number` (viem은 48비트 이하만 number) |
+| 32~42 | `useReadContracts`의 contracts 6개 = multicall 1번. **같은 블록 기준**이라 XP와 레벨이 어긋나지 않는다 |
+| 41 | 미연결이면 `zeroAddress`. 배열 길이·순서를 고정해야 select에서 자리로 꺼낼 수 있다 |
+| 46 | `allowFailure: false`. 없는 펫이면 `ownerOf`가 revert해서 결과 전체가 error |
+| 50 | `staleTime: 10_000`. 10초 동안 다시 요청하지 않는다 (행동 후에는 무효화로 강제 갱신) |
+| 53~56 | `select`로 튜플 → `PetState` 객체. `pets()`는 struct를 `[xp, lastFedAt, bornAt, dna]` 튜플로 준다 |
+
+## 7. 쓰기: `usePetAction`
+
+[web/src/hooks/usePetAction.ts](../web/src/hooks/usePetAction.ts) — 입양·밥·훈련·충전이 전부 이 훅 하나를 지난다.
+
+| 줄 | 단계 | 내용 |
+| --- | --- | --- |
+| 14 | | `ActionPhase` = `idle / simulating / signing / confirming`. 버튼 문구용 (`isPending`만으로는 "지갑에서 확인"과 "처리 중"을 못 나눈다) |
+| 37~53 | ① 시뮬레이션 | `simulateContract`. revert하면 여기서 커스텀 에러로 throw되고 **지갑 창이 뜨지 않는다** |
+| 43~53 | ② 서명 | `writeContractAsync(request)` → 해시. 거절하면 `UserRejectedRequestError`. 갈래마다 ①②를 같이 하는 건 request 타입 유니온 문제 때문 |
+| 58~62 | ③ 확정 | `waitForTransactionReceipt`. `status === "reverted"`는 viem이 throw하지 않으므로 직접 `TX_REVERTED` |
+| 68~71 | ④ 이벤트 | `parseEventLogs`. PetNFT 주소의 로그만 (`isAddressEqual`). Energy의 Transfer 로그가 섞여 있다 |
+| 78 | ⑤ 무효화 | `invalidateQueries()` 전체. `usePet`, `EnergyBadge`가 다시 읽는다 |
+| 83 | | `{ ...mutation, phase, hash }`. `mutation.variables.fn`으로 어떤 버튼이 눌렸는지 안다 |
+
+## 8. 아직 없는 것 (만들면 여기에 추가)
+
+- 4강: `lib/errors.ts`(에러 이름 → 문구), 내 펫 화면, 버튼 상태, 연출
 - 5강: `useMyPets`(`Transfer` 로그 + `ownerOf`), 입양 후 `Adopted` 이벤트에서 petId, 랭킹 서버 읽기
 - 6강: 메타데이터 API (`tokenURI` → `/api/pet/[id]`)
