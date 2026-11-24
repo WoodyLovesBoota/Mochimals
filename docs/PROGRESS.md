@@ -7,15 +7,12 @@
 
 ## 현재 위치
 
-**1강 (컨트랙트) 진행 중.** PetNFT.sol 작성과 수업(①~⑤)까지 끝났다. 다음은 PetNFT 테스트다.
+**1강 (컨트랙트) 진행 중.** PetNFT.sol, PetNFT 테스트(26개), 배포 스크립트까지 만들었다. 테스트 수업은 수강생 요청으로 건너뛰었다. 지금은 1강-5 anvil 로컬 배포 실습 중이다.
 
 ## 다음 할 일
 
-1. **1강-4: PetNFT 테스트** (`contracts/test/PetNFT.t.sol`, SPEC 4-3의 항목 전부). `vm.warp`, `vm.expectEmit`, 이벤트 순서 검증을 새로 가르친다.
-   - 수업에서 나온 함정을 테스트로 꼭 넣는다: 레벨 경계값(xp 1649/1650), 배고픔 경계(86400초/86401초), feed 후 `lastFedAt`과 `Fed` 이벤트 xp 값(storage→memory 버그를 잡는 테스트).
-   - `forge build`의 lint 경고 14개(block-timestamp, weak-prng, unsafe-typecast, unsafe-oz-erc721-mint, reentrancy-events 등)는 지시서 설계 그대로라 생기는 것이다. 아직 끄지 않았다.
-2. **1강-5: 배포 스크립트** (`contracts/script/Deploy.s.sol`, SPEC 4-4)와 anvil 로컬 배포 실습.
-3. 그다음 2강(Next.js, wagmi)부터 [SPEC.md](SPEC.md) 13장 순서대로 진행한다.
+1. **1강-5: anvil 로컬 배포 실습.** `contracts/script/Deploy.s.sol`은 만들었다(시뮬레이션 확인). 수강생이 anvil을 띄우고 `--broadcast`로 배포한 뒤 `cast`로 입양·조회까지 해본다.
+2. 그다음 2강(Next.js, wagmi)부터 [SPEC.md](SPEC.md) 13장 순서대로 진행한다.
 
 ## 끝낸 것
 
@@ -27,6 +24,8 @@
 | - | 주석 색, Better Comments 태그 (`! ? * TODO`) | `8a2f82e` |
 | 1-2 | `test/Energy.t.sol` 테스트 7개 (전부 통과) | `ebc8051` |
 | 1-3 | `src/PetNFT.sol` (지시서 코드 그대로, 주석 포함, 컴파일 에러 없음) | `3592cef` |
+| 1-4 | `test/PetNFT.t.sol` 테스트 26개 (SPEC 4-3 전부 + 경계값, memory 버그 검출). 수업은 건너뜀 | `b85759a` |
+| 1-5 | `script/Deploy.s.sol` (APP_URL env, env용 세 값 출력) | 이번 커밋 |
 
 ## 수강생 기록 (수업 수준을 맞추기 위한 메모)
 
@@ -62,7 +61,7 @@ foundryup
 # 3. 확인
 cd contracts
 forge build
-forge test        # 현재 7 passed (PetNFT 테스트는 1강-4에서 추가)
+forge test        # 현재 33 passed
 ```
 
 VSCode 확장: Solidity (Nomic Foundation), Better Comments. 저장소를 열면 추천 알림이 뜬다 (`.vscode/extensions.json`).
