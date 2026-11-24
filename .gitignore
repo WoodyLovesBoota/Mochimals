@@ -21,3 +21,6 @@ next-env.d.ts
 __pycache__/
 # generate.py 재실행 시 생기는 출력 폴더
 svg/v3/
+
+# ---- 브라우저 자동화(Playwright) 임시 파일 ----
+.playwright-mcp/

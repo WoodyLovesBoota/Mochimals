@@ -7,15 +7,17 @@
 
 ## 현재 위치
 
-**2강 (기반) 진행 중.** Next.js 16 앱, wagmi/RainbowKit 설정, 쿠키로 연결 상태 복원, ABI 생성(@wagmi/cli), 헤더 활동력 표시까지 끝났다. 수강생이 MetaMask로 anvil에 연결하는 것까지 확인했다. 스타일은 Tailwind를 걷어내고 CSS Modules + SCSS로 바꿨다. 다음은 3강이다.
+**3강 (해석과 아트) 끝.** 2강: Next.js 16 앱, wagmi/RainbowKit 설정, 쿠키로 연결 상태 복원, ABI 생성(@wagmi/cli), 헤더 활동력 표시까지 끝났다. 수강생이 MetaMask로 anvil에 연결하는 것까지 확인했다. 스타일은 Tailwind를 걷어내고 CSS Modules + SCSS로 바꿨다. 3강: `lib/look.ts`(DNA 해석, 레벨) + 테스트, `art/flat-v1`(generate.py 포팅, 기준 SVG 102개 문자열 비교 테스트), `PetSprite`, 개발용 `/dev/art` 페이지. 다음은 4강(내 펫 화면)이다.
 
 ## 다음 할 일
 
-1. **3강: 해석과 아트** ([SPEC.md](SPEC.md) 13장 3번). `look.ts`(단위 테스트 포함), `flat-v1` 포팅, `PetSprite`.
+1. **4강: 내 펫 화면** ([SPEC.md](SPEC.md) 13장 4번, 12장 화면/버튼 상태/연출). 읽기 훅(usePet), 행동 훅(usePetAction: 시뮬레이션 → 서명 → 확정 → 다시 읽기), 버튼 상태, `lib/errors.ts` 에러 문구, Motion 연출. EnergyBadge의 TODO(행동 후 잔액 갱신)도 여기서 처리한다.
+   - 3강에서 정한 것: `ArtSet.render(look, { idPrefix })` 선택 인자 추가(SPEC 6장 인터페이스 + clipPath id 충돌 방지), vitest 사용(`pnpm test`), tsconfig target ES2020(bigint 리터럴). `/dev/art`는 7강 배포 전에 지우거나 막는다.
+   - 수강생은 손계산 확인 질문을 원하지 않는다. 개념·설계 질문만 내고, 답을 바로 원하면 알려준다.
    - 지시서와 다르게 구현한 것 (버전 차이 때문, 동작은 같음): `cacheComponents` 끔(SPEC의 `revalidate`와 layout 쿠키 읽기 때문), wagmi 설정을 `chain.ts`/`wagmi.ts`(클라이언트, RainbowKit)/`wagmiServer.ts`(서버, 쿠키 복원용)로 나눔(`getDefaultConfig`가 클라이언트 전용), `coinbaseWallet` 대신 RainbowKit `base` 지갑(deprecated 대체), 체인을 `NEXT_PUBLIC_CHAIN_ID`로 선택(31337 anvil / 84532 / 8453), `serverExternalPackages: ["@coinbase/cdp-sdk"]`(x402 선택 의존성 빌드 에러).
    - **스타일: Tailwind를 쓰지 않는다** (수강생 결정, 2026-11-24, "유지보수가 너무 힘들다"). SPEC 1장의 Tailwind 대신 CSS Modules + SCSS. 규칙: 디자인 토큰은 `src/app/globals.scss`의 `:root` CSS 변수(`--color-ink` 등, SPEC 12장 UI 톤), 화면 폭 기준은 `src/styles/_breakpoints.scss` mixin(`@include bp.sm`), 컴포넌트 스타일은 컴포넌트 옆 `X.module.scss`. 컴포넌트에 색 코드를 직접 쓰지 않는다.
    - `web/.env.example`은 수강생 결정으로 지웠다 (SPEC 7-1은 커밋하라고 함). env 목록은 아래 "개발 환경"에 있다.
-2. 이후 13장 순서: 4강 내 펫 화면 → 5강 홈/입양·랭킹 → 6강 메타데이터 API → 7강 Base Sepolia 배포 → 8강(선택) 가스비 대납.
+2. 이후 13장 순서: 5강 홈/입양·랭킹 → 6강 메타데이터 API → 7강 Base Sepolia 배포 → 8강(선택) 가스비 대납.
 
 ## 끝낸 것
 
@@ -32,6 +34,10 @@
 | 2 | Next.js 16 앱 생성 (pnpm) | `f618f53` |
 | 2 | wagmi, RainbowKit, Provider, 헤더 ConnectButton, 쿠키 복원 | `fdfc471` |
 | 2 | `@wagmi/cli` ABI 생성, `lib/contracts.ts`, 헤더 활동력 | `8979762` |
+| 2 | Tailwind 제거, CSS Modules + SCSS 전환 | `69b730e` |
+| 3 | `lib/look.ts` + 테스트 36개 | `4914d00` |
+| 3 | `art/flat-v1` 포팅 + 기준 SVG 비교 테스트 102개 | `8ea4d00` |
+| 3 | `PetSprite`, `/dev/art` | 이번 커밋 |
 
 ## 수강생 기록 (수업 수준을 맞추기 위한 메모)
 

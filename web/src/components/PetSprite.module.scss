@@ -1,0 +1,6 @@
+.sprite {
+  display: block;
+  // 부모가 좁으면 줄어들고, 넓어도 size보다 커지지 않는다. 비율은 정사각형 유지
+  max-width: 100%;
+  height: auto;
+}

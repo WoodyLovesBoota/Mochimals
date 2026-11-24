@@ -1,0 +1,21 @@
+.main {
+  padding: var(--space-6) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  overflow-x: auto; // 좁은 화면에서는 표를 가로로 스크롤
+}
+
+// 이름 칸 + 그림 칸들의 표. 열 개수는 page.tsx에서 style로 정한다
+.grid {
+  display: grid;
+  align-items: center;
+  justify-items: center;
+  gap: var(--space-2);
+  width: max-content;
+}
+
+.head {
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+}
