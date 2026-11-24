@@ -10,12 +10,14 @@ import { cookieToInitialState } from "wagmi";
 import { Header } from "@/components/Header";
 // ! 서버용 config. 클라이언트용 @/lib/wagmi(RainbowKit)는 서버 컴포넌트에서 import하면 빌드가 실패한다.
 import { serverConfig } from "@/lib/wagmiServer";
-// 전역 CSS (Tailwind 포함). 레이아웃에서 한 번만 import하면 모든 페이지에 적용된다.
-import "./globals.css";
+// 전역 스타일 (디자인 토큰, reset, body 기본값). 레이아웃에서 한 번만 import하면 모든 페이지에 적용된다.
+// 컴포넌트별 스타일은 각 컴포넌트 옆의 .module.scss에 둔다.
+import "./globals.scss";
+import styles from "./layout.module.scss";
 import { Providers } from "./providers";
 
 // * variable 옵션: 폰트를 CSS 변수(--font-geist-sans)로 만든다.
-//   globals.css의 @theme에서 이 변수를 --font-sans에 연결하므로 `font-sans` 클래스로 쓸 수 있다.
+//   globals.scss의 body가 font-family: var(--font-geist-sans)로 이 변수를 쓴다.
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -44,18 +46,18 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="ko"
-      // 템플릿 문자열로 클래스를 이어 붙인다.
-      //   geistSans.variable → "--font-geist-sans" 변수를 정의하는 클래스 (next/font가 만든 이름)
-      //   h-full             → height: 100%
-      //   antialiased        → 글자 테두리를 부드럽게 (-webkit-font-smoothing: antialiased)
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      // geistSans.variable → "--font-geist-sans" 변수를 정의하는 클래스 (next/font가 만든 이름)
+      // (높이, 글자 부드럽게 등 html 기본 스타일은 globals.scss에 있다)
+      className={`${geistSans.variable} ${geistMono.variable}`}
     >
-      {/* min-h-full → min-height: 100% / flex flex-col → 자식을 세로로 쌓는 flex 컨테이너 */}
-      <body className="min-h-full flex flex-col">
+      <body>
         {/* Providers는 클라이언트 컴포넌트지만, 그 안의 children(페이지)은 여전히 서버 컴포넌트일 수 있다 */}
         <Providers initialState={initialState}>
-          <Header />
-          {children}
+          {/* 세로 flex 껍데기. 헤더 아래 main이 남은 높이를 채운다 (layout.module.scss 주석 참고) */}
+          <div className={styles.shell}>
+            <Header />
+            {children}
+          </div>
         </Providers>
       </body>
     </html>

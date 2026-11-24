@@ -1,0 +1,100 @@
+// 앱 전체에 적용되는 전역 스타일. layout.tsx가 한 번만 import한다.
+// ! 여기에는 "태그 기본 스타일"과 "디자인 토큰"만 둔다. 컴포넌트 모양은 각 컴포넌트의 .module.scss에 둔다.
+
+// =====================================================================
+// 디자인 토큰 (SPEC 12장 "UI 톤")
+// =====================================================================
+// * CSS 변수(custom property)로 둔다. 모든 .module.scss에서 var(--color-ink)처럼 쓴다.
+// ? 왜 Sass 변수($ink)가 아니라 CSS 변수일까?
+//   - 브라우저 개발자 도구에서 값이 보이고 바로 바꿔 볼 수 있다.
+//   - 모듈마다 @use를 안 해도 어디서나 쓸 수 있다.
+//   - 나중에 JS(예: 펫 종별 무대 배경색)에서 style={{ "--stage-bg": ... }}로 바꿀 수 있다.
+//   (단, @media 조건에는 CSS 변수를 못 써서 화면 폭 기준만 styles/_breakpoints.scss의 Sass 변수로 둔다.)
+// ! 색이나 간격을 바꿀 때는 여기 한 곳만 고친다. 컴포넌트에 #22252F 같은 값을 직접 쓰지 않는다.
+:root {
+  // 글자색
+  --color-ink: #22252f; // 본문, 주 버튼 배경
+  --color-muted: #6b7080; // 보조 설명
+  --color-line: rgb(34 37 47 / 10%); // 구분선 (ink를 10% 불투명도로)
+
+  // 게임 수치
+  --color-energy: #ffc93c; // 활동력 칸
+  --color-energy-soft: rgb(255 201 60 / 25%); // 활동력 배지 배경 (energy 25%)
+  --color-xp: #3faf5e; // XP 바
+
+  // 밥 주기 버튼 (배경 / 글자)
+  --color-feed: #fff0e0;
+  --color-feed-ink: #b85c00;
+
+  // 간격 (4px 단위). 숫자 × 4px
+  --space-1: 0.25rem; // 4px
+  --space-2: 0.5rem; // 8px
+  --space-3: 0.75rem; // 12px
+  --space-4: 1rem; // 16px
+  --space-6: 1.5rem; // 24px
+  --space-8: 2rem; // 32px
+
+  // 모서리
+  --radius-card: 1.5rem; // 카드 (SPEC: 24~28px)
+  --radius-pill: 9999px; // 알약 모양 (배지, 칩)
+
+  // 글자 크기
+  --text-sm: 0.875rem; // 14px
+  --text-base: 1rem; // 16px
+  --text-lg: 1.125rem; // 18px
+  --text-2xl: 1.5rem; // 24px
+}
+
+// =====================================================================
+// 기본 초기화 (reset)
+// =====================================================================
+// * 브라우저마다 다른 기본 여백·크기 계산을 맞춘다.
+//   (Tailwind를 쓸 때는 Tailwind의 preflight가 이 일을 해 줬다. 걷어냈으니 직접 둔다.)
+
+// padding, border를 width에 포함시킨다. width: 100px이면 padding을 줘도 100px 그대로다.
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+// 제목, 문단 등의 기본 바깥 여백을 없앤다. 여백은 컴포넌트에서 직접 정한다.
+body,
+h1,
+h2,
+h3,
+p,
+ul,
+ol {
+  margin: 0;
+}
+
+// 이미지가 글자 줄 아래에 생기는 틈을 없앤다
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+// 버튼, 입력창이 body 글꼴을 물려받게 한다 (기본값은 시스템 글꼴)
+button,
+input {
+  font: inherit;
+}
+
+// =====================================================================
+// 태그 기본 스타일
+// =====================================================================
+
+html {
+  // 글자 테두리를 부드럽게 (macOS)
+  -webkit-font-smoothing: antialiased;
+}
+
+// 헤더 + 본문의 세로 배치는 body가 아니라 layout.module.scss의 .shell이 맡는다
+body {
+  background: #fff; // SPEC: 흰 배경 (다크 모드 없음)
+  color: var(--color-ink);
+  // layout.tsx의 next/font가 <html>에 --font-geist-sans 변수를 만든다
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}

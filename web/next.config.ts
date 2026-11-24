@@ -16,20 +16,6 @@ const nextConfig: NextConfig = {
   //   그런데 번들러(Turbopack)는 빌드할 때 그 import 경로를 미리 찾으려다 "Module not found"로 빌드를 멈춘다.
   //   번들에서 빼면 Node.js가 실제로 그 함수를 부를 때만 import를 시도한다. 우리는 x402를 쓰지 않으므로 문제가 없다.
   serverExternalPackages: ["@coinbase/cdp-sdk"],
-
-  // * Turbopack: Next.js의 번들러 (webpack 대체). `pnpm dev`가 기본으로 이걸 쓴다.
-  turbopack: {
-    rules: {
-      // * 모든 .css 파일을 Tailwind 로더에 먼저 통과시킨다.
-      //   그래서 globals.css의 `@import "tailwindcss"`가 실제 유틸리티 클래스 CSS로 바뀐다.
-      //   (Next.js 공식 문서는 postcss.config.mjs + @tailwindcss/postcss 방식을 안내한다.
-      //    이 프로젝트는 create-next-app이 만든 Turbopack 전용 로더 방식이라 postcss 설정 파일이 없다.)
-      "*.css": {
-        loaders: ["@tailwindcss/turbopack"],
-        as: "*.css",
-      },
-    },
-  },
 };
 
 export default nextConfig;

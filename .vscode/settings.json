@@ -27,12 +27,5 @@
     { "tag": "*", "color": "#FFC93C", "strikethrough": false, "underline": false, "backgroundColor": "transparent", "bold": false, "italic": false },
     { "tag": "todo", "color": "#FF9F43", "strikethrough": false, "underline": false, "backgroundColor": "transparent", "bold": true, "italic": false }
   ],
-  "better-comments.multilineComments": true,
-
-  // ---- Tailwind CSS ----
-  // VSCode 기본 CSS 검사기는 Tailwind 문법(@theme 등)을 몰라서 "Unknown at rule" 경고를 낸다.
-  // .css 파일을 Tailwind 확장의 언어 모드로 열게 해서 경고를 없애고 자동완성을 켠다.
-  "files.associations": {
-    "*.css": "tailwindcss"
-  }
+  "better-comments.multilineComments": true
 }

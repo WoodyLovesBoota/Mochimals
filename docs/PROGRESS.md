@@ -7,20 +7,15 @@
 
 ## 현재 위치
 
-**2강 (기반) 진행 중.** Next.js 16 앱, wagmi/RainbowKit 설정, 쿠키로 연결 상태 복원, ABI 생성(@wagmi/cli), 헤더 활동력 표시까지 끝났다. 수강생이 MetaMask로 anvil에 연결하는 것까지 확인했다. 다음은 T1(헤더로 배우는 Tailwind)이다.
+**2강 (기반) 진행 중.** Next.js 16 앱, wagmi/RainbowKit 설정, 쿠키로 연결 상태 복원, ABI 생성(@wagmi/cli), 헤더 활동력 표시까지 끝났다. 수강생이 MetaMask로 anvil에 연결하는 것까지 확인했다. 스타일은 Tailwind를 걷어내고 CSS Modules + SCSS로 바꿨다. 다음은 3강이다.
 
 ## 다음 할 일
 
-1. **2강 남은 것**: T1, T2(아래 Tailwind 항목). 그다음 3강.
+1. **3강: 해석과 아트** ([SPEC.md](SPEC.md) 13장 3번). `look.ts`(단위 테스트 포함), `flat-v1` 포팅, `PetSprite`.
    - 지시서와 다르게 구현한 것 (버전 차이 때문, 동작은 같음): `cacheComponents` 끔(SPEC의 `revalidate`와 layout 쿠키 읽기 때문), wagmi 설정을 `chain.ts`/`wagmi.ts`(클라이언트, RainbowKit)/`wagmiServer.ts`(서버, 쿠키 복원용)로 나눔(`getDefaultConfig`가 클라이언트 전용), `coinbaseWallet` 대신 RainbowKit `base` 지갑(deprecated 대체), 체인을 `NEXT_PUBLIC_CHAIN_ID`로 선택(31337 anvil / 84532 / 8453), `serverExternalPackages: ["@coinbase/cdp-sdk"]`(x402 선택 의존성 빌드 에러).
+   - **스타일: Tailwind를 쓰지 않는다** (수강생 결정, 2026-11-24, "유지보수가 너무 힘들다"). SPEC 1장의 Tailwind 대신 CSS Modules + SCSS. 규칙: 디자인 토큰은 `src/app/globals.scss`의 `:root` CSS 변수(`--color-ink` 등, SPEC 12장 UI 톤), 화면 폭 기준은 `src/styles/_breakpoints.scss` mixin(`@include bp.sm`), 컴포넌트 스타일은 컴포넌트 옆 `X.module.scss`. 컴포넌트에 색 코드를 직접 쓰지 않는다.
    - `web/.env.example`은 수강생 결정으로 지웠다 (SPEC 7-1은 커밋하라고 함). env 목록은 아래 "개발 환경"에 있다.
-2. **Tailwind 강의를 같이 한다** (수강생 요청으로 커리큘럼에 추가, 2026-11-24). 따로 떼지 않고 실제 화면 코드를 만들면서 가르친다.
-   - **T1 (2강 안, 헤더 만들 때)**: 설치된 Tailwind 버전 확인(v4면 `globals.css`의 `@import "tailwindcss"`, `@theme`, 설정 파일 없음), 유틸리티 클래스 읽는 법, spacing/색/글자 스케일, flex로 헤더 레이아웃.
-   - **T2 (2강 안)**: `@theme`으로 디자인 토큰(색, 폰트, 둥근 모서리) 정의, 반응형 접두사(`sm:` `md:`), 다크 모드.
-   - **T3 (4강 내 펫 화면)**: 상태 변형(`hover:` `disabled:` `aria-*` `data-*`), 버튼 상태표(SPEC 12장)를 클래스로 표현, `clsx`류로 조건부 클래스, grid로 활동력 10칸·XP 바.
-   - **T4 (5강 홈·랭킹)**: 카드·목록 레이아웃, `sticky`로 내 펫 행 고정, 컴포넌트로 반복 클래스 정리하는 기준(언제 `@apply`를 안 쓰는지).
-   - 각 T마다 실제 코드 줄 번호를 짚고, 클래스를 바꿔서 화면이 어떻게 달라지는지 예측시키는 확인 질문을 낸다.
-3. **2강 이후** 13장 순서: 3강 해석과 아트 → 4강 내 펫 화면 → 5강 홈/입양·랭킹 → 6강 메타데이터 API → 7강 Base Sepolia 배포 → 8강(선택) 가스비 대납.
+2. 이후 13장 순서: 4강 내 펫 화면 → 5강 홈/입양·랭킹 → 6강 메타데이터 API → 7강 Base Sepolia 배포 → 8강(선택) 가스비 대납.
 
 ## 끝낸 것
 
@@ -34,7 +29,7 @@
 | 1-3 | `src/PetNFT.sol` (지시서 코드 그대로, 주석 포함, 컴파일 에러 없음) | `3592cef` |
 | 1-4 | `test/PetNFT.t.sol` 테스트 26개 (SPEC 4-3 전부 + 경계값, memory 버그 검출). 수업은 건너뜀 | `b85759a` |
 | 1-5 | `script/Deploy.s.sol` (APP_URL env, env용 세 값 출력), anvil 배포 실습 | `13fda77` |
-| 2 | Next.js 16 앱 생성 (pnpm, Tailwind v4) | `f618f53` |
+| 2 | Next.js 16 앱 생성 (pnpm) | `f618f53` |
 | 2 | wagmi, RainbowKit, Provider, 헤더 ConnectButton, 쿠키 복원 | `fdfc471` |
 | 2 | `@wagmi/cli` ABI 생성, `lib/contracts.ts`, 헤더 활동력 | `8979762` |
 
@@ -94,7 +89,7 @@ pnpm dev
 
 로컬 지갑: anvil을 띄우고 MetaMask에 네트워크(RPC `http://127.0.0.1:8545`, 체인 ID 31337)를 추가한 뒤, anvil 0번 테스트 키를 가져온다. anvil을 재시작하면 체인이 초기화되므로 다시 배포하고, MetaMask에서 "활동 탭 데이터 지우기"를 한다.
 
-VSCode 확장: Solidity (Nomic Foundation), Better Comments, Tailwind CSS IntelliSense. 저장소를 열면 추천 알림이 뜬다 (`.vscode/extensions.json`).
+VSCode 확장: Solidity (Nomic Foundation), Better Comments. 저장소를 열면 추천 알림이 뜬다 (`.vscode/extensions.json`).
 
 ## 아직 안 만든 문서
 

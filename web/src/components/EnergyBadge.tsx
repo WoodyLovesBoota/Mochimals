@@ -3,6 +3,7 @@
 
 import { useAccount, useReadContract } from "wagmi";
 import { energy } from "@/lib/contracts";
+import styles from "./EnergyBadge.module.scss";
 
 // * 헤더의 활동력 표시. 연결된 지갑의 Energy 잔액(= 활동력)을 읽는다.
 //   SPEC 12장: "모든 화면 헤더에 ConnectButton과 활동력 표시"
@@ -29,11 +30,9 @@ export function EnergyBadge() {
 
   return (
     // * 반환값은 bigint다 (uint256은 JS number 범위를 넘을 수 있어서). decimals가 0이라 그대로 글자로 바꾼다.
-    //   bg-energy/25 → 활동력 토큰색(#FFC93C)을 25% 불투명도로. 글자는 본문색 토큰 text-ink.
-    //   whitespace-nowrap → 좁은 화면에서 "⚡ 10"이 두 줄로 쪼개지지 않게 한다.
-    <span className="whitespace-nowrap rounded-full bg-energy/25 px-3 py-1 text-sm font-semibold text-ink">
-      {/* hidden sm:inline → 휴대폰에서는 숨기고(display:none), 640px 이상에서만 보인다 */}
-      ⚡ <span className="hidden sm:inline">활동력 </span>
+    <span className={styles.badge}>
+      {/* styles.label: 휴대폰에서는 숨기고, 640px 이상에서만 보인다 (EnergyBadge.module.scss) */}
+      ⚡ <span className={styles.label}>활동력 </span>
       {balance.toString()}
     </span>
   );

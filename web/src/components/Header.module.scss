@@ -1,0 +1,34 @@
+// * CSS Modules: 이 파일의 클래스 이름은 빌드할 때 "Header_header__a1b2c" 처럼 바뀐다.
+//   그래서 다른 컴포넌트에 같은 이름(.header)이 있어도 절대 충돌하지 않는다.
+//   TSX에서는 `import styles from "./Header.module.scss"` 후 className={styles.header}로 쓴다.
+@use "../styles/breakpoints" as bp;
+
+.header {
+  // 자식(로고, 오른쪽 묶음)을 가로로 놓고 양 끝으로 벌린다
+  display: flex;
+  align-items: center; // 세로 가운데
+  justify-content: space-between; // 첫 자식은 왼쪽 끝, 마지막 자식은 오른쪽 끝
+  padding: var(--space-3) var(--space-4); // 위아래 12px, 좌우 16px
+  border-bottom: 1px solid var(--color-line);
+
+  // 640px 이상에서는 좌우 여백을 24px로
+  @include bp.sm {
+    padding-inline: var(--space-6);
+  }
+}
+
+.logo {
+  font-size: var(--text-lg);
+  font-weight: 700;
+}
+
+// 활동력 배지 + 지갑 버튼 묶음
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2); // 휴대폰: 8px
+
+  @include bp.sm {
+    gap: var(--space-3); // 640px 이상: 12px
+  }
+}

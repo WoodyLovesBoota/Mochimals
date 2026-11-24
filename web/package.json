@@ -19,14 +19,13 @@
     "wagmi": "^2.16"
   },
   "devDependencies": {
-    "@tailwindcss/turbopack": "4.3.3",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@wagmi/cli": "^2",
     "eslint": "^9",
     "eslint-config-next": "16.4.6",
-    "tailwindcss": "4.3.3",
+    "sass": "^1.108.2",
     "typescript": "^5"
   },
   "packageManager": "pnpm@8.15.3"

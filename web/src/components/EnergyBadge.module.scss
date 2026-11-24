@@ -1,0 +1,20 @@
+@use "../styles/breakpoints" as bp;
+
+// 알약 모양 활동력 배지
+.badge {
+  white-space: nowrap; // 좁은 화면에서 "⚡ 10"이 두 줄로 쪼개지지 않게
+  padding: var(--space-1) var(--space-3); // 위아래 4px, 좌우 12px
+  border-radius: var(--radius-pill);
+  background: var(--color-energy-soft);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+// "활동력" 글자: 휴대폰에서는 숨기고 640px 이상에서만 보인다
+.label {
+  display: none;
+
+  @include bp.sm {
+    display: inline;
+  }
+}
