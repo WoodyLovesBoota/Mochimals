@@ -3,11 +3,11 @@
 > 다음 세션을 시작할 때 Claude는 이 파일부터 읽고 "다음 할 일"에서 이어간다.
 > 한 강이 끝날 때마다 이 파일을 갱신하고 같이 커밋한다.
 
-마지막 갱신: 2026-11-24
+마지막 갱신: 2026-11-24 (4강 6교시까지)
 
 ## 현재 위치
 
-**3강 (해석과 아트) 끝.** 2강: Next.js 16 앱, wagmi/RainbowKit 설정, 쿠키로 연결 상태 복원, ABI 생성(@wagmi/cli), 헤더 활동력 표시까지 끝났다. 수강생이 MetaMask로 anvil에 연결하는 것까지 확인했다. 스타일은 Tailwind를 걷어내고 CSS Modules + SCSS로 바꿨다. 3강: `lib/look.ts`(DNA 해석, 레벨) + 테스트, `art/flat-v1`(generate.py 포팅, 기준 SVG 102개 문자열 비교 테스트), `PetSprite`, 개발용 `/dev/art` 페이지. 다음은 4강(내 펫 화면)이다.
+**4강 (내 펫 화면) 6교시까지 끝, 연출(7교시)만 남음.** 이전: **3강 (해석과 아트) 끝.** 2강: Next.js 16 앱, wagmi/RainbowKit 설정, 쿠키로 연결 상태 복원, ABI 생성(@wagmi/cli), 헤더 활동력 표시까지 끝났다. 수강생이 MetaMask로 anvil에 연결하는 것까지 확인했다. 스타일은 Tailwind를 걷어내고 CSS Modules + SCSS로 바꿨다. 3강: `lib/look.ts`(DNA 해석, 레벨) + 테스트, `art/flat-v1`(generate.py 포팅, 기준 SVG 102개 문자열 비교 테스트), `PetSprite`, 개발용 `/dev/art` 페이지. 4강: `usePet`(읽기), `usePetAction`(쓰기), `lib/errors.ts`, `/pet/[id]`(PetView, PetStats, PetActions). 수강생이 anvil에서 충전·훈련·밥·레벨업까지 실제로 눌러 확인했다.
 
 ## 다음 할 일
 
@@ -17,7 +17,11 @@
    - 지시서와 다르게 구현한 것 (버전 차이 때문, 동작은 같음): `cacheComponents` 끔(SPEC의 `revalidate`와 layout 쿠키 읽기 때문), wagmi 설정을 `chain.ts`/`wagmi.ts`(클라이언트, RainbowKit)/`wagmiServer.ts`(서버, 쿠키 복원용)로 나눔(`getDefaultConfig`가 클라이언트 전용), `coinbaseWallet` 대신 RainbowKit `base` 지갑(deprecated 대체), 체인을 `NEXT_PUBLIC_CHAIN_ID`로 선택(31337 anvil / 84532 / 8453), `serverExternalPackages: ["@coinbase/cdp-sdk"]`(x402 선택 의존성 빌드 에러).
    - **스타일: Tailwind를 쓰지 않는다** (수강생 결정, 2026-11-24, "유지보수가 너무 힘들다"). SPEC 1장의 Tailwind 대신 CSS Modules + SCSS. 규칙: 디자인 토큰은 `src/app/globals.scss`의 `:root` CSS 변수(`--color-ink` 등, SPEC 12장 UI 톤), 화면 폭 기준은 `src/styles/_breakpoints.scss` mixin(`@include bp.sm`), 컴포넌트 스타일은 컴포넌트 옆 `X.module.scss`. 컴포넌트에 색 코드를 직접 쓰지 않는다.
    - `web/.env.example`은 수강생 결정으로 지웠다 (SPEC 7-1은 커밋하라고 함). env 목록은 아래 "개발 환경"에 있다.
-   - **4강 진행 중 (2026-11-24)**: `docs/contract-frontend.md` 작성, `hooks/usePet.ts`, `hooks/usePetAction.ts` 끝. 다음은 `lib/errors.ts` → 내 펫 화면 → 버튼 상태 → 연출.
+   - **4강 진행 중 (2026-11-24)**: 1교시 `usePet`, 2교시 `usePetAction`, 3교시 `lib/errors.ts`(+테스트 5), 4교시 `/pet/[id]` 펫 카드, 5교시 `PetStats`(XP 바, 활동력 10칸, 배고픔 타이머 `useHungerTimer`, `lib/time.ts`+테스트 6), 6교시 `PetActions`(버튼 상태 표, 네트워크 전환, 에러 문구) 끝.
+   - **다음: 7교시 연출** (SPEC 12장 연출 표): Motion 설치(수강생이 직접 `pnpm add motion`), `usePetAction` 결과 이벤트로 XP 숫자(+10/+40), 레벨업(`LevelUp`), 진화/부화(단계 바뀜), 표정 excited(레벨업 3초)/happy(밥 10초), `prefers-reduced-motion`이면 페이드만. 그다음 6교시 확인 질문(disabled를 지우고 훈련 누르면?) 답부터.
+   - 4강에서 정한 것: `ArtSet.background?(look)` 선택 메서드 추가(무대 배경색, 화면이 flat-v1을 import하지 않게). 색 토큰 `--color-surface`, `--color-on-ink`, `--color-stage-fallback` 추가. 활동력 칸과 sleepy 표정은 주인일 때만(`pet.energy`는 보는 사람의 잔액).
+   - 4강에서 알게 된 것: anvil(viem `foundry` 체인)에는 multicall3가 없어서 wagmi `readContracts`가 6번 따로 읽기로 바꾼다(동작은 함, 같은 블록 보장 없음). 새 기기에서 `LayoutProps`/`PageProps` 타입 에러가 나면 `pnpm exec next typegen`.
+   - 데모 상태(anvil을 끄면 사라짐): 1번 펫을 anvil 0번 계정으로 입양 후 수강생 지갑 `0x3a6A…8406`으로 전송, 테스트 ETH 10 전송. 시간 테스트는 `cast rpc evm_increaseTime 86401` + `cast rpc evm_mine`.
    - **TODO 4강 끝나고 (수강생 결정)**: 확정 대기 중 새로고침 대응. ① RainbowKit `showRecentTransactions` + `useAddRecentTransaction` (헤더 스피너, 계정 모달 최근 트랜잭션, localStorage 유지. 표시만 해줌) ② 서명 직후 `{ hash, fn, petId }`를 sessionStorage에 저장하고 `usePetAction`이 페이지 로드 때 이어서 기다리기 (버튼 잠금, 두 번 누르기 방지, 레벨업 연출 복원). 배경: 새로고침해도 트랜잭션은 취소되지 않지만 `phase`/`hash`는 사라져서, 충전을 두 번 누르면 두 번째가 `StillHasEnergy`로 revert해 가스비만 날린다.
 2. 이후 13장 순서: 5강 홈/입양·랭킹 → 6강 메타데이터 API → 7강 Base Sepolia 배포 → 8강(선택) 가스비 대납.
 
@@ -40,6 +44,13 @@
 | 3 | `lib/look.ts` + 테스트 36개 | `4914d00` |
 | 3 | `art/flat-v1` 포팅 + 기준 SVG 비교 테스트 102개 | `8ea4d00` |
 | 3 | `PetSprite`, `/dev/art` | `bc465d8` |
+| 4 | `docs/contract-frontend.md` 작성 (밀린 숙제) | `59f5967` |
+| 4-1 | `usePet` | `d533d39` |
+| 4-2 | `usePetAction` | `876f689` |
+| 4-3 | `lib/errors.ts` + 테스트 | `f376822` |
+| 4-4 | `/pet/[id]`, `PetView`, `ArtSet.background` | `5fbd235` |
+| 4-5 | `PetStats`, `useHungerTimer`, `lib/time.ts` | `43f5a58` |
+| 4-6 | `PetActions` | `0181105` |
 
 ## 수강생 기록 (수업 수준을 맞추기 위한 메모)
 
@@ -53,6 +64,7 @@
   - Q. `&&`를 `||`로 바꾸면? → **오답.** `if (조건) revert`의 조건을 "통과 조건"으로 거꾸로 읽었다. 실제로는 mint, burn, transfer가 전부 막힌다. 테스트로 직접 확인시켰다 (5개 FAIL).
   - Q. FAIL 원인 → 결론은 맞았지만 터진 줄을 잘못 짚었다 (burn이 아니라 첫 줄 mint). 에러 이름과 가스로 위치를 읽는 법을 가르쳤다.
   - Q. `vm.prank` 한 줄을 지우면? → 정답 (테스트 컨트랙트가 game이라 burn이 성공해서 expectRevert가 실패)
+  - 4강: 수강생이 확인 질문 대신 "답 설명하고 ㄱㄱ"를 택해서 1~5교시 질문은 답을 바로 설명했다. 대신 좋은 질문을 스스로 했다: "확정 대기 중 새로고침하면?" → 업계 방식(지갑에 맡김 / 해시 저장 후 이어서 기다리기 / 인덱서)까지 설명, 4강 끝나고 하기로 함. UX 변화를 구체적으로 묻는 편이라 "바뀌는 것 / 안 바뀌는 것" 표가 잘 통했다.
 - 앞으로 주의할 점: 조건문을 읽을 때 **경우별 표를 그려 값을 대입하는 연습**을 계속 시킨다.
   수강생은 계산 문제를 건너뛰고 감으로 답하는 경향이 있다. 1강-4에서는 표를 수강생이 직접 채우게 하거나, 테스트를 먼저 예측시키고 실행해서 맞춰보게 한다.
 
@@ -86,7 +98,7 @@ cd ..
 # ---------- 4. 프론트 의존성 ----------
 cd web
 pnpm install
-pnpm test                  # 138 passed (look.ts 36 + 아트 비교 102)
+pnpm test                  # 149 passed (look.ts 36 + 아트 비교 102 + errors 5 + time 6)
 cd ..
 ```
 
