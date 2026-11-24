@@ -32,7 +32,7 @@ export function PetView({ petId }: Props) {
   // ① 로딩: 첫 읽기 전. (다시 읽는 중에는 isPending이 아니라 isFetching이라, 옛 데이터가 계속 보인다)
   if (isPending) return <main className={styles.main}>불러오는 중…</main>;
 
-  // ② 에러: 없는 펫이면 ownerOf가 revert한다 (usePet 46줄 allowFailure: false).
+  // ② 에러: 없는 펫이면 ownerOf가 revert한다 (usePet 49줄 allowFailure: false).
   if (error) {
     return (
       <main className={styles.main}>
@@ -97,7 +97,7 @@ function PetCard({ petId, pet, isOwner }: { petId: string; pet: PetState; isOwne
 
 /**
  * SPEC 5장 표정 우선순위 중 컨트랙트 값으로 정하는 부분: hungry → sleepy → idle.
- * ? sleepy(활동력 0)는 왜 주인일 때만일까? pet.energy는 "펫 주인"이 아니라 "지금 보는 사람"의 잔액이다 (usePet 41줄).
+ * ? sleepy(활동력 0)는 왜 주인일 때만일까? pet.energy는 "펫 주인"이 아니라 "지금 보는 사람"의 잔액이다 (usePet 44줄).
  *   남의 펫을 구경하는데 내 활동력이 0이라고 그 펫이 졸면 이상하다.
  */
 function pickEmotion(pet: PetState, isOwner: boolean): Emotion {

@@ -29,6 +29,9 @@ export function usePet(petId: bigint, viewer?: Address) {
     // * contracts 배열 하나 = multicall 한 번 = RPC 요청 한 번.
     //   ! 여섯 값이 "같은 블록" 기준으로 읽힌다. 따로 6번 읽으면 중간에 블록이 바뀌어서
     //     xp는 새 값인데 level은 옛 값인 화면이 잠깐 나올 수 있다 (XP 바는 다 찼는데 레벨이 그대로).
+    //   ! 단, anvil(foundry 체인)에서는 multicall이 안 된다. viem의 foundry 체인에 multicall3 주소가 없어서다.
+    //     그러면 wagmi(readContracts)가 에러를 잡고 6번 "따로 읽기"로 몰래 바꾼다. 화면은 동작하지만 같은 블록 보장은 없다.
+    //     anvil은 트랜잭션이 없으면 블록이 안 바뀌어서 실제로 어긋날 일은 거의 없다. Base / Base Sepolia에는 multicall3가 있다.
     contracts: [
       // pets(id): public mapping의 자동 getter. struct를 튜플로 준다 → [xp, lastFedAt, bornAt, dna]
       { ...petNft, functionName: "pets", args: [petId] },

@@ -104,11 +104,12 @@ Provider 순서 (`providers.tsx` 32~36줄): `WagmiProvider` → `QueryClientProv
 | 줄 | 내용 |
 | --- | --- |
 | 11~21 | `PetState` 결과 타입. uint64/uint256은 `bigint`, uint32/uint8은 `number` (viem은 48비트 이하만 number) |
-| 32~42 | `useReadContracts`의 contracts 6개 = multicall 1번. **같은 블록 기준**이라 XP와 레벨이 어긋나지 않는다 |
-| 41 | 미연결이면 `zeroAddress`. 배열 길이·순서를 고정해야 select에서 자리로 꺼낼 수 있다 |
-| 46 | `allowFailure: false`. 없는 펫이면 `ownerOf`가 revert해서 결과 전체가 error |
-| 50 | `staleTime: 10_000`. 10초 동안 다시 요청하지 않는다 (행동 후에는 무효화로 강제 갱신) |
-| 53~56 | `select`로 튜플 → `PetState` 객체. `pets()`는 struct를 `[xp, lastFedAt, bornAt, dna]` 튜플로 준다 |
+| 35~45 | `useReadContracts`의 contracts 6개 = multicall 1번. **같은 블록 기준**이라 XP와 레벨이 어긋나지 않는다 |
+| 31~33 | ! anvil에서는 multicall이 안 된다 (viem `foundry` 체인에 multicall3 주소 없음). wagmi `readContracts`가 에러를 잡고 6번 따로 읽기로 바꾼다. 동작은 하지만 같은 블록 보장은 없다. Base / Base Sepolia는 multicall3가 있다 |
+| 44 | 미연결이면 `zeroAddress`. 배열 길이·순서를 고정해야 select에서 자리로 꺼낼 수 있다 |
+| 49 | `allowFailure: false`. 없는 펫이면 `ownerOf`가 revert해서 결과 전체가 error |
+| 53 | `staleTime: 10_000`. 10초 동안 다시 요청하지 않는다 (행동 후에는 무효화로 강제 갱신) |
+| 56~59 | `select`로 튜플 → `PetState` 객체. `pets()`는 struct를 `[xp, lastFedAt, bornAt, dna]` 튜플로 준다 |
 
 ## 7. 쓰기: `usePetAction`
 
@@ -138,8 +139,18 @@ Provider 순서 (`providers.tsx` 32~36줄): `WagmiProvider` → `QueryClientProv
 
 [errors.test.ts](../web/src/lib/errors.test.ts)의 세 번째 테스트가 `contracts.ts` 39줄(Energy 에러 합치기)이 없으면 `ERC20InsufficientBalance`가 기본 문구로 떨어지는 것을 보여준다.
 
-## 9. 아직 없는 것 (만들면 여기에 추가)
+## 9. 화면에서 쓰는 곳: 내 펫 화면
 
-- 4강: 내 펫 화면, 버튼 상태, 연출
+| 파일 | 줄 | 내용 |
+| --- | --- | --- |
+| [pet/[id]/page.tsx](../web/src/app/pet/[id]/page.tsx) | 17 | 서버 컴포넌트. 1 이상 정수가 아니면 404. 펫 번호는 컨트랙트에서 1부터 (`petId = ++totalSupply`) |
+| [PetView.tsx](../web/src/components/PetView.tsx) | 30 | `usePet(id, address)`. viewer는 지금 연결된 지갑 |
+| | 35~42 | 없는 펫: `ownerOf`의 OZ 에러 `ERC721NonexistentToken`을 `walk`로 찾는다 (`isNonexistent`) |
+| | 46 | 주인 여부 `isAddressEqual(address, pet.owner)` |
+| | 103~107 | 표정: hungry(`isHungry`) → sleepy(활동력 0, 주인일 때만) → idle |
+
+## 10. 아직 없는 것 (만들면 여기에 추가)
+
+- 4강: XP 바·활동력 칸·배고픔 타이머, 버튼 상태, 연출
 - 5강: `useMyPets`(`Transfer` 로그 + `ownerOf`), 입양 후 `Adopted` 이벤트에서 petId, 랭킹 서버 읽기
 - 6강: 메타데이터 API (`tokenURI` → `/api/pet/[id]`)
