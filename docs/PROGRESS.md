@@ -7,12 +7,13 @@
 
 ## 현재 위치
 
-**1강 (컨트랙트) 끝.** PetNFT.sol, PetNFT 테스트(26개), 배포 스크립트, anvil 로컬 배포 실습(cast로 adopt, train, 조회)까지 끝났다. 테스트 수업은 수강생 요청으로 건너뛰었다. 다음은 2강(Next.js, wagmi)이다.
+**2강 (기반) 진행 중.** Next.js 16 앱, wagmi/RainbowKit 설정, 쿠키로 연결 상태 복원, ABI 생성(@wagmi/cli), 헤더 활동력 표시까지 끝났다. 수강생이 MetaMask로 anvil에 연결하는 것까지 확인했다. 다음은 T1(헤더로 배우는 Tailwind)이다.
 
 ## 다음 할 일
 
-1. **2강(Next.js, wagmi)**부터 [SPEC.md](SPEC.md) 13장 순서대로 진행한다.
-   - 패키지 매니저는 **pnpm** (수강생 요청). 수강생이 `create-next-app`(web/, TS, Tailwind, App Router, src-dir)과 `wagmi@^2.16 viem@^2 @rainbow-me/rainbowkit@^2 @tanstack/react-query@^5` 설치를 직접 한다. 확인 후 `web/package.json`부터 읽고 시작한다.
+1. **2강 남은 것**: T1, T2(아래 Tailwind 항목). 그다음 3강.
+   - 지시서와 다르게 구현한 것 (버전 차이 때문, 동작은 같음): `cacheComponents` 끔(SPEC의 `revalidate`와 layout 쿠키 읽기 때문), wagmi 설정을 `chain.ts`/`wagmi.ts`(클라이언트, RainbowKit)/`wagmiServer.ts`(서버, 쿠키 복원용)로 나눔(`getDefaultConfig`가 클라이언트 전용), `coinbaseWallet` 대신 RainbowKit `base` 지갑(deprecated 대체), 체인을 `NEXT_PUBLIC_CHAIN_ID`로 선택(31337 anvil / 84532 / 8453), `serverExternalPackages: ["@coinbase/cdp-sdk"]`(x402 선택 의존성 빌드 에러).
+   - `web/.env.example`은 수강생 결정으로 지웠다 (SPEC 7-1은 커밋하라고 함). env 목록은 아래 "개발 환경"에 있다.
 2. **Tailwind 강의를 같이 한다** (수강생 요청으로 커리큘럼에 추가, 2026-11-24). 따로 떼지 않고 실제 화면 코드를 만들면서 가르친다.
    - **T1 (2강 안, 헤더 만들 때)**: 설치된 Tailwind 버전 확인(v4면 `globals.css`의 `@import "tailwindcss"`, `@theme`, 설정 파일 없음), 유틸리티 클래스 읽는 법, spacing/색/글자 스케일, flex로 헤더 레이아웃.
    - **T2 (2강 안)**: `@theme`으로 디자인 토큰(색, 폰트, 둥근 모서리) 정의, 반응형 접두사(`sm:` `md:`), 다크 모드.
@@ -33,6 +34,9 @@
 | 1-3 | `src/PetNFT.sol` (지시서 코드 그대로, 주석 포함, 컴파일 에러 없음) | `3592cef` |
 | 1-4 | `test/PetNFT.t.sol` 테스트 26개 (SPEC 4-3 전부 + 경계값, memory 버그 검출). 수업은 건너뜀 | `b85759a` |
 | 1-5 | `script/Deploy.s.sol` (APP_URL env, env용 세 값 출력), anvil 배포 실습 | `13fda77` |
+| 2 | Next.js 16 앱 생성 (pnpm, Tailwind v4) | `f618f53` |
+| 2 | wagmi, RainbowKit, Provider, 헤더 ConnectButton, 쿠키 복원 | `fdfc471` |
+| 2 | `@wagmi/cli` ABI 생성, `lib/contracts.ts`, 헤더 활동력 | `8979762` |
 
 ## 수강생 기록 (수업 수준을 맞추기 위한 메모)
 
@@ -71,7 +75,26 @@ forge build
 forge test        # 현재 33 passed
 ```
 
-VSCode 확장: Solidity (Nomic Foundation), Better Comments. 저장소를 열면 추천 알림이 뜬다 (`.vscode/extensions.json`).
+```bash
+# 4. 프론트 (web)
+cd web
+pnpm install
+# web/.env.local을 직접 만든다 (커밋하지 않음). 필요한 값:
+#   NEXT_PUBLIC_CHAIN_ID=31337            # 31337 anvil, 84532 Base Sepolia, 8453 Base
+#   NEXT_PUBLIC_RPC_URL=                  # 비우면 체인 내장 RPC (anvil = 127.0.0.1:8545)
+#   NEXT_PUBLIC_WC_PROJECT_ID=            # 비우면 RainbowKit 개발용 예제 ID
+#   NEXT_PUBLIC_PET_NFT_ADDRESS=          # Deploy.s.sol 출력값
+#   NEXT_PUBLIC_ENERGY_ADDRESS=           # Deploy.s.sol 출력값
+#   NEXT_PUBLIC_DEPLOY_BLOCK=             # Deploy.s.sol 출력값
+#   NEXT_PUBLIC_APP_URL=http://localhost:3000
+#   PAYMASTER_URL=                        # 선택, 서버 전용
+pnpm wagmi        # 컨트랙트를 고쳤을 때 ABI 다시 생성 (forge 필요)
+pnpm dev
+```
+
+로컬 지갑: anvil을 띄우고 MetaMask에 네트워크(RPC `http://127.0.0.1:8545`, 체인 ID 31337)를 추가한 뒤, anvil 0번 테스트 키를 가져온다. anvil을 재시작하면 체인이 초기화되므로 다시 배포하고, MetaMask에서 "활동 탭 데이터 지우기"를 한다.
+
+VSCode 확장: Solidity (Nomic Foundation), Better Comments, Tailwind CSS IntelliSense. 저장소를 열면 추천 알림이 뜬다 (`.vscode/extensions.json`).
 
 ## 아직 안 만든 문서
 
