@@ -87,8 +87,9 @@ describe("decodeDna: 성격, 표식, 최댓값", () => {
     });
   });
 
-  it("2^31 이상(맨 앞 비트 1)이어도 >>>로 바르게 읽는다", () => {
-    // 0x9x000000: 28~31비트 = 9 → 9 & 3 = 1 (freckles). >>를 썼다면 음수가 되어 MARKS[-?]가 undefined다
+  it("2^31 이상(맨 앞 비트 1)이어도 바르게 읽는다", () => {
+    // 0x91000000: 28~31비트 = 9 → 9 & 3 = 1 (freckles), 24~27비트 = 1 → calm
+    // (마스크 & 3이 있어서 >>를 써도 같은 값이 나온다. look.ts 주석 참고)
     expect(decodeDna(0x91000000).mark).toBe("freckles");
     expect(decodeDna(0x91000000).personality).toBe("calm"); // 24~27비트 = 1
   });
