@@ -16,8 +16,8 @@ export function EnergyBadge() {
   const { data: balance } = useReadContract({
     ...energy,
     functionName: "balanceOf",
-    // ? address가 없을 때 args에 무엇을 넣을까? 타입상 Address가 필요해서 일단 넣고,
-    //   아래 enabled: false로 "실제 호출"을 막는다.
+    // ? address가 없을 때 args에 무엇을 넣을까? wagmi는 args를 undefined로 두는 것을 허용한다.
+    //   다만 그대로 두면 인자 없이 호출하려다 실패하므로, 아래 enabled: false로 "실제 호출"을 막는다.
     args: address ? [address] : undefined,
     // * query: TanStack Query 옵션. enabled가 false면 요청을 보내지 않는다.
     //   TODO 4강에서 행동(feed/train) 후 잔액을 다시 읽도록 invalidate를 붙인다.
