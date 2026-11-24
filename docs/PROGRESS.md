@@ -12,7 +12,7 @@
 ## 다음 할 일
 
 1. **2강(Next.js, wagmi)**부터 [SPEC.md](SPEC.md) 13장 순서대로 진행한다.
-   - 패키지 매니저는 npm. 수강생이 `create-next-app`(web/, TS, Tailwind, App Router, src-dir)과 `wagmi@^2.16 viem@^2 @rainbow-me/rainbowkit@^2 @tanstack/react-query@^5` 설치를 직접 한다. 확인 후 `web/package.json`부터 읽고 시작한다.
+   - 패키지 매니저는 **pnpm** (수강생 요청). 수강생이 `create-next-app`(web/, TS, Tailwind, App Router, src-dir)과 `wagmi@^2.16 viem@^2 @rainbow-me/rainbowkit@^2 @tanstack/react-query@^5` 설치를 직접 한다. 확인 후 `web/package.json`부터 읽고 시작한다.
 2. **Tailwind 강의를 같이 한다** (수강생 요청으로 커리큘럼에 추가, 2026-11-24). 따로 떼지 않고 실제 화면 코드를 만들면서 가르친다.
    - **T1 (2강 안, 헤더 만들 때)**: 설치된 Tailwind 버전 확인(v4면 `globals.css`의 `@import "tailwindcss"`, `@theme`, 설정 파일 없음), 유틸리티 클래스 읽는 법, spacing/색/글자 스케일, flex로 헤더 레이아웃.
    - **T2 (2강 안)**: `@theme`으로 디자인 토큰(색, 폰트, 둥근 모서리) 정의, 반응형 접두사(`sm:` `md:`), 다크 모드.
