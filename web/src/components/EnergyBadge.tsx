@@ -1,0 +1,36 @@
+// ! 지갑 연결 상태(useAccount)와 컨트랙트 읽기 훅을 쓰므로 클라이언트 컴포넌트다.
+"use client";
+
+import { useAccount, useReadContract } from "wagmi";
+import { energy } from "@/lib/contracts";
+
+// * 헤더의 활동력 표시. 연결된 지갑의 Energy 잔액(= 활동력)을 읽는다.
+//   SPEC 12장: "모든 화면 헤더에 ConnectButton과 활동력 표시"
+export function EnergyBadge() {
+  // address: 연결된 계정 주소. 연결 안 됐으면 undefined
+  const { address } = useAccount();
+
+  // * useReadContract: 컨트랙트의 view 함수를 부른다 (가스비 없음, 지갑 서명 없음).
+  //   ...energy 로 address와 abi를 펼치고, functionName과 args를 더한다.
+  //   ABI가 `as const`라서 functionName에 "balanceOf" 말고 다른 글자를 쓰면 타입 에러가 난다.
+  const { data: balance } = useReadContract({
+    ...energy,
+    functionName: "balanceOf",
+    // ? address가 없을 때 args에 무엇을 넣을까? 타입상 Address가 필요해서 일단 넣고,
+    //   아래 enabled: false로 "실제 호출"을 막는다.
+    args: address ? [address] : undefined,
+    // * query: TanStack Query 옵션. enabled가 false면 요청을 보내지 않는다.
+    //   TODO 4강에서 행동(feed/train) 후 잔액을 다시 읽도록 invalidate를 붙인다.
+    query: { enabled: !!address },
+  });
+
+  // 연결 안 됐거나 아직 못 읽었으면 아무것도 안 보여준다
+  if (!address || balance === undefined) return null;
+
+  return (
+    // * 반환값은 bigint다 (uint256은 JS number 범위를 넘을 수 있어서). decimals가 0이라 그대로 글자로 바꾼다.
+    <span className="rounded-full bg-amber-100 px-3 py-1 text-sm font-semibold text-amber-900">
+      ⚡ 활동력 {balance.toString()}
+    </span>
+  );
+}
