@@ -7,12 +7,11 @@
 
 ## 현재 위치
 
-**1강 (컨트랙트) 진행 중.** PetNFT.sol, PetNFT 테스트(26개), 배포 스크립트까지 만들었다. 테스트 수업은 수강생 요청으로 건너뛰었다. 지금은 1강-5 anvil 로컬 배포 실습 중이다.
+**1강 (컨트랙트) 끝.** PetNFT.sol, PetNFT 테스트(26개), 배포 스크립트, anvil 로컬 배포 실습(cast로 adopt, train, 조회)까지 끝났다. 테스트 수업은 수강생 요청으로 건너뛰었다. 다음은 2강(Next.js, wagmi)이다.
 
 ## 다음 할 일
 
-1. **1강-5: anvil 로컬 배포 실습.** `contracts/script/Deploy.s.sol`은 만들었다(시뮬레이션 확인). 수강생이 anvil을 띄우고 `--broadcast`로 배포한 뒤 `cast`로 입양·조회까지 해본다.
-2. 그다음 2강(Next.js, wagmi)부터 [SPEC.md](SPEC.md) 13장 순서대로 진행한다.
+1. **2강(Next.js, wagmi)**부터 [SPEC.md](SPEC.md) 13장 순서대로 진행한다.
 
 ## 끝낸 것
 
@@ -25,7 +24,7 @@
 | 1-2 | `test/Energy.t.sol` 테스트 7개 (전부 통과) | `ebc8051` |
 | 1-3 | `src/PetNFT.sol` (지시서 코드 그대로, 주석 포함, 컴파일 에러 없음) | `3592cef` |
 | 1-4 | `test/PetNFT.t.sol` 테스트 26개 (SPEC 4-3 전부 + 경계값, memory 버그 검출). 수업은 건너뜀 | `b85759a` |
-| 1-5 | `script/Deploy.s.sol` (APP_URL env, env용 세 값 출력) | 이번 커밋 |
+| 1-5 | `script/Deploy.s.sol` (APP_URL env, env용 세 값 출력), anvil 배포 실습 | `13fda77` |
 
 ## 수강생 기록 (수업 수준을 맞추기 위한 메모)
 
