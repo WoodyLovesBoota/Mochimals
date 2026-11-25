@@ -3,6 +3,7 @@
 
 import { useId } from "react";
 import { ACTIVE_ART_SET } from "@/art";
+import { layersToInner } from "@/art/compose";
 import type { PetLook } from "@/lib/look";
 import styles from "./PetSprite.module.scss";
 
@@ -38,7 +39,8 @@ export function PetSprite({ look, size, className }: Props) {
   // ! dangerouslySetInnerHTML: 문자열을 HTML로 그대로 넣는다. 사용자 입력이 들어가면 XSS 위험이 있다.
   //   여기 문자열은 우리 아트 세트 코드가 숫자(dna, stage)로만 만든 것이라 안전하다.
   //   아트 세트에 사용자 입력(예: 펫 이름)을 절대 넘기지 않는다.
-  const inner = out.layers.map((l) => `<g data-layer="${l.name}">${l.svg}</g>`).join("");
+  // 레이어 합치기는 NFT 이미지 API와 같은 함수를 쓴다 (art/compose.ts)
+  const inner = layersToInner(out.layers);
   return (
     <svg
       viewBox="0 0 400 400" // 아트 좌표는 항상 400×400 (SPEC 6-2 앵커). size만큼 줄이거나 키워서 보여준다
