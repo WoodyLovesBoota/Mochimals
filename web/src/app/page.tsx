@@ -1,12 +1,7 @@
-// * 홈 화면 (임시). 5강에서 SPEC 12장의 "홈 / 입양" 화면(게임 소개, 진화 단계 미리보기, 입양하기)으로 새로 쓴다.
-//   지금은 create-next-app 템플릿을 걷어내고 제목만 둔다.
-import styles from "./page.module.scss";
+// * 홈 / 입양 (SPEC 12장). 화면은 지갑 상태에 따라 바뀌므로 내용은 전부 클라이언트 컴포넌트(HomeView)가 그린다.
+//   이 파일은 서버 컴포넌트로 남겨 두고 HomeView만 감싼다 (페이지 파일 자체는 서버에서 가볍게 렌더).
+import { HomeView } from "@/components/HomeView";
 
 export default function Home() {
-  return (
-    <main className={styles.main}>
-      <h1 className={styles.title}>Silo Pets</h1>
-      <p className={styles.lead}>펫을 입양하고, 밥을 주고, 훈련시켜 진화시키는 온체인 육성 게임</p>
-    </main>
-  );
+  return <HomeView />;
 }

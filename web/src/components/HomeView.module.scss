@@ -1,0 +1,232 @@
+@use "../styles/breakpoints" as bp;
+
+.main {
+  // 부모 .shell(layout.module.scss)이 세로 flex라서 flex: 1이면 헤더를 뺀 남은 높이를 전부 채운다
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-6);
+  padding: var(--space-8) var(--space-4);
+  text-align: center;
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.title {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+
+  @include bp.sm {
+    font-size: 2rem; // 640px 이상에서 조금 크게
+  }
+}
+
+.lead,
+.muted {
+  color: var(--color-muted);
+}
+
+.muted {
+  font-size: var(--text-sm);
+}
+
+// 진화 미리보기: 다섯 단계를 가로로. 휴대폰에서 넘치면 줄바꿈
+.preview {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-1);
+    color: var(--color-muted);
+    font-size: var(--text-sm);
+  }
+}
+
+.rules {
+  max-width: 26rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: 0;
+  list-style: none;
+  color: var(--color-ink);
+  font-size: var(--text-sm);
+  text-align: left;
+
+  // 앞에 작은 점
+  li::before {
+    content: "· ";
+    color: var(--color-muted);
+  }
+}
+
+.adoptPanel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+// * 흔들리는 알 (SPEC 12장 "흔들리는 알"). 바닥 가운데를 축으로 좌우로 기울었다 돌아온다.
+//   3초 중 앞부분에만 흔들고 나머지는 가만히 → "가끔 흔들림" (SPEC 6-3 알)
+.wobble {
+  transform-origin: 50% 88%; // 아트 바닥선 y=352 (SPEC 6-2)
+  animation: wobble 3s ease-in-out infinite;
+}
+
+@keyframes wobble {
+  0%,
+  30%,
+  100% {
+    transform: rotate(0);
+  }
+  6% {
+    transform: rotate(-7deg);
+  }
+  12% {
+    transform: rotate(6deg);
+  }
+  18% {
+    transform: rotate(-4deg);
+  }
+  24% {
+    transform: rotate(2deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wobble {
+    animation: none;
+  }
+}
+
+// 입양 버튼: 주 버튼 (PetActions .primary와 같은 모양)
+.adopt {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-width: 12rem;
+  min-height: 3.5rem;
+  padding: var(--space-3) var(--space-6);
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--color-ink);
+  color: var(--color-on-ink);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+  }
+}
+
+.spinner {
+  width: 1em;
+  height: 1em;
+  border: 2px solid currentcolor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    rotate: 360deg;
+  }
+}
+
+.error {
+  color: var(--color-feed-ink);
+  font-size: var(--text-sm);
+}
+
+// 내 펫 목록
+.myPets {
+  width: 100%;
+  max-width: 26rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  text-align: left;
+}
+
+.sectionTitle {
+  font-size: var(--text-lg);
+  font-weight: 700;
+}
+
+.petList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: 0;
+  list-style: none;
+}
+
+// 펫 한 줄 카드: [그림] [이름 Lv] [보러 가기]
+.petLink {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-rows: auto auto;
+  column-gap: var(--space-3);
+  align-items: center;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  color: inherit;
+  text-decoration: none;
+
+  // 그림은 두 줄을 차지
+  > :first-child {
+    grid-row: 1 / 3;
+  }
+
+  &:hover {
+    border-color: var(--color-ink);
+  }
+}
+
+.thumbPlaceholder {
+  width: 72px;
+  height: 72px;
+  border-radius: var(--radius-card);
+  background: var(--color-line);
+}
+
+.petName {
+  font-weight: 700;
+}
+
+.petLevel {
+  grid-column: 2;
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+}
+
+.go {
+  grid-column: 3;
+  grid-row: 1 / 3;
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+}

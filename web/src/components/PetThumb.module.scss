@@ -1,0 +1,7 @@
+.thumb {
+  display: block;
+  flex-shrink: 0; // flex 줄 안에서 찌그러지지 않게
+  overflow: hidden;
+  border-radius: 30%; // 크기에 비례하는 둥근 모서리
+  background: var(--thumb-bg, var(--color-stage-fallback));
+}
