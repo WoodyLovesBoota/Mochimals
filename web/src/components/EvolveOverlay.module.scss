@@ -1,0 +1,46 @@
+// 진화·부화 연출 전체 화면. 어두운 반투명 배경 위에 가운데 정렬.
+.backdrop {
+  position: fixed;
+  inset: 0; // top/right/bottom/left 0을 한 번에: 화면 전체
+  z-index: 100; // 헤더, RainbowKit 버튼보다 위
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-6);
+  padding: var(--space-4);
+  background: var(--color-overlay);
+}
+
+.stage {
+  // 그림이 바뀌어도 레이아웃이 흔들리지 않게 크기를 고정한다 (PetSprite size 240)
+  width: 15rem;
+  height: 15rem;
+  display: grid;
+  place-items: center;
+}
+
+// * 흰 실루엣 + 빛. filter는 왼쪽부터 차례로 적용된다:
+//   brightness(0) → 모든 색이 검정 / invert(1) → 검정이 흰색 / drop-shadow → 모양 둘레에 흰 빛
+//   (투명한 부분은 그대로 투명이라 펫 윤곽만 남는다)
+.silhouette {
+  filter: brightness(0) invert(1) drop-shadow(0 0 1rem var(--color-on-ink)) drop-shadow(0 0 2.5rem var(--color-energy));
+}
+
+.title {
+  color: var(--color-on-ink);
+  font-size: var(--text-2xl);
+  font-weight: 800;
+  text-align: center;
+  min-height: 2em; // 문구가 바뀔 때 버튼 위치가 출렁이지 않게
+}
+
+.skip {
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--color-on-ink);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-on-ink);
+  font-size: var(--text-sm);
+  cursor: pointer;
+}

@@ -29,6 +29,19 @@
   --color-feed: #fff0e0;
   --color-feed-ink: #b85c00;
 
+  // 연출·강조
+  --color-overlay: rgb(14 16 24 / 88%); // 진화 연출 배경 (화면이 어두워짐)
+  --color-highlight: rgb(63 175 94 / 12%); // 랭킹의 내 펫 행 (xp 초록 12%)
+  --color-silver: #aab2c0; // 랭킹 테두리 Lv 10 이상 (SPEC 12장 해금표)
+  --color-gold: #e2b33a; // 랭킹 테두리 Lv 20
+
+  // * 해금 배경 (SPEC 12장: "배경은 CSS 그라데이션으로"). 펫 무대의 background에 그대로 넣는다.
+  //   Lv 1 "기본 배경"은 아트 세트의 종별 색(ArtSet.background)이라 여기 없다.
+  --bg-field: linear-gradient(180deg, #dff3ff 0%, #eaf8e6 60%, #b9e3a6 100%); // Lv 6 들판
+  --bg-sunset: linear-gradient(180deg, #ffd3a5 0%, #fca9a0 55%, #c98bb9 100%); // Lv 10 노을 언덕
+  --bg-night: radial-gradient(circle at 30% 20%, #3b4a8a 0%, #1d2350 55%, #0f1330 100%); // Lv 14 밤하늘
+  --bg-crystal: linear-gradient(160deg, #d9c8ff 0%, #a8e0f0 50%, #7d7fd8 100%); // Lv 17 수정 동굴
+
   // 간격 (4px 단위). 숫자 × 4px
   --space-1: 0.25rem; // 4px
   --space-2: 0.5rem; // 8px

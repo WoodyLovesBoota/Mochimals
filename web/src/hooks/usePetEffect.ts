@@ -25,7 +25,11 @@ export function usePetEffect() {
     if (!effect) return;
     nextKey.current += 1;
     const key = nextKey.current;
-    setCurrent({ key, effect });
+    // * 진화면 레벨업 배지는 띄우지 않는다 (SPEC 12장: 레벨업 연출은 "단계 그대로"일 때, 단계가 바뀌면 진화 연출).
+    //   ? 왜 화면에서 `evolve === null`로 거르지 않고 여기서 levelUp을 지울까?
+    //     진화 연출이 끝나면 clear("evolve")로 evolve가 null이 된다. 화면에서 거르면 그 순간 조건이 참이 되어
+    //     뒤늦게 레벨업 배지가 튀어나온다. 시작할 때 한 번 정해 두면 그런 일이 없다.
+    setCurrent({ key, effect: effect.evolve ? { ...effect, levelUp: null } : effect });
     if (effect.emotion) setEmotion({ key, ...effect.emotion });
   }, []);
 
@@ -39,10 +43,10 @@ export function usePetEffect() {
     return () => clearTimeout(timer);
   }, [emotion]);
 
-  // * 한 번짜리 연출 조각(XP 숫자, 레벨업 배지)이 끝났을 때 부른다 (Motion의 onAnimationComplete에서).
+  // * 한 번짜리 연출 조각(XP 숫자, 레벨업 배지, 진화 연출)이 끝났을 때 부른다 (Motion의 onAnimationComplete에서).
   //   그 조각만 null로 바꾸고 나머지는 둔다. 다음 렌더에서 그 요소가 사라진다 (AnimatePresence가 exit를 튼다).
   //   key는 그대로라서 표정 타이머나 다른 조각에는 영향이 없다.
-  const clear = useCallback((part: "xpGained" | "levelUp") => {
+  const clear = useCallback((part: "xpGained" | "levelUp" | "evolve") => {
     setCurrent((c) => (c ? { ...c, effect: { ...c.effect, [part]: null } } : c));
   }, []);
 

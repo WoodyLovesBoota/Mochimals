@@ -19,6 +19,7 @@ import {
   type Emotion,
   type Stage,
 } from "@/lib/look";
+import { EvolveOverlay } from "./EvolveOverlay";
 import { LevelUpBadge, StarBurst } from "./LevelUpFx";
 import { PetActions } from "./PetActions";
 import { PetSprite } from "./PetSprite";
@@ -52,6 +53,8 @@ export function PetView({ petId }: Props) {
   // ③ 주인 여부. 연결 안 됐으면 false.
   //   ! 주소는 === 로 비교하지 않는다. 체크섬 형식(0xAbC…)과 소문자(0xabc…)가 섞이면 같은 주소인데 false가 된다.
   const isOwner = !!address && isAddressEqual(address, pet.owner);
+  // 진화/부화 연출 (EvolveOverlay). 단계가 바뀐 레벨업일 때만 effects.ts가 evolve를 채운다.
+  const evolve = fx.current?.effect.evolve ?? null;
 
   return (
     // * MotionConfig reducedMotion="user": OS의 "동작 줄이기"(prefers-reduced-motion)가 켜져 있으면
@@ -69,6 +72,18 @@ export function PetView({ petId }: Props) {
           <p className={styles.readonly}>다른 집사의 펫이에요. 구경만 할 수 있어요</p>
         )}
       </main>
+      {/* * 진화/부화: 화면 전체를 덮는 연출 (position: fixed). 카드 안에 두지 않는 이유는
+            카드의 overflow: hidden이나 움직이는(transform) 조상 안에 있으면 fixed가 화면 기준이 아니게 되기 때문이다.
+            key: 연속으로 진화할 일은 없지만, 새 연출이면 타이머를 처음부터 다시 걸도록 연출 번호를 준다. */}
+      {evolve && (
+        <EvolveOverlay
+          key={fx.current?.key}
+          dna={pet.dna}
+          from={evolve.from}
+          to={evolve.to}
+          onDone={() => fx.clear("evolve")}
+        />
+      )}
     </MotionConfig>
   );
 }
@@ -80,10 +95,9 @@ function PetCard(props: { petId: string; pet: PetState; isOwner: boolean; fx: Re
   //   ?? : 왼쪽이 null/undefined일 때만 오른쪽을 쓴다. 연출 표정이 없으면 기본 규칙으로.
   const emotion = fx.emotion ?? pickEmotion(pet, isOwner);
   const xpGained = fx.current?.effect.xpGained ?? null;
-  // * 레벨업 연출은 "단계 그대로"일 때만 (SPEC 12장). 단계가 바뀌면 진화 연출이 대신 튼다.
-  // TODO 4부: evolve !== null이면 진화/부화 연출
-  const effect = fx.current?.effect;
-  const levelUp = effect && effect.evolve === null ? effect.levelUp : null;
+  // * 레벨업 연출 (배지, 별, 튀기). 단계가 바뀐 레벨업이면 usePetEffect.play가 levelUp을 비워서 여기 안 온다.
+  //   그때는 진화 연출(EvolveOverlay, PetView 아래쪽)이 대신 튼다 (SPEC 12장: 레벨업은 "단계 그대로"일 때).
+  const levelUp = fx.current?.effect.levelUp ?? null;
 
   // * 펫 통통 튀기. scope = 움직일 요소에 붙일 ref, animate = 그 요소를 명령형으로 움직이는 함수.
   //   ? 왜 <motion.div animate={...}>가 아니라 useAnimate일까?
