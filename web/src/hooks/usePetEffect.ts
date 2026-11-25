@@ -1,0 +1,48 @@
+// * 연출 상태를 들고 있는 훅 (4강 7교시).
+//   PetActions가 행동을 끝내면 play(effect)를 부르고, PetView/PetCard는 여기서 "지금 틀 연출"을 읽는다.
+//   판단 규칙(레벨업인가, 진화인가)은 lib/effects.ts가 이미 끝냈다. 이 훅은 "언제 켜고 언제 끄는지"만 맡는다.
+"use client";
+
+import { useCallback, useEffect, useRef, useState } from "react";
+import type { PetEffect } from "@/lib/effects";
+import type { Emotion } from "@/lib/look";
+
+export function usePetEffect() {
+  // * 지금 재생 중인 연출과 그 번호(key).
+  //   ? 왜 번호가 필요할까? 밥을 두 번 연달아 주면 두 번 다 { xpGained: 10, ... }로 내용이 같다.
+  //     React(그리고 Motion의 AnimatePresence)는 key가 바뀌어야 "새 요소"로 보고 애니메이션을 처음부터 다시 튼다.
+  const [current, setCurrent] = useState<{ key: number; effect: PetEffect } | null>(null);
+  const nextKey = useRef(0);
+
+  // * 표정 덮어쓰기 (excited 3초 / happy 10초). null이면 PetView의 기본 규칙(hungry → sleepy → idle)을 쓴다.
+  //   ! current와 따로 둔다. 같이 두면 "밥(happy 10초) → 2초 뒤 훈련(표정 없음)"에서
+  //     훈련 연출이 current를 바꾸면서 happy 타이머를 지워 버리고, 새 타이머는 안 걸려서 happy가 영원히 남는다.
+  //     표정이 있는 연출만 이 상태를 건드리면, 표정 없는 훈련은 happy 타이머를 그대로 둔다.
+  const [emotion, setEmotion] = useState<{ key: number; name: Emotion; ms: number } | null>(null);
+
+  const play = useCallback((effect: PetEffect | null) => {
+    // 충전처럼 연출할 게 없으면 아무것도 안 한다
+    if (!effect) return;
+    nextKey.current += 1;
+    const key = nextKey.current;
+    setCurrent({ key, effect });
+    if (effect.emotion) setEmotion({ key, ...effect.emotion });
+  }, []);
+
+  // * 표정 끄기 타이머. emotion이 새 객체가 될 때마다(= 표정 있는 새 연출) 이전 타이머를 지우고 새로 건다.
+  //   ! cleanup의 clearTimeout이 없으면: 밥(10초) 직후 레벨업(3초)했을 때 밥 타이머가 남아 있다가 엉뚱한 순간에 표정을 지운다.
+  //     페이지를 떠난 뒤에도 타이머가 돌아 없는 컴포넌트의 상태를 바꾸려 한다.
+  //   key가 객체에 들어 있어서, 밥을 연달아 주면 내용이 같아도 새 객체 → 10초가 다시 시작한다.
+  useEffect(() => {
+    if (!emotion) return;
+    const timer = setTimeout(() => setEmotion(null), emotion.ms);
+    return () => clearTimeout(timer);
+  }, [emotion]);
+
+  // 숫자 같은 한 번짜리 연출이 끝났을 때 부른다 (Motion의 onAnimationComplete에서). 다음 렌더에서 요소가 사라진다.
+  const clearXp = useCallback(() => {
+    setCurrent((c) => (c ? { ...c, effect: { ...c.effect, xpGained: null } } : c));
+  }, []);
+
+  return { current, emotion: emotion?.name ?? null, play, clearXp };
+}

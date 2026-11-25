@@ -4,9 +4,10 @@
 "use client";
 
 import { useAccount, useSwitchChain } from "wagmi";
-import { usePetAction, type ActionPhase } from "@/hooks/usePetAction";
+import { usePetAction, type ActionPhase, type PetActionArgs } from "@/hooks/usePetAction";
 import type { PetState } from "@/hooks/usePet";
 import { chain } from "@/lib/chain";
+import { toPetEffect, type PetEffect } from "@/lib/effects";
 import { toErrorMessage } from "@/lib/errors";
 import styles from "./PetActions.module.scss";
 
@@ -16,10 +17,24 @@ const FEED_XP = 10;
 const TRAIN_COST = 3n;
 const TRAIN_XP = 40;
 
-type Props = { petId: bigint; pet: PetState };
+// * onEffect: 행동이 성공하면 연출 데이터를 위(PetView)로 올려 보낸다. 연출은 펫 카드에서 트므로 버튼이 직접 그리지 않는다.
+type Props = {
+  petId: bigint;
+  pet: PetState;
+  onEffect: (effect: PetEffect | null) => void;
+};
 
-export function PetActions({ petId, pet }: Props) {
+export function PetActions({ petId, pet, onEffect }: Props) {
   const action = usePetAction();
+
+  // * 행동 실행. mutate의 두 번째 인자 onSuccess는 "이번 호출"에만 붙는 콜백이다.
+  //   순서: usePetAction의 onSuccess(캐시 무효화, 다시 읽기를 기다림) → 이 onSuccess.
+  //   ? 그래서 연출이 시작될 때 화면 수치는 이미 새 값이다. XP 바가 차오르는 것과 +숫자가 같은 순간에 시작한다.
+  const run = (args: PetActionArgs) =>
+    action.mutate(args, {
+      onSuccess: ({ events }) => onEffect(toPetEffect(events)),
+    });
+
   // * chainId: 지갑이 지금 붙어 있는 체인. 우리 앱의 체인(chain.ts)과 다르면 "잘못된 네트워크"다.
   const { chainId } = useAccount();
   const { switchChain, isPending: switching } = useSwitchChain();
@@ -63,7 +78,7 @@ export function PetActions({ petId, pet }: Props) {
           hint={`활동력 ${FEED_COST} · +${FEED_XP}`}
           disabled={busy || !canFeed}
           phase={pressed === "feed" ? action.phase : "idle"}
-          onClick={() => action.mutate({ fn: "feed", petId })}
+          onClick={() => run({ fn: "feed", petId })}
         />
         <ActionButton
           className={styles.primary}
@@ -76,7 +91,7 @@ export function PetActions({ petId, pet }: Props) {
           }
           disabled={busy || !canTrain}
           phase={pressed === "train" ? action.phase : "idle"}
-          onClick={() => action.mutate({ fn: "train", petId })}
+          onClick={() => run({ fn: "train", petId })}
         />
       </div>
 
@@ -88,7 +103,7 @@ export function PetActions({ petId, pet }: Props) {
           hint="활동력을 다 썼어요"
           disabled={busy}
           phase={pressed === "refill" ? action.phase : "idle"}
-          onClick={() => action.mutate({ fn: "refill" })}
+          onClick={() => run({ fn: "refill" })}
         />
       )}
 

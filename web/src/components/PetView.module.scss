@@ -29,6 +29,7 @@
   // * --stage-bg는 PetView.tsx가 style로 넣는다 (아트 세트의 background()).
   //   var(이름, 대체값): 변수가 없으면 대체값을 쓴다. 아트 세트에 background가 없을 때를 대비한다.
   background: var(--stage-bg, var(--color-stage-fallback));
+  position: relative; // .xpFloat 같은 연출을 무대 기준으로 띄우기 위해
   display: flex;
   justify-content: center;
   padding: var(--space-4) 0;
@@ -38,6 +39,21 @@
 .sprite {
   max-width: 100%;
   height: auto;
+}
+
+// XP 숫자 (+10 / +40). 무대 위쪽 가운데에 떠 있다. 위치 이동(y)은 Motion이 transform으로 준다.
+.xpFloat {
+  position: absolute;
+  top: var(--space-6);
+  left: 50%;
+  translate: -50% 0; // * transform이 아니라 translate 속성을 쓴다. Motion이 transform(y)을 덮어써도 가운데 정렬이 안 깨진다
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-xp);
+  font-size: var(--text-lg);
+  font-weight: 800;
+  pointer-events: none; // 숫자가 떠 있는 동안에도 아래를 누를 수 있게
 }
 
 .info {

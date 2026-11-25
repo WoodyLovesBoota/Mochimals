@@ -1,13 +1,15 @@
 // * 내 펫 화면 본문 (4강). usePet으로 읽고, PetSprite로 그린다.
 //   이번 교시: 펫 카드(그림, 이름, 레벨, 칩), 로딩/에러, 주인 여부.
-//   5교시: 수치(PetStats). 6교시: 행동 버튼(PetActions). 다음 교시: 연출.
+//   5교시: 수치(PetStats). 6교시: 행동 버튼(PetActions). 7교시: 연출(usePetEffect + Motion).
 "use client";
 
+import { AnimatePresence, motion, MotionConfig } from "motion/react";
 import { useMemo } from "react";
 import { BaseError, ContractFunctionRevertedError, isAddressEqual } from "viem";
 import { useAccount } from "wagmi";
 import { ACTIVE_ART_SET } from "@/art";
 import { usePet, type PetState } from "@/hooks/usePet";
+import { usePetEffect } from "@/hooks/usePetEffect";
 import {
   COLOR_NAME,
   getPetLook,
@@ -31,6 +33,8 @@ export function PetView({ petId }: Props) {
   const { address } = useAccount();
   // refetch: 캐시를 무시하고 지금 다시 읽는다. 배고파지는 순간(PetStats의 타이머)에 부른다.
   const { data: pet, isPending, error, refetch } = usePet(id, address);
+  // * 연출 상태. 훅은 조건문(로딩/에러 return)보다 위에서 불러야 한다 (React 훅 규칙: 렌더마다 같은 순서로 호출).
+  const fx = usePetEffect();
 
   // ① 로딩: 첫 읽기 전. (다시 읽는 중에는 isPending이 아니라 isFetching이라, 옛 데이터가 계속 보인다)
   if (isPending) return <main className={styles.main}>불러오는 중…</main>;
@@ -49,25 +53,32 @@ export function PetView({ petId }: Props) {
   const isOwner = !!address && isAddressEqual(address, pet.owner);
 
   return (
-    <main className={styles.main}>
-      <PetCard petId={petId} pet={pet} isOwner={isOwner} />
-      {/* refetch는 Promise를 돌려주지만 타이머는 결과를 기다리지 않는다. () => void로 감싸서 넘긴다 */}
-      <PetStats pet={pet} isOwner={isOwner} onHungry={() => void refetch()} />
-      {/* SPEC 12장: 주인이면 행동 버튼, 아니면 버튼 없이 읽기 전용 */}
-      {isOwner ? (
-        <PetActions petId={id} pet={pet} />
-      ) : (
-        <p className={styles.readonly}>다른 집사의 펫이에요. 구경만 할 수 있어요</p>
-      )}
-    </main>
+    // * MotionConfig reducedMotion="user": OS의 "동작 줄이기"(prefers-reduced-motion)가 켜져 있으면
+    //   Motion이 위치·크기·회전(transform) 애니메이션을 건너뛰고 opacity 같은 나머지만 튼다.
+    //   SPEC 12장 "prefers-reduced-motion이면 페이드만"을 컴포넌트마다 분기하지 않고 여기 한 줄로 처리한다.
+    <MotionConfig reducedMotion="user">
+      <main className={styles.main}>
+        <PetCard petId={petId} pet={pet} isOwner={isOwner} fx={fx} />
+        {/* refetch는 Promise를 돌려주지만 타이머는 결과를 기다리지 않는다. () => void로 감싸서 넘긴다 */}
+        <PetStats pet={pet} isOwner={isOwner} onHungry={() => void refetch()} />
+        {/* SPEC 12장: 주인이면 행동 버튼, 아니면 버튼 없이 읽기 전용 */}
+        {isOwner ? (
+          <PetActions petId={id} pet={pet} onEffect={fx.play} />
+        ) : (
+          <p className={styles.readonly}>다른 집사의 펫이에요. 구경만 할 수 있어요</p>
+        )}
+      </main>
+    </MotionConfig>
   );
 }
 
 // 펫 카드: 무대(그림) + 이름/레벨 + 칩
-function PetCard({ petId, pet, isOwner }: { petId: string; pet: PetState; isOwner: boolean }) {
-  // * 표정. SPEC 5장 우선순위 중 컨트랙트 값으로 정해지는 두 가지만 여기서 정한다.
-  //   excited(레벨업 직후), happy(밥 먹은 직후)는 행동 결과가 필요해서 연출 교시에서 더한다.
-  const emotion = pickEmotion(pet, isOwner);
+function PetCard(props: { petId: string; pet: PetState; isOwner: boolean; fx: ReturnType<typeof usePetEffect> }) {
+  const { petId, pet, isOwner, fx } = props;
+  // * 표정. SPEC 5장 우선순위: excited > happy (연출 훅이 잠시 덮어씀) > hungry > sleepy > idle (컨트랙트 값)
+  //   ?? : 왼쪽이 null/undefined일 때만 오른쪽을 쓴다. 연출 표정이 없으면 기본 규칙으로.
+  const emotion = fx.emotion ?? pickEmotion(pet, isOwner);
+  const xpGained = fx.current?.effect.xpGained ?? null;
   // stage는 uint8이라 이미 number다 (usePet 17줄). getPetLook이 0~4를 검사한다.
   const look = getPetLook({ dna: pet.dna, stage: pet.stage, emotion });
   const stage = look.stage as Stage;
@@ -81,9 +92,35 @@ function PetCard({ petId, pet, isOwner }: { petId: string; pet: PetState; isOwne
             background가 없는 아트 세트면 scss의 기본값(var(--color-stage-fallback))을 쓴다. */}
       <div
         className={styles.stage}
-        style={{ "--stage-bg": ACTIVE_ART_SET.background?.(look) } as React.CSSProperties}
+        style={
+          {
+            "--stage-bg": ACTIVE_ART_SET.background?.(look),
+          } as React.CSSProperties
+        }
       >
         <PetSprite look={look} size={280} className={styles.sprite} />
+
+        {/* * XP 숫자 (SPEC 12장: 펫 위로 +10 / +40, 0.6초).
+              AnimatePresence: 자식이 사라질 때 exit 애니메이션을 끝까지 튼 뒤에 DOM에서 뺀다.
+              key가 연출 번호라서, 밥을 연달아 주면 새 숫자가 처음부터 다시 떠오른다 (usePetEffect 11~14줄). */}
+        <AnimatePresence>
+          {xpGained !== null && (
+            <motion.span
+              key={fx.current?.key}
+              className={styles.xpFloat}
+              // initial → animate: 아래에서 나타나 위로 떠오른다. reduced-motion이면 y는 건너뛰고 opacity만 바뀐다.
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: -24 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              // 다 떠오르면 숫자를 지운다 → AnimatePresence가 exit(페이드 아웃)를 튼다
+              onAnimationComplete={fx.clearXp}
+              aria-hidden // 화면 장식. 수치 변화는 XP 바(aria-valuenow)로 전달된다
+            >
+              +{xpGained}
+            </motion.span>
+          )}
+        </AnimatePresence>
       </div>
 
       <div className={styles.info}>
