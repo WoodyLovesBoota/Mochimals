@@ -39,10 +39,12 @@ export function usePetEffect() {
     return () => clearTimeout(timer);
   }, [emotion]);
 
-  // 숫자 같은 한 번짜리 연출이 끝났을 때 부른다 (Motion의 onAnimationComplete에서). 다음 렌더에서 요소가 사라진다.
-  const clearXp = useCallback(() => {
-    setCurrent((c) => (c ? { ...c, effect: { ...c.effect, xpGained: null } } : c));
+  // * 한 번짜리 연출 조각(XP 숫자, 레벨업 배지)이 끝났을 때 부른다 (Motion의 onAnimationComplete에서).
+  //   그 조각만 null로 바꾸고 나머지는 둔다. 다음 렌더에서 그 요소가 사라진다 (AnimatePresence가 exit를 튼다).
+  //   key는 그대로라서 표정 타이머나 다른 조각에는 영향이 없다.
+  const clear = useCallback((part: "xpGained" | "levelUp") => {
+    setCurrent((c) => (c ? { ...c, effect: { ...c.effect, [part]: null } } : c));
   }, []);
 
-  return { current, emotion: emotion?.name ?? null, play, clearXp };
+  return { current, emotion: emotion?.name ?? null, play, clear };
 }

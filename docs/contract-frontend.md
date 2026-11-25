@@ -144,10 +144,10 @@ Provider 순서 (`providers.tsx` 32~36줄): `WagmiProvider` → `QueryClientProv
 | 파일 | 줄 | 내용 |
 | --- | --- | --- |
 | [pet/[id]/page.tsx](../web/src/app/pet/[id]/page.tsx) | 17 | 서버 컴포넌트. 1 이상 정수가 아니면 404. 펫 번호는 컨트랙트에서 1부터 (`petId = ++totalSupply`) |
-| [PetView.tsx](../web/src/components/PetView.tsx) | 35 | `usePet(id, address)`. viewer는 지금 연결된 지갑 |
-| | 43~49, 156 | 없는 펫: `ownerOf`의 OZ 에러 `ERC721NonexistentToken`을 `walk`로 찾는다 (`isNonexistent`) |
-| | 53 | 주인 여부 `isAddressEqual(address, pet.owner)` |
-| | 80, 149 | 표정: 연출 표정(excited/happy, 10장) → hungry(`isHungry`) → sleepy(활동력 0, 주인일 때만) → idle |
+| [PetView.tsx](../web/src/components/PetView.tsx) | 36 | `usePet(id, address)`. viewer는 지금 연결된 지갑 |
+| | 44~50, 192 | 없는 펫: `ownerOf`의 OZ 에러 `ERC721NonexistentToken`을 `walk`로 찾는다 (`isNonexistent`) |
+| | 54 | 주인 여부 `isAddressEqual(address, pet.owner)` |
+| | 81, 185 | 표정: 연출 표정(excited/happy, 10장) → hungry(`isHungry`) → sleepy(활동력 0, 주인일 때만) → idle |
 | [useHungerTimer.ts](../web/src/hooks/useHungerTimer.ts) | 31~39 | `lastFedAt + 24시간 + 1초`에 `refetch` 1회. 블록마다 읽는 watch 대신 (SPEC 8장) |
 | [time.ts](../web/src/lib/time.ts) | 16 | `+ 1`: 컨트랙트 `isHungry`가 `>` 비교라서. 판정은 항상 컨트랙트 `pet.hungry`, 여기는 남은 시간 글자만 |
 | [PetActions.tsx](../web/src/components/PetActions.tsx) | 39, 55 | 지갑 `chainId`가 `chain.id`와 다르면 행동 버튼 대신 `useSwitchChain` 전환 버튼 |
@@ -168,11 +168,13 @@ Provider 순서 (`providers.tsx` 32~36줄): `WagmiProvider` → `QueryClientProv
 | | 64 | 표정: 레벨업 excited 3초 > 밥 happy 10초 (SPEC 5장 우선순위) |
 | [PetActions.tsx](../web/src/components/PetActions.tsx) | 33~36 | 호출별 `onSuccess`. 훅의 `onSuccess`(무효화, 다시 읽기 대기)가 먼저 끝나므로 연출 시작 때 수치는 이미 새 값 |
 | [usePetEffect.ts](../web/src/hooks/usePetEffect.ts) | 14, 21 | 연출 번호(key)와 표정 상태를 따로 둔다. 표정 없는 훈련이 happy 타이머를 지우지 않게 |
-| [PetView.tsx](../web/src/components/PetView.tsx) | 59 | `MotionConfig reducedMotion="user"`: 동작 줄이기면 transform을 건너뛰고 페이드만 |
-| | 106~123 | XP 숫자 `+10`/`+40`. `AnimatePresence` + 연출 번호 key |
+| [PetView.tsx](../web/src/components/PetView.tsx) | 60 | `MotionConfig reducedMotion="user"`: 동작 줄이기면 transform을 건너뛰고 페이드만 |
+| | 133~150 | XP 숫자 `+10`/`+40`. `AnimatePresence` + 연출 번호 key |
+| | 86, 92~105 | 레벨업(단계 그대로일 때만): `useAnimate`로 펫 통통 튀기. 연출 번호가 바뀔 때 한 번. 동작 줄이기면 생략 |
+| | 154~159 | 레벨업 배지 `Lv N!`(영수증 `LevelUp.level`)와 별 파티클 ([LevelUpFx.tsx](../web/src/components/LevelUpFx.tsx)). 배지가 끝나면 `clear("levelUp")` |
 
 ## 11. 아직 없는 것 (만들면 여기에 추가)
 
-- 4강: 레벨업 배지·파티클, 진화/부화 연출 (`effect.levelUp`, `effect.evolve`)
+- 4강: 진화/부화 연출 (`effect.evolve`), 레벨업 때 새 해금 카드 (`lib/unlocks.ts`)
 - 5강: `useMyPets`(`Transfer` 로그 + `ownerOf`), 입양 후 `Adopted` 이벤트에서 petId, 랭킹 서버 읽기
 - 6강: 메타데이터 API (`tokenURI` → `/api/pet/[id]`)

@@ -3,8 +3,8 @@
 //   5교시: 수치(PetStats). 6교시: 행동 버튼(PetActions). 7교시: 연출(usePetEffect + Motion).
 "use client";
 
-import { AnimatePresence, motion, MotionConfig } from "motion/react";
-import { useMemo } from "react";
+import { AnimatePresence, motion, MotionConfig, useAnimate, useReducedMotion } from "motion/react";
+import { useEffect, useMemo } from "react";
 import { BaseError, ContractFunctionRevertedError, isAddressEqual } from "viem";
 import { useAccount } from "wagmi";
 import { ACTIVE_ART_SET } from "@/art";
@@ -19,6 +19,7 @@ import {
   type Emotion,
   type Stage,
 } from "@/lib/look";
+import { LevelUpBadge, StarBurst } from "./LevelUpFx";
 import { PetActions } from "./PetActions";
 import { PetSprite } from "./PetSprite";
 import { PetStats } from "./PetStats";
@@ -79,6 +80,29 @@ function PetCard(props: { petId: string; pet: PetState; isOwner: boolean; fx: Re
   //   ?? : 왼쪽이 null/undefined일 때만 오른쪽을 쓴다. 연출 표정이 없으면 기본 규칙으로.
   const emotion = fx.emotion ?? pickEmotion(pet, isOwner);
   const xpGained = fx.current?.effect.xpGained ?? null;
+  // * 레벨업 연출은 "단계 그대로"일 때만 (SPEC 12장). 단계가 바뀌면 진화 연출이 대신 튼다.
+  // TODO 4부: evolve !== null이면 진화/부화 연출
+  const effect = fx.current?.effect;
+  const levelUp = effect && effect.evolve === null ? effect.levelUp : null;
+
+  // * 펫 통통 튀기. scope = 움직일 요소에 붙일 ref, animate = 그 요소를 명령형으로 움직이는 함수.
+  //   ? 왜 <motion.div animate={...}>가 아니라 useAnimate일까?
+  //     animate prop은 "값이 바뀔 때만" 다시 튼다. 키프레임 배열이 매번 같으면 두 번째 레벨업에서는 안 튄다.
+  //     useAnimate는 "이 연출 번호가 왔을 때 한 번 틀어라"를 useEffect로 직접 부를 수 있다.
+  const [scope, animate] = useAnimate<HTMLDivElement>();
+  // ! useAnimate로 직접 부르는 애니메이션은 <motion.*> 요소가 아니라서, MotionConfig reducedMotion에 기대지 않고 직접 확인한다.
+  //   동작 줄이기를 켠 사람에게는 튀기를 아예 생략한다 (배지와 별의 페이드는 그대로 나온다).
+  // TODO 새 해금 카드 (SPEC 12장 레벨업 연출). lib/unlocks.ts(해금 목록)를 만들 때 같이 붙인다.
+  const reduceMotion = useReducedMotion();
+  const fxKey = fx.current?.key;
+  useEffect(() => {
+    if (levelUp === null || reduceMotion) return;
+    // y: 위로 크게 한 번, 작게 한 번 튀고 제자리 (px). 1.5초 중 앞 0.8초만 쓴다.
+    animate(scope.current, { y: [0, -36, 0, -12, 0] }, { duration: 0.8, ease: "easeOut" });
+    // levelUp은 일부러 의존성에서 뺀다: 배지가 끝나 clear("levelUp")로 null이 될 때 다시 돌 필요가 없다.
+    //   "새 연출 번호(fxKey)가 왔을 때 한 번"이 의도다.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fxKey]);
   // stage는 uint8이라 이미 number다 (usePet 17줄). getPetLook이 0~4를 검사한다.
   const look = getPetLook({ dna: pet.dna, stage: pet.stage, emotion });
   const stage = look.stage as Stage;
@@ -98,7 +122,10 @@ function PetCard(props: { petId: string; pet: PetState; isOwner: boolean; fx: Re
           } as React.CSSProperties
         }
       >
-        <PetSprite look={look} size={280} className={styles.sprite} />
+        {/* 튀기 대상. PetSprite 자체가 아니라 감싼 div를 움직인다 (PetSprite는 그림만 알고 연출은 모르게) */}
+        <div ref={scope}>
+          <PetSprite look={look} size={280} className={styles.sprite} />
+        </div>
 
         {/* * XP 숫자 (SPEC 12장: 펫 위로 +10 / +40, 0.6초).
               AnimatePresence: 자식이 사라질 때 exit 애니메이션을 끝까지 튼 뒤에 DOM에서 뺀다.
@@ -114,13 +141,22 @@ function PetCard(props: { petId: string; pet: PetState; isOwner: boolean; fx: Re
               exit={{ opacity: 0 }}
               transition={{ duration: 0.6, ease: "easeOut" }}
               // 다 떠오르면 숫자를 지운다 → AnimatePresence가 exit(페이드 아웃)를 튼다
-              onAnimationComplete={fx.clearXp}
+              onAnimationComplete={() => fx.clear("xpGained")}
               aria-hidden // 화면 장식. 수치 변화는 XP 바(aria-valuenow)로 전달된다
             >
               +{xpGained}
             </motion.span>
           )}
         </AnimatePresence>
+
+        {/* * 레벨업 배지 + 별 (LevelUpFx.tsx). 배지 애니메이션이 끝나면 clear("levelUp") → 둘 다 빠진다.
+              fragment(<>)에는 key를 줄 수 없어서, 같은 key를 가진 래퍼 없이 두 요소에 각각 key를 준다. */}
+        {levelUp !== null && (
+          <>
+            <StarBurst key={`stars-${fxKey}`} />
+            <LevelUpBadge key={`badge-${fxKey}`} level={levelUp} onDone={() => fx.clear("levelUp")} />
+          </>
+        )}
       </div>
 
       <div className={styles.info}>
