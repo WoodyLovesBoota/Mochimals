@@ -19,7 +19,7 @@
    - 5강: `useMyPets`(Transfer 로그 + ownerOf, 범위 반으로 나누기), `HomeView`(입양, Adopted 이벤트로 이동), `lib/ranking.ts` + `unstable_cache`, `RankingList`(LevelUp 구독 피드)
    - 6강: `lib/metadata.ts`, `/api/pet/[id]`, `/api/pet/[id]/image.png`(next/og), `art/compose.ts`, `art/dummy`
    - 근거 문서: [contract-frontend.md](contract-frontend.md) 7~14장, README "결정 사항"
-2. **7강: Base Sepolia 배포** (수강생이 직접): faucet ETH → `cast wallet import`로 keystore → `APP_URL=… forge script … --account …` → Vercel 환경 변수 → 배포. README "실행: Base Sepolia"에 절차가 있다. 배포 뒤 `/api/pet/1`과 OpenSea 테스트넷에서 이미지 확인.
+2. **7강: Base Sepolia 배포** (수강생이 직접): faucet ETH → `cast wallet import`로 keystore → `APP_URL=… forge script … --account …` → Vercel 환경 변수 → 배포. 절차는 [DEPLOY.md](DEPLOY.md). **웹 주소를 먼저 정해야 한다** (baseURI는 배포 때 고정, 바꾸는 함수 없음). 배포 뒤 `/api/pet/1`과 OpenSea 테스트넷에서 이미지 확인.
 3. 8강(선택): 가스비 대납 (SPEC 10장).
 
 정한 것·알게 된 것 (설명 때 짚을 것):

@@ -72,6 +72,8 @@ MetaMask: 네트워크 추가(RPC `http://127.0.0.1:8545`, 체인 ID `31337`) �
 
 ## 실행: Base Sepolia
 
+자세한 순서, 준비물, 확인 목록, 문제 해결은 [docs/DEPLOY.md](docs/DEPLOY.md). 요약:
+
 1. 테스트 ETH가 있는 배포용 지갑을 준비한다 (Base Sepolia faucet).
 2. 배포: `APP_URL`은 배포할 웹 주소 (`tokenURI`의 앞부분이 된다).
    ```bash
