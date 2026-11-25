@@ -17,9 +17,29 @@
   }
 }
 
+// 로고 + 랭킹 링크 묶음
+.nav {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-4);
+}
+
 .logo {
+  color: inherit;
   font-size: var(--text-lg);
   font-weight: 700;
+  text-decoration: none;
+}
+
+.navLink {
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  text-decoration: none;
+
+  &:hover {
+    color: var(--color-ink);
+  }
 }
 
 // 활동력 배지 + 지갑 버튼 묶음

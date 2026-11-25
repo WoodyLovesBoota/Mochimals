@@ -1,0 +1,129 @@
+.wrap {
+  width: 100%;
+  max-width: 32rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.muted {
+  color: var(--color-muted);
+}
+
+// 진화 피드: 비어 있으면 높이 0
+.feed {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-sm);
+
+  li {
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-pill);
+    background: var(--color-energy-soft);
+  }
+}
+
+// * 내 순위 고정 표시. sticky: 평소엔 제자리, 스크롤로 화면 위에 닿으면 거기 붙는다.
+.myRank {
+  position: sticky;
+  top: var(--space-2);
+  z-index: 1; // 아래 목록 행 위에
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-pill);
+  background: var(--color-ink);
+  color: var(--color-on-ink);
+  font-size: var(--text-sm);
+  text-decoration: none;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: 0;
+  list-style: none;
+}
+
+// 한 줄: [순위] [썸네일] [이름 / 종·주소] [레벨]
+.row {
+  display: grid;
+  grid-template-columns: 2rem auto 1fr auto;
+  grid-template-areas:
+    "rank thumb name level"
+    "rank thumb meta level";
+  column-gap: var(--space-3);
+  align-items: center;
+  padding: var(--space-2) var(--space-3);
+  border: 2px solid var(--color-line);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  color: inherit;
+  text-decoration: none;
+
+  > :nth-child(2) {
+    grid-area: thumb;
+  }
+
+  &:hover {
+    border-color: var(--color-muted);
+  }
+}
+
+// 내 펫 행 강조 (SPEC 12장)
+.mine {
+  background: var(--color-highlight);
+}
+
+// 랭킹 테두리 (해금표). .row의 border-color를 덮어쓴다
+.silver {
+  border-color: var(--color-silver);
+}
+
+.gold {
+  border-color: var(--color-gold);
+  box-shadow: 0 0 0 2px var(--color-gold); // 금색은 한 겹 더 두껍게
+}
+
+.rank {
+  grid-area: rank;
+  font-weight: 800;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.name {
+  grid-area: name;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 700;
+}
+
+.meTag {
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--color-xp);
+  color: var(--color-on-ink);
+  font-size: 0.75rem;
+}
+
+// 둘째 줄: 종 · 줄인 주소
+.meta {
+  grid-area: meta;
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+}
+
+.level {
+  grid-area: level;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--color-ink);
+  color: var(--color-on-ink);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  white-space: nowrap;
+}
