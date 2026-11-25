@@ -1,7 +1,8 @@
 // * 개발용 아트 확인 페이지: http://localhost:3000/dev/art
 //   7종 × 5단계, 표정, 색을 한눈에 본다. svg/ 폴더의 기준 이미지와 눈으로 비교하는 용도다 (SPEC 6-1 검증).
 //   ? 한 페이지에 펫이 수십 마리라서 clipPath id가 겹치지 않는지(PetSprite의 useId)도 여기서 확인된다.
-// TODO 7강 배포 전에 지우거나 개발 환경에서만 보이게 막는다.
+// ! 배포(production)에서는 404로 막는다 (아래 notFound). 개발 서버(pnpm dev)에서만 보인다.
+import { notFound } from "next/navigation";
 import { PetSprite } from "@/components/PetSprite";
 import {
   getPetLook,
@@ -28,6 +29,9 @@ function look(species: Species, stage: Stage, emotion: Emotion = "idle", color: 
 }
 
 export default function ArtDevPage() {
+  // * NODE_ENV는 next dev에서 "development", next build/start에서 "production"이다. 빌드 때 값이 박혀서 production 번들에는 이 페이지 내용이 사실상 빠진다.
+  if (process.env.NODE_ENV === "production") notFound();
+
   return (
     <main className={styles.main}>
       <h1>아트 확인 (flat-v1)</h1>

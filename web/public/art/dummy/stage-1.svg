@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <!-- 더미 아트 세트 (art/dummy). kind: "image" 경로 확인용. 단계 1 -->
+  <ellipse cx="200" cy="352" rx="100" ry="12" fill="#00000022"/>
+  <circle cx="200" cy="252" r="100" fill="#9aa4b8"/>
+  <text x="200" y="262" font-family="sans-serif" font-size="30" font-weight="700" text-anchor="middle" fill="#ffffff">BABY</text>
+</svg>

@@ -51,7 +51,7 @@ export function RankingList({ rows }: { rows: RankRow[] }) {
       });
       setFeed((prev) => [...items.reverse(), ...prev].slice(0, FEED_MAX));
       // * 목록 갱신: 서버 컴포넌트를 다시 렌더해 달라고 요청한다 (클라이언트 상태인 feed는 유지된다).
-      //   ! revalidate = 30이라 30초 안에는 캐시된 옛 순위가 올 수 있다. 피드는 바로, 순위는 늦어도 30초 안에 맞춰진다.
+      //   ! 랭킹 데이터는 30초 캐시라(ranking/page.tsx) 30초 안에는 옛 순위가 올 수 있다. 피드는 바로, 순위는 늦어도 30초 안에 맞춰진다.
       router.refresh();
     },
   });

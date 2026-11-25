@@ -1,7 +1,7 @@
 // * 랭킹 데이터 (5강, SPEC 12장 "랭킹 데이터"). 서버 컴포넌트(app/ranking/page.tsx)에서만 부른다.
 //   방법: totalSupply를 읽고 1번부터 끝까지 pets(i), ownerOf(i)를 200개씩 묶어 읽은 뒤 XP 순으로 정렬한다.
 //   ? 왜 컨트랙트에 랭킹 배열을 안 둘까? 행동마다 정렬된 배열을 고치면 가스가 커진다 (SPEC 14장에서 금지).
-//     읽기는 공짜이고, 서버가 30초마다 한 번만 읽어 모두에게 같은 결과를 준다 (revalidate = 30).
+//     읽기는 공짜이고, 서버가 30초마다 한 번만 읽어 모두에게 같은 결과를 준다 (ranking/page.tsx의 unstable_cache).
 import "server-only";
 import type { Address } from "viem";
 import { petNft } from "./contracts";
