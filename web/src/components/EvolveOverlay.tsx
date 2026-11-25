@@ -85,7 +85,9 @@ export function EvolveOverlay({ dna, from, to, onDone }: Props) {
               animate={
                 hatch ? { rotate: [0, -8, 8, -8, 8, 0], scale: [1, 1, 1.1] } : { scale: [1, 1.08, 1, 1.15, 1.3] }
               }
-              exit={{ opacity: 0, scale: 1.5 }}
+              // ! exit에 transition을 따로 주지 않으면 아래 transition(1.6초)을 그대로 써서, 공개 문구가 먼저 뜨고
+              //   이전 모습이 한참 늦게 사라진다 (mode="wait"라 새 모습도 그만큼 늦게 나온다). 짧게 터지듯 사라지게 한다.
+              exit={{ opacity: 0, scale: 1.5, transition: { duration: 0.25 } }}
               transition={{ duration: REVEAL_AT / 1000 - 0.2, ease: "easeInOut" }}
             >
               <PetSprite look={before} size={240} />

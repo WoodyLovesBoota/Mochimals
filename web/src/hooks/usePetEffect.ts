@@ -7,6 +7,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { PetEffect } from "@/lib/effects";
 import type { Emotion } from "@/lib/look";
 
+// 새 해금 카드를 보여주는 시간
+const UNLOCK_CARD_MS = 6_000;
+
 export function usePetEffect() {
   // * 지금 재생 중인 연출과 그 번호(key).
   //   ? 왜 번호가 필요할까? 밥을 두 번 연달아 주면 두 번 다 { xpGained: 10, ... }로 내용이 같다.
@@ -20,6 +23,12 @@ export function usePetEffect() {
   //     표정이 있는 연출만 이 상태를 건드리면, 표정 없는 훈련은 happy 타이머를 그대로 둔다.
   const [emotion, setEmotion] = useState<{ key: number; name: Emotion; ms: number } | null>(null);
 
+  // * 새 해금 카드 (SPEC 12장 레벨업 연출의 "새 해금 카드"). 올라간 레벨을 기억하고 6초 뒤 지운다.
+  //   표정과 같은 이유로 따로 둔다. 레벨업 배지(1.5초)보다 길게 둬야 글자를 읽을 수 있고,
+  //   진화 연출(3초)이 화면을 덮는 동안에도 사라지지 않아야 하기 때문이다.
+  //   진화든 아니든 레벨이 오르면 띄운다 (Lv 7 "진화 (어린이)"도 해금표의 한 줄이다).
+  const [unlock, setUnlock] = useState<{ key: number; level: number } | null>(null);
+
   const play = useCallback((effect: PetEffect | null) => {
     // 충전처럼 연출할 게 없으면 아무것도 안 한다
     if (!effect) return;
@@ -31,6 +40,8 @@ export function usePetEffect() {
     //     뒤늦게 레벨업 배지가 튀어나온다. 시작할 때 한 번 정해 두면 그런 일이 없다.
     setCurrent({ key, effect: effect.evolve ? { ...effect, levelUp: null } : effect });
     if (effect.emotion) setEmotion({ key, ...effect.emotion });
+    // effect.levelUp은 진화일 때 위에서 null로 바꾼 값이 아니라 원래 값이다 (effect는 인자 그대로)
+    if (effect.levelUp !== null) setUnlock({ key, level: effect.levelUp });
   }, []);
 
   // * 표정 끄기 타이머. emotion이 새 객체가 될 때마다(= 표정 있는 새 연출) 이전 타이머를 지우고 새로 건다.
@@ -43,6 +54,13 @@ export function usePetEffect() {
     return () => clearTimeout(timer);
   }, [emotion]);
 
+  // 새 해금 카드 끄기 타이머 (표정 타이머와 같은 방식)
+  useEffect(() => {
+    if (!unlock) return;
+    const timer = setTimeout(() => setUnlock(null), UNLOCK_CARD_MS);
+    return () => clearTimeout(timer);
+  }, [unlock]);
+
   // * 한 번짜리 연출 조각(XP 숫자, 레벨업 배지, 진화 연출)이 끝났을 때 부른다 (Motion의 onAnimationComplete에서).
   //   그 조각만 null로 바꾸고 나머지는 둔다. 다음 렌더에서 그 요소가 사라진다 (AnimatePresence가 exit를 튼다).
   //   key는 그대로라서 표정 타이머나 다른 조각에는 영향이 없다.
@@ -50,5 +68,5 @@ export function usePetEffect() {
     setCurrent((c) => (c ? { ...c, effect: { ...c.effect, [part]: null } } : c));
   }, []);
 
-  return { current, emotion: emotion?.name ?? null, play, clear };
+  return { current, emotion: emotion?.name ?? null, unlock, play, clear };
 }

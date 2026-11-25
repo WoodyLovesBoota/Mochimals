@@ -1,0 +1,186 @@
+// 펫 카드 (SPEC 12장 UI 톤: 흰 배경, 둥근 카드)
+.card {
+  width: 100%;
+  max-width: 26rem; // 416px. 넓은 화면에서도 휴대폰 카드 모양을 유지한다
+  overflow: hidden; // 무대 배경이 카드의 둥근 모서리 밖으로 나가지 않게
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+}
+
+// 무대: 펫 그림 뒤의 종별 배경
+.stage {
+  // * --stage-bg는 PetView.tsx가 style로 넣는다 (아트 세트의 background()).
+  //   var(이름, 대체값): 변수가 없으면 대체값을 쓴다. 아트 세트에 background가 없을 때를 대비한다.
+  background: var(--stage-bg, var(--color-stage-fallback));
+  position: relative; // .xpFloat 같은 연출을 무대 기준으로 띄우기 위해
+  display: flex;
+  justify-content: center;
+  padding: var(--space-4) 0;
+}
+
+// * PetSprite의 width/height(280)는 "최대 크기"로만 쓴다. 좁은 휴대폰에서는 카드 폭에 맞게 줄어든다.
+.sprite {
+  max-width: 100%;
+  height: auto;
+}
+
+// XP 숫자 (+10 / +40). 무대 위쪽 가운데에 떠 있다. 위치 이동(y)은 Motion이 transform으로 준다.
+.xpFloat {
+  position: absolute;
+  top: var(--space-6);
+  left: 50%;
+  translate: -50% 0; // * transform이 아니라 translate 속성을 쓴다. Motion이 transform(y)을 덮어써도 가운데 정렬이 안 깨진다
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-xp);
+  font-size: var(--text-lg);
+  font-weight: 800;
+  pointer-events: none; // 숫자가 떠 있는 동안에도 아래를 누를 수 있게
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-6) var(--space-6);
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.name {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+}
+
+// 레벨 배지: 어두운 알약
+.level {
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--color-ink);
+  color: var(--color-on-ink);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+// 단계·종·성격·색 칩
+.chips {
+  padding: 0; // ul의 브라우저 기본 왼쪽 들여쓰기(40px) 제거 (globals.scss는 margin만 초기화한다)
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  list-style: none;
+
+  li {
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-pill);
+    background: var(--color-line);
+    color: var(--color-muted);
+    font-size: var(--text-sm);
+  }
+}
+
+
+// * 그림을 감싼 상자. 말풍선을 그림 기준으로 띄우려고 relative.
+//   flex 아이템이라 그림 크기만큼만 차지한다 (가운데 정렬은 .stage의 justify-content).
+.spriteBox {
+  position: relative;
+}
+
+// * 배고픔: 펫이 축 처진다 (SPEC 12장). 바닥 가운데를 기준으로 납작해졌다 돌아오기를 천천히 반복.
+//   transform-origin: bottom → 발은 바닥에 붙은 채 위쪽만 내려앉는다.
+.droop {
+  transform-origin: 50% 88%; // 아트 바닥선 y=352 → 352/400 = 88% (SPEC 6-2 앵커)
+  animation: droop 2.4s ease-in-out infinite;
+}
+
+@keyframes droop {
+  0%,
+  100% {
+    transform: scale(1.03, 0.92); // 옆으로 퍼지고 위아래로 눌림
+  }
+  50% {
+    transform: scale(1.01, 0.96);
+  }
+}
+
+// 춤 (Lv 16 해금): 좌우로 흔들흔들
+.dance {
+  transform-origin: 50% 88%;
+  animation: dance 1.6s ease-in-out infinite;
+}
+
+@keyframes dance {
+  0%,
+  100% {
+    transform: rotate(-4deg);
+  }
+  50% {
+    transform: rotate(4deg);
+  }
+}
+
+// ! 동작 줄이기: CSS 애니메이션은 MotionConfig가 모른다. 여기서 직접 끈다.
+//   배고픔은 "멈춘 납작한 모양"으로 남겨서 상태는 계속 보이게 한다.
+@media (prefers-reduced-motion: reduce) {
+  .droop {
+    animation: none;
+    transform: scale(1.03, 0.92);
+  }
+  .dance {
+    animation: none;
+  }
+}
+
+// * 말풍선. 꼬리 끝이 앵커 (330, 96)에 오도록: 왼쪽 82.5%, 위쪽 24%에서 풍선의 왼쪽 아래 모서리를 맞춘다.
+.bubble {
+  position: absolute;
+  left: 82.5%;
+  bottom: 76%; // 위에서 24% = 아래에서 76%
+  translate: -24px 0; // 꼬리가 풍선 왼쪽에서 24px 안쪽에 있으니 그만큼 당긴다
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px var(--color-line);
+
+  // 꼬리: 회전한 작은 사각형의 아래쪽 반
+  &::after {
+    content: "";
+    position: absolute;
+    left: 18px;
+    bottom: -5px;
+    width: 12px;
+    height: 12px;
+    background: inherit;
+    rotate: 45deg;
+  }
+}
+
+// 칭호: 이름 아래 작은 글자
+.petTitle {
+  margin-top: var(--space-1);
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+}
+
+// 새 해금 카드
+.unlockCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-card);
+  background: var(--color-energy-soft);
+  font-size: var(--text-sm);
+}
