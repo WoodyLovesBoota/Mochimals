@@ -32,7 +32,10 @@ export function Providers({ children, initialState }: Props) {
     <WagmiProvider config={config} initialState={initialState}>
       <QueryClientProvider client={queryClient}>
         {/* locale: 지갑 선택 창 문구를 한국어로 (SPEC: UI 문구는 한국어) */}
-        <RainbowKitProvider locale="ko-KR">{children}</RainbowKitProvider>
+        {/* showRecentTransactions: usePetAction이 addRecentTransaction으로 넣은 트랜잭션을 계정 버튼 스피너와 계정 창 목록으로 보여준다 */}
+        <RainbowKitProvider locale="ko-KR" showRecentTransactions>
+          {children}
+        </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>
   );

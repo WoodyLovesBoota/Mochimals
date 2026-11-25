@@ -25,25 +25,26 @@ type Props = {
 };
 
 export function PetActions({ petId, pet, onEffect }: Props) {
-  const action = usePetAction();
-
-  // * 행동 실행. mutate의 두 번째 인자 onSuccess는 "이번 호출"에만 붙는 콜백이다.
-  //   순서: usePetAction의 onSuccess(캐시 무효화, 다시 읽기를 기다림) → 이 onSuccess.
-  //   ? 그래서 연출이 시작될 때 화면 수치는 이미 새 값이다. XP 바가 차오르는 것과 +숫자가 같은 순간에 시작한다.
-  const run = (args: PetActionArgs) =>
-    action.mutate(args, {
-      onSuccess: ({ events }) => onEffect(toPetEffect(events)),
-    });
+  const action = usePetAction({
+    // * 행동이 끝나면(다시 읽기까지 끝난 뒤) 이벤트를 연출 데이터로 바꿔 위로 올린다.
+    //   usePetAction의 confirm이 invalidateQueries를 await한 뒤라, 연출이 시작될 때 화면 수치는 이미 새 값이다.
+    //   XP 바가 차오르는 것과 +숫자가 같은 순간에 시작한다. 새로고침 뒤 이어서 기다린 행동도 똑같이 연출된다.
+    onDone: ({ events }) => onEffect(toPetEffect(events)),
+    // 새로고침 뒤 이어받을 행동: 이 펫의 밥/훈련, 또는 충전 (충전은 지갑 단위라 어느 펫 화면에서든)
+    resumeIf: (a) => a.fn === "refill" || ((a.fn === "feed" || a.fn === "train") && a.petId === petId),
+  });
+  const run = (args: PetActionArgs) => action.mutate(args);
 
   // * chainId: 지갑이 지금 붙어 있는 체인. 우리 앱의 체인(chain.ts)과 다르면 "잘못된 네트워크"다.
   const { chainId } = useAccount();
   const { switchChain, isPending: switching } = useSwitchChain();
   const wrongNetwork = chainId !== chain.id;
 
-  // * 진행 중인 행동. useMutation의 variables = 마지막으로 mutate에 넘긴 인자 → 어떤 버튼을 눌렀는지 안다.
+  // * 진행 중인 행동. usePetAction의 pendingArgs = mutate에 넘긴 인자(또는 이어받은 행동) → 어떤 버튼을 눌렀는지 안다.
   //   SPEC 12장: "누른 버튼만 '지갑에서 확인'/'처리 중', 나머지 비활성"
   const busy = action.phase !== "idle";
-  const pressed = busy ? action.variables?.fn : undefined;
+  // pendingArgs: mutate 인자, 또는 새로고침 뒤 이어받은 행동 (usePetAction)
+  const pressed = action.pendingArgs?.fn;
 
   // * 잔액별 상태 (SPEC 12장 표). bigint끼리 비교한다 (1n, 3n).
   const canFeed = pet.energy >= FEED_COST;
