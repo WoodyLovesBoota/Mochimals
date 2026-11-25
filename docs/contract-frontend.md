@@ -3,7 +3,7 @@
 > 지시서(SPEC)가 아니라 **실제로 구현한 코드**를 기준으로 쓴다. 코드가 바뀌면 이 문서도 같이 고친다.
 > 줄 번호는 이 문서를 마지막으로 고친 커밋 기준이다.
 
-마지막 갱신: 2026-11-24 (4강 시작 전, 2~3강 코드 기준)
+마지막 갱신: 2026-11-25 (6강 메타데이터 API까지, 배포 전)
 
 ## 한눈에 보기
 
@@ -86,7 +86,7 @@ SPEC은 `wagmi.ts` 하나지만, RainbowKit의 `getDefaultConfig`는 서버에�
 
 Provider 순서 (`providers.tsx` 32~36줄): `WagmiProvider` → `QueryClientProvider` → `RainbowKitProvider`. wagmi의 읽기 결과는 TanStack Query 캐시(29줄 `queryClient`)에 저장된다. **행동 후 화면을 갱신할 때 이 캐시를 무효화한다** (4강).
 
-## 6. 읽기: 지금 있는 것
+## 6. 읽기: 브라우저 (wagmi 훅)
 
 [web/src/components/EnergyBadge.tsx](../web/src/components/EnergyBadge.tsx) — 헤더의 활동력.
 
@@ -97,7 +97,7 @@ Provider 순서 (`providers.tsx` 32~36줄): `WagmiProvider` → `QueryClientProv
 | 22, 25 | 주소가 없으면 `args: undefined` + `enabled: false`로 요청 자체를 안 보낸다 |
 | 36 | 반환값은 `bigint`. Energy의 decimals가 0이라 `toString()`만 한다 |
 
-행동 후 갱신: 아래 `usePetAction`의 `onSuccess`가 캐시 전체를 무효화하므로 이 값도 다시 읽힌다.
+행동 후 갱신: 아래 `usePetAction`의 `confirm`이 캐시 전체를 무효화하므로 이 값도 다시 읽힌다.
 
 [web/src/hooks/usePet.ts](../web/src/hooks/usePet.ts) — 펫 화면 읽기 (4강).
 
@@ -117,13 +117,19 @@ Provider 순서 (`providers.tsx` 32~36줄): `WagmiProvider` → `QueryClientProv
 
 | 줄 | 단계 | 내용 |
 | --- | --- | --- |
-| 14 | | `ActionPhase` = `idle / simulating / signing / confirming`. 버튼 문구용 (`isPending`만으로는 "지갑에서 확인"과 "처리 중"을 못 나눈다) |
-| 37~53 | ① 시뮬레이션 | `simulateContract`. revert하면 여기서 커스텀 에러로 throw되고 **지갑 창이 뜨지 않는다** |
-| 43~53 | ② 서명 | `writeContractAsync(request)` → 해시. 거절하면 `UserRejectedRequestError`. 갈래마다 ①②를 같이 하는 건 request 타입 유니온 문제 때문 |
-| 58~62 | ③ 확정 | `waitForTransactionReceipt`. `status === "reverted"`는 viem이 throw하지 않으므로 직접 `TX_REVERTED` |
-| 68~71 | ④ 이벤트 | `parseEventLogs`. PetNFT 주소의 로그만 (`isAddressEqual`). Energy의 Transfer 로그가 섞여 있다 |
-| 78 | ⑤ 무효화 | `invalidateQueries()` 전체. `usePet`, `EnergyBadge`가 다시 읽는다 |
-| 83 | | `{ ...mutation, phase, hash }`. `mutation.variables.fn`으로 어떤 버튼이 눌렸는지 안다 |
+| 17 | | `ActionPhase` = `idle / simulating / signing / confirming`. 버튼 문구용 (`isPending`만으로는 "지갑에서 확인"과 "처리 중"을 못 나눈다) |
+| 30, 35 | | 옵션 `onDone(result, args)`: 끝나면(다시 읽기까지 끝난 뒤) 부른다. `resumeIf(args)`: 새로고침 뒤 이어받을 행동 고르기 |
+| 70~88 | ① 시뮬레이션 ② 서명 | `simulateContract` → `writeContractAsync(request)`. revert하면 ①에서 커스텀 에러로 throw되고 **지갑 창이 뜨지 않는다**. 갈래마다 ①②를 같이 하는 건 request 타입 유니온 문제 때문 |
+| 91 | | 서명 직후 `savePending({ hash, args })` → sessionStorage ([pendingTx.ts](../web/src/lib/pendingTx.ts)) |
+| 92 | | RainbowKit `addRecentTransaction`: 헤더 계정 버튼 스피너, 계정 창 최근 목록 (`providers.tsx`의 `showRecentTransactions`) |
+| 152~172 | ③④⑤ `confirm` | `waitForTransactionReceipt` → `status === "reverted"`면 `TX_REVERTED`(viem은 throw하지 않음) → `parseEvents` → `await invalidateQueries()`. 일반 흐름과 이어받기가 같이 쓴다 |
+| 180 | ④ 이벤트 | `parseEventLogs`. PetNFT 주소의 로그만 (`isAddressEqual`). Energy의 Transfer 로그가 섞여 있다 |
+| 99 | ⑥ onDone | 연출(PetActions), 입양 후 이동(HomeView) |
+| 101 | | `onSettled`: 단계 되돌리기 + 기록 지우기 |
+| 113~138 | 이어받기 | 페이지가 열릴 때 기록을 읽어 `resumeIf`가 참이면 ③부터 기다린다. 버튼이 잠겨서 두 번 누르기(충전 → `StillHasEnergy` revert로 가스비만 날림)를 막는다. `resumingRef`는 개발 모드 StrictMode의 effect 두 번 실행 방지 |
+| 143 | | `pendingArgs` = 이어받은 행동 또는 `mutation.variables` → 어떤 버튼이 눌렸는지 |
+
+[pendingTx.ts](../web/src/lib/pendingTx.ts): 키 `silo-pets:pending-tx`(10줄). `petId`는 bigint라 JSON이 못 다뤄 문자열로 저장한다(18줄). 읽을 때 `isHash` 등으로 모양을 검사한다(32줄). sessionStorage라 탭마다 따로다.
 
 ## 8. 에러: Solidity `error` → 화면 문구
 
@@ -144,21 +150,24 @@ Provider 순서 (`providers.tsx` 32~36줄): `WagmiProvider` → `QueryClientProv
 | 파일 | 줄 | 내용 |
 | --- | --- | --- |
 | [pet/[id]/page.tsx](../web/src/app/pet/[id]/page.tsx) | 17 | 서버 컴포넌트. 1 이상 정수가 아니면 404. 펫 번호는 컨트랙트에서 1부터 (`petId = ++totalSupply`) |
-| [PetView.tsx](../web/src/components/PetView.tsx) | 36 | `usePet(id, address)`. viewer는 지금 연결된 지갑 |
-| | 44~50, 192 | 없는 펫: `ownerOf`의 OZ 에러 `ERC721NonexistentToken`을 `walk`로 찾는다 (`isNonexistent`) |
-| | 54 | 주인 여부 `isAddressEqual(address, pet.owner)` |
-| | 81, 185 | 표정: 연출 표정(excited/happy, 10장) → hungry(`isHungry`) → sleepy(활동력 0, 주인일 때만) → idle |
+| [PetView.tsx](../web/src/components/PetView.tsx) | 27 | `usePet(id, address)`. viewer는 지금 연결된 지갑 |
+| | 35, 84 | 없는 펫: `ownerOf`의 OZ 에러 `ERC721NonexistentToken`을 `walk`로 찾는다 (`isNonexistent`) |
+| | 45 | 주인 여부 `isAddressEqual(address, pet.owner)` |
+| [PetCard.tsx](../web/src/components/PetCard.tsx) | 36, 180 | 표정: 연출 표정(excited/happy, 10장) → hungry(`isHungry`) → sleepy(활동력 0, 주인일 때만) → idle |
+| | 68~74 | 해금 적용 ([unlocks.ts](../web/src/lib/unlocks.ts)): 칭호, 해금 배경(`--bg-*` 토큰, 없으면 `ArtSet.background`), 춤(Lv 16) |
+| | 93 | 배고픔 말풍선. 위치는 아트 앵커 (330, 96) → 82.5% / 24% |
 | [useHungerTimer.ts](../web/src/hooks/useHungerTimer.ts) | 31~39 | `lastFedAt + 24시간 + 1초`에 `refetch` 1회. 블록마다 읽는 watch 대신 (SPEC 8장) |
 | [time.ts](../web/src/lib/time.ts) | 16 | `+ 1`: 컨트랙트 `isHungry`가 `>` 비교라서. 판정은 항상 컨트랙트 `pet.hungry`, 여기는 남은 시간 글자만 |
-| [PetActions.tsx](../web/src/components/PetActions.tsx) | 39, 55 | 지갑 `chainId`가 `chain.id`와 다르면 행동 버튼 대신 `useSwitchChain` 전환 버튼 |
-| | 45~46 | `usePetAction`의 `phase` + `variables.fn` → 누른 버튼만 "확인 중 / 지갑에서 확인 / 처리 중" |
-| | 49~51 | 잔액(`pet.energy`, bigint)으로 버튼 활성: 밥 ≥1, 훈련 ≥3, 0이면 충전 버튼 |
-| | 67 | `toErrorMessage(action.error)`. 지갑 거절은 null이라 문구 없음 |
-| | 117 | 확정 대기 중 `blockExplorers.default.url/tx/<hash>` 링크 (anvil은 탐색기가 없어 안 보임) |
+| [PetActions.tsx](../web/src/components/PetActions.tsx) | 39, 56 | 지갑 `chainId`가 `chain.id`와 다르면 행동 버튼 대신 `useSwitchChain` 전환 버튼 |
+| | 32, 34 | `onDone` → 연출, `resumeIf` → 이 펫의 밥/훈련 또는 충전만 이어받기 |
+| | 47 | `pendingArgs.fn` → 누른 버튼만 "확인 중 / 지갑에서 확인 / 처리 중" |
+| | 50~52 | 잔액(`pet.energy`, bigint)으로 버튼 활성: 밥 ≥1, 훈련 ≥3, 0이면 충전 버튼 |
+| | 68 | `toErrorMessage(action.error)`. 지갑 거절은 null이라 문구 없음 |
+| | 118 | 확정 대기 중 `blockExplorers.default.url/tx/<hash>` 링크 (anvil은 탐색기가 없어 안 보임) |
 
 ## 10. 연출: 영수증 이벤트 → 화면
 
-흐름: `usePetAction` ④ 이벤트 → `PetActions`의 `mutate(args, { onSuccess })` → `toPetEffect(events)` → `usePetEffect.play` → `PetCard`가 Motion으로 그린다.
+흐름: `usePetAction` ④ 이벤트 → `onDone` → `toPetEffect(events)` → `usePetEffect.play` → `PetCard`/`EvolveOverlay`가 Motion으로 그린다.
 
 | 파일 | 줄 | 내용 |
 | --- | --- | --- |
@@ -166,15 +175,70 @@ Provider 순서 (`providers.tsx` 32~36줄): `WagmiProvider` → `QueryClientProv
 | | 49 | XP 숫자: `Trained.args.xpGained`(40 또는 배고프면 20). `Fed`에는 얻은 양이 없어서 상수 10 |
 | | 53~60 | `LevelUp.args.level`과 `level − 1`의 단계를 비교해 진화/부화 판정. 컨트랙트가 한 번에 1레벨만 올린다는 가정 (`_gainXp`) |
 | | 64 | 표정: 레벨업 excited 3초 > 밥 happy 10초 (SPEC 5장 우선순위) |
-| [PetActions.tsx](../web/src/components/PetActions.tsx) | 33~36 | 호출별 `onSuccess`. 훅의 `onSuccess`(무효화, 다시 읽기 대기)가 먼저 끝나므로 연출 시작 때 수치는 이미 새 값 |
-| [usePetEffect.ts](../web/src/hooks/usePetEffect.ts) | 14, 21 | 연출 번호(key)와 표정 상태를 따로 둔다. 표정 없는 훈련이 happy 타이머를 지우지 않게 |
-| [PetView.tsx](../web/src/components/PetView.tsx) | 60 | `MotionConfig reducedMotion="user"`: 동작 줄이기면 transform을 건너뛰고 페이드만 |
-| | 133~150 | XP 숫자 `+10`/`+40`. `AnimatePresence` + 연출 번호 key |
-| | 86, 92~105 | 레벨업(단계 그대로일 때만): `useAnimate`로 펫 통통 튀기. 연출 번호가 바뀔 때 한 번. 동작 줄이기면 생략 |
-| | 154~159 | 레벨업 배지 `Lv N!`(영수증 `LevelUp.level`)와 별 파티클 ([LevelUpFx.tsx](../web/src/components/LevelUpFx.tsx)). 배지가 끝나면 `clear("levelUp")` |
+| [usePetEffect.ts](../web/src/hooks/usePetEffect.ts) | 17, 24, 30 | 연출 번호(key), 표정, 새 해금 카드를 따로 둔다. 표정 없는 훈련이 happy 타이머를 지우지 않게 |
+| | 41 | 진화면 `levelUp`을 비운다 → 레벨업 배지 대신 진화 연출만 |
+| | 67 | `clear(part)`: 끝난 조각(XP 숫자, 배지, 진화)만 끈다 |
+| [PetView.tsx](../web/src/components/PetView.tsx) | 53 | `MotionConfig reducedMotion="user"`: 동작 줄이기면 transform을 건너뛰고 페이드만 |
+| | 71 | 진화/부화 `EvolveOverlay` (화면 전체, 3초, 건너뛰기·Esc) |
+| [PetCard.tsx](../web/src/components/PetCard.tsx) | 103 | XP 숫자 `+10`/`+40`. `AnimatePresence` + 연출 번호 key |
+| | 46, 124 | 레벨업: `useAnimate` 튀기 + 배지·별 ([LevelUpFx.tsx](../web/src/components/LevelUpFx.tsx)) |
+| | 152 | 새 해금 카드 6초 (`unlocksAt(level)`) |
 
-## 11. 아직 없는 것 (만들면 여기에 추가)
+## 11. 내 펫 찾기: Transfer 로그 → ownerOf (`useMyPets`)
 
-- 4강: 진화/부화 연출 (`effect.evolve`), 레벨업 때 새 해금 카드 (`lib/unlocks.ts`)
-- 5강: `useMyPets`(`Transfer` 로그 + `ownerOf`), 입양 후 `Adopted` 이벤트에서 petId, 랭킹 서버 읽기
-- 6강: 메타데이터 API (`tokenURI` → `/api/pet/[id]`)
+[web/src/hooks/useMyPets.ts](../web/src/hooks/useMyPets.ts) — 홈의 "내 펫 목록".
+
+| 줄 | 내용 |
+| --- | --- |
+| 16 | ERC-721 `Transfer` 이벤트 ABI. 세 값이 indexed라 `args: { to: me }`로 노드가 걸러 준다 |
+| 24 | 쿼리 키에 주소. `usePetAction`이 행동 뒤 캐시 전체를 무효화하므로 입양 뒤 자동으로 다시 읽는다 |
+| 34 | `fromBlock = DEPLOY_BLOCK` (env, 배포 스크립트 출력). 0부터 찾으면 공개 RPC에서 느리거나 거절된다 |
+| 36 | 같은 펫을 여러 번 받았을 수 있어 `Set`으로 중복 제거 |
+| 40~44 | 지금 주인(`ownerOf`)이 나인 것만. 보냈거나 판 펫은 빠지고, **선물받은 펫은 들어온다** |
+| 54~72 | RPC가 범위를 거절하면 반으로 나눠 다시 부른다 (공급자마다 한도가 달라서 숫자를 정해 두지 않음) |
+
+[HomeView.tsx](../web/src/components/HomeView.tsx): 88줄 `hasAdopted(me)`로 "이미 입양한 지갑"을 미리 안내(지갑당 입양 1번). 93~95줄 입양 영수증의 `Adopted.args.petId`로 바로 `/pet/<id>` 이동(로그 검색보다 빠르다). 98줄 입양만 이어받기.
+
+## 12. 서버에서 읽기: `publicClient` + `readMany`
+
+| 파일 | 내용 |
+| --- | --- |
+| [publicClient.ts](../web/src/lib/publicClient.ts) | 서버 전용 viem `createPublicClient`. 체인과 RPC는 `chain.ts`·env와 같다. `import "server-only"`로 클라이언트 번들에 못 들어가게 막는다 |
+| [readMany.ts](../web/src/lib/readMany.ts) | 12줄: 체인에 multicall3가 있으면 `multicall` 한 번, 21줄: 없으면(anvil) `Promise.all`로 따로. wagmi 훅은 이걸 알아서 하지만 viem 직접 호출은 에러가 나서 만들었다 |
+
+## 13. 랭킹: 서버에서 전부 읽고 정렬
+
+| 파일 | 줄 | 내용 |
+| --- | --- | --- |
+| [ranking.ts](../web/src/lib/ranking.ts) | 32 | `totalSupply` → 펫 번호 1..N (소각이 없어 빈칸 없음) |
+| | 13, 41 | 200개씩 묶어 `pets(i)`, `ownerOf(i)`를 번갈아 넣고 같은 순서로 꺼낸다 |
+| | 50 | 레벨·단계는 `levelFromXp`/`stageFromLevel`로 계산 (컨트랙트와 같은 식, 3강 테스트). 읽기 요청 절반 절약 |
+| | 56 | XP 내림차순, 같으면 번호 오름차순 |
+| [ranking/page.tsx](../web/src/app/ranking/page.tsx) | 15 | `unstable_cache(..., { revalidate: 30 })`. SPEC은 페이지 `revalidate = 30`이지만 layout이 쿠키를 읽어 모든 페이지가 동적이라 효과가 없다 → 데이터를 30초 캐시 |
+| [RankingList.tsx](../web/src/components/RankingList.tsx) | 34 | `useWatchContractEvent({ eventName: "LevelUp" })`: 누구의 레벨업이든 1초 폴링으로 받아 피드 |
+| | 43 | 단계가 바뀐 레벨업이면 "진화" |
+| | 55 | `router.refresh()`로 목록 갱신 (데이터 캐시 때문에 최대 30초 늦을 수 있음) |
+| | 61 | 내 펫 강조, 가장 높은 내 순위를 sticky로 고정 표시 |
+
+## 14. 메타데이터 API: `tokenURI` → JSON → PNG
+
+1. 컨트랙트 `tokenURI(7)` = `baseURI + "7"`. `baseURI`는 배포 때 `APP_URL + "/api/pet/"` ([Deploy.s.sol](../contracts/script/Deploy.s.sol)).
+2. 마켓이 `/api/pet/7`을 읽는다 → JSON의 `image`를 따라 `/api/pet/7/image.png?v=<아트 버전>`을 읽는다.
+
+| 파일 | 줄 | 내용 |
+| --- | --- | --- |
+| [metadata.ts](../web/src/lib/metadata.ts) | 30 | `totalSupply, pets, levelOf, stageOf, isHungry`를 한 번에 (`readMany`) |
+| | 37 | 번호가 1..totalSupply 밖이면 null → 404 (`pets(id)`는 없는 번호도 revert하지 않고 0을 준다) |
+| | 40 | 이미지 표정은 hungry 또는 idle만 (SPEC 5장) |
+| [api/pet/[id]/route.ts](../web/src/app/api/pet/[id]/route.ts) | 17 | `?v=${ACTIVE_ART_SET.version}`: 아트를 바꾸면 주소가 달라져 캐시된 옛 이미지를 피한다 |
+| | 29 | 부화 전 종은 `Unknown` |
+| | 37 | `s-maxage=60`: CDN이 60초 재사용 |
+| [api/pet/[id]/image.png/route.tsx](../web/src/app/api/pet/[id]/image.png/route.tsx) | 19, 30 | 화면과 같은 `ACTIVE_ART_SET.render` + [compose.ts](../web/src/art/compose.ts) `layersToSvg` → `next/og` `ImageResponse`로 800px PNG |
+| | 31, 48 | `kind: "image"` 아트는 서버가 직접 받아 data URI로 넣는다 (`next/og`가 localhost 주소를 SSRF로 막기 때문) |
+
+아트를 교체할 때: 새 아트 세트 → `art/index.ts`의 `ACTIVE_ART_SET` 변경(version 증가) → admin이 `refreshAllMetadata()` 호출 (ERC-4906 `BatchMetadataUpdate`로 마켓에 새로고침 요청). [art/dummy](../web/src/art/dummy/index.ts)로 바꿔도 다른 파일 수정 없이 화면과 이미지 API가 동작하는 것을 확인했다.
+
+## 15. 아직 없는 것 (만들면 여기에 추가)
+
+- 7강: Base Sepolia 배포 (env 값만 바뀐다. 코드는 그대로)
+- 8강(선택): 가스비 대납 (`useCapabilities` → `sendCalls` + paymaster)

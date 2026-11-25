@@ -3,27 +3,31 @@
 > 다음 세션을 시작할 때 Claude는 이 파일부터 읽고 "다음 할 일"에서 이어간다.
 > 한 강이 끝날 때마다 이 파일을 갱신하고 같이 커밋한다.
 
-마지막 갱신: 2026-11-24 (4강 6교시까지)
+마지막 갱신: 2026-11-25 (6강까지 개발, 설명 전)
 
 ## 현재 위치
 
-**4강 (내 펫 화면) 6교시까지 끝, 연출(7교시)만 남음.** 이전: **3강 (해석과 아트) 끝.** 2강: Next.js 16 앱, wagmi/RainbowKit 설정, 쿠키로 연결 상태 복원, ABI 생성(@wagmi/cli), 헤더 활동력 표시까지 끝났다. 수강생이 MetaMask로 anvil에 연결하는 것까지 확인했다. 스타일은 Tailwind를 걷어내고 CSS Modules + SCSS로 바꿨다. 3강: `lib/look.ts`(DNA 해석, 레벨) + 테스트, `art/flat-v1`(generate.py 포팅, 기준 SVG 102개 문자열 비교 테스트), `PetSprite`, 개발용 `/dev/art` 페이지. 4강: `usePet`(읽기), `usePetAction`(쓰기), `lib/errors.ts`, `/pet/[id]`(PetView, PetStats, PetActions). 수강생이 anvil에서 충전·훈련·밥·레벨업까지 실제로 눌러 확인했다.
+**6강(메타데이터 API)까지 개발 끝, 7강 Base Sepolia 배포 직전.** 2026-11-25에 수강생 요청으로 "강의 방식(부분 설명 + 확인 질문)"을 멈추고 4강 7교시 4부부터 배포 직전까지 한 번에 개발했다. **설명은 아직 안 했다** — 다음 세션은 정리 설명부터 한다.
+
+이전까지: 1강 컨트랙트, 2강 Next.js/wagmi/RainbowKit/쿠키 복원/ABI 생성, 3강 `look.ts`·`flat-v1`·`PetSprite`, 4강 1~6교시(`usePet`, `usePetAction`, `errors.ts`, `/pet/[id]`, `PetStats`, `PetActions`)와 7교시 1~3부(`effects.ts`, `usePetEffect`, XP 숫자, 레벨업)는 강의로 진행했다.
 
 ## 다음 할 일
 
-1. **4강: 내 펫 화면** ([SPEC.md](SPEC.md) 13장 4번, 12장 화면/버튼 상태/연출). 읽기 훅(usePet), 행동 훅(usePetAction: 시뮬레이션 → 서명 → 확정 → 다시 읽기), 버튼 상태, `lib/errors.ts` 에러 문구, Motion 연출. EnergyBadge의 TODO(행동 후 잔액 갱신)도 여기서 처리한다.
-   - 3강에서 정한 것: `ArtSet.render(look, { idPrefix })` 선택 인자 추가(SPEC 6장 인터페이스 + clipPath id 충돌 방지), vitest 사용(`pnpm test`), tsconfig target ES2020(bigint 리터럴). `/dev/art`는 7강 배포 전에 지우거나 막는다.
-   - 수강생은 손계산 확인 질문을 원하지 않는다. 개념·설계 질문만 내고, 답을 바로 원하면 알려준다.
-   - 지시서와 다르게 구현한 것 (버전 차이 때문, 동작은 같음): `cacheComponents` 끔(SPEC의 `revalidate`와 layout 쿠키 읽기 때문), wagmi 설정을 `chain.ts`/`wagmi.ts`(클라이언트, RainbowKit)/`wagmiServer.ts`(서버, 쿠키 복원용)로 나눔(`getDefaultConfig`가 클라이언트 전용), `coinbaseWallet` 대신 RainbowKit `base` 지갑(deprecated 대체), 체인을 `NEXT_PUBLIC_CHAIN_ID`로 선택(31337 anvil / 84532 / 8453), `serverExternalPackages: ["@coinbase/cdp-sdk"]`(x402 선택 의존성 빌드 에러).
-   - **스타일: Tailwind를 쓰지 않는다** (수강생 결정, 2026-11-24, "유지보수가 너무 힘들다"). SPEC 1장의 Tailwind 대신 CSS Modules + SCSS. 규칙: 디자인 토큰은 `src/app/globals.scss`의 `:root` CSS 변수(`--color-ink` 등, SPEC 12장 UI 톤), 화면 폭 기준은 `src/styles/_breakpoints.scss` mixin(`@include bp.sm`), 컴포넌트 스타일은 컴포넌트 옆 `X.module.scss`. 컴포넌트에 색 코드를 직접 쓰지 않는다.
-   - `web/.env.example`은 수강생 결정으로 지웠다 (SPEC 7-1은 커밋하라고 함). env 목록은 아래 "개발 환경"에 있다.
-   - **4강 진행 중 (2026-11-24)**: 1교시 `usePet`, 2교시 `usePetAction`, 3교시 `lib/errors.ts`(+테스트 5), 4교시 `/pet/[id]` 펫 카드, 5교시 `PetStats`(XP 바, 활동력 10칸, 배고픔 타이머 `useHungerTimer`, `lib/time.ts`+테스트 6), 6교시 `PetActions`(버튼 상태 표, 네트워크 전환, 에러 문구) 끝.
-   - **다음: 7교시 연출** (SPEC 12장 연출 표): Motion 설치(수강생이 직접 `pnpm add motion`), `usePetAction` 결과 이벤트로 XP 숫자(+10/+40), 레벨업(`LevelUp`), 진화/부화(단계 바뀜), 표정 excited(레벨업 3초)/happy(밥 10초), `prefers-reduced-motion`이면 페이드만. 그다음 6교시 확인 질문(disabled를 지우고 훈련 누르면?) 답부터.
-   - 4강에서 정한 것: `ArtSet.background?(look)` 선택 메서드 추가(무대 배경색, 화면이 flat-v1을 import하지 않게). 색 토큰 `--color-surface`, `--color-on-ink`, `--color-stage-fallback` 추가. 활동력 칸과 sleepy 표정은 주인일 때만(`pet.energy`는 보는 사람의 잔액).
-   - 4강에서 알게 된 것: anvil(viem `foundry` 체인)에는 multicall3가 없어서 wagmi `readContracts`가 6번 따로 읽기로 바꾼다(동작은 함, 같은 블록 보장 없음). 새 기기에서 `LayoutProps`/`PageProps` 타입 에러가 나면 `pnpm exec next typegen`.
-   - 데모 상태(anvil을 끄면 사라짐): 1번 펫을 anvil 0번 계정으로 입양 후 수강생 지갑 `0x3a6A…8406`으로 전송, 테스트 ETH 10 전송. 시간 테스트는 `cast rpc evm_increaseTime 86401` + `cast rpc evm_mine`.
-   - **TODO 4강 끝나고 (수강생 결정)**: 확정 대기 중 새로고침 대응. ① RainbowKit `showRecentTransactions` + `useAddRecentTransaction` (헤더 스피너, 계정 모달 최근 트랜잭션, localStorage 유지. 표시만 해줌) ② 서명 직후 `{ hash, fn, petId }`를 sessionStorage에 저장하고 `usePetAction`이 페이지 로드 때 이어서 기다리기 (버튼 잠금, 두 번 누르기 방지, 레벨업 연출 복원). 배경: 새로고침해도 트랜잭션은 취소되지 않지만 `phase`/`hash`는 사라져서, 충전을 두 번 누르면 두 번째가 `StillHasEnergy`로 revert해 가스비만 날린다.
-2. 이후 13장 순서: 5강 홈/입양·랭킹 → 6강 메타데이터 API → 7강 Base Sepolia 배포 → 8강(선택) 가스비 대납.
+1. **한 번에 몰아서 개발한 부분 정리 설명** (수강생이 원한 방식: 끝까지 개발 → 설명은 한 번에). 순서 제안:
+   - 4강 마무리: 진화/부화 `EvolveOverlay`, 배고픔 말풍선과 축 처짐, 해금 `lib/unlocks.ts` + `UnlockList` + 새 해금 카드, `PetCard` 분리
+   - 새로고침 대응: `lib/pendingTx.ts` + `usePetAction`의 `confirm`/`resume`/`onDone`/`resumeIf`, RainbowKit 최근 트랜잭션
+   - 5강: `useMyPets`(Transfer 로그 + ownerOf, 범위 반으로 나누기), `HomeView`(입양, Adopted 이벤트로 이동), `lib/ranking.ts` + `unstable_cache`, `RankingList`(LevelUp 구독 피드)
+   - 6강: `lib/metadata.ts`, `/api/pet/[id]`, `/api/pet/[id]/image.png`(next/og), `art/compose.ts`, `art/dummy`
+   - 근거 문서: [contract-frontend.md](contract-frontend.md) 7~14장, README "결정 사항"
+2. **7강: Base Sepolia 배포** (수강생이 직접): faucet ETH → `cast wallet import`로 keystore → `APP_URL=… forge script … --account …` → Vercel 환경 변수 → 배포. README "실행: Base Sepolia"에 절차가 있다. 배포 뒤 `/api/pet/1`과 OpenSea 테스트넷에서 이미지 확인.
+3. 8강(선택): 가스비 대납 (SPEC 10장).
+
+정한 것·알게 된 것 (설명 때 짚을 것):
+- SPEC과 다르게 한 것은 README "결정 사항"에 모았다. 이번에 더한 것: 랭킹은 페이지 ISR 대신 `unstable_cache`(layout의 쿠키 읽기로 모든 페이지가 동적이라 `revalidate`가 안 걸린다. 빌드 출력 ƒ로 확인), PNG는 `next/og`(설치 없음), `kind: "image"` 아트는 data URI로(next/og의 SSRF 차단), 홈은 자동 이동 대신 내 펫 목록.
+- anvil에는 multicall3가 없어서 viem 직접 호출(서버, useMyPets)은 `lib/readMany.ts`로 따로 읽기.
+- vitest에는 `@/` 별칭 설정이 없다. 테스트 파일은 상대 경로로 import한다.
+- 개발 중 브라우저 확인: Playwright에 anvil 계정으로 바로 서명하는 EIP-1193 테스트 지갑을 주입해서 입양·밥·훈련·레벨업·부화·충전·새로고침 이어받기·전송받은 펫·랭킹 피드·NFT 이미지를 실제로 눌러 확인했다 (코드에는 넣지 않았다).
+- 수강생은 손계산 확인 질문을 원하지 않는다. 개념·설계 질문만 내고, 답을 바로 원하면 알려준다.
 
 ## 끝낸 것
 
@@ -51,6 +55,17 @@
 | 4-4 | `/pet/[id]`, `PetView`, `ArtSet.background` | `5fbd235` |
 | 4-5 | `PetStats`, `useHungerTimer`, `lib/time.ts` | `43f5a58` |
 | 4-6 | `PetActions` | `0181105` |
+| 4-7 | 연출 1부 `lib/effects.ts` + 테스트 | `cee6f08` |
+| 4-7 | 연출 2부 `usePetEffect`, XP 숫자, Motion 설치 | `712d965` |
+| 4-7 | 연출 3부 레벨업 (튀기, 배지, 별) | `b470b62` |
+| 4-7 | 연출 4부 진화/부화 `EvolveOverlay` (설명 전) | `70f38cd` |
+| 4 | `lib/unlocks.ts` + 테스트 (설명 전) | `6f5d214` |
+| 4-7 | 연출 5부 배고픔, 해금 적용, `PetCard` 분리 (설명 전) | `343509d` |
+| 4 | 새로고침 대응 (설명 전) | `a722945` |
+| 5 | 홈/입양, `useMyPets`, `readMany`, `publicClient` (설명 전) | `0f712f8` |
+| 5 | 랭킹 (설명 전) | `bb039de` |
+| 6 | 메타데이터 API JSON + PNG (설명 전) | `bd7bf43` |
+| 6 | 더미 아트, `/dev/art` 막기, 랭킹 캐시 (설명 전) | `f57538a` |
 
 ## 수강생 기록 (수업 수준을 맞추기 위한 메모)
 
@@ -98,7 +113,7 @@ cd ..
 # ---------- 4. 프론트 의존성 ----------
 cd web
 pnpm install
-pnpm test                  # 149 passed (look.ts 36 + 아트 비교 102 + errors 5 + time 6)
+pnpm test                  # 176 passed
 cd ..
 ```
 
@@ -156,7 +171,3 @@ ENV
 3. anvil을 재시작했으면 MetaMask 설정 → 고급 → "활동 탭 데이터 지우기" (nonce 오류 방지)
 
 VSCode 확장: Solidity (Nomic Foundation), Better Comments. 저장소를 열면 추천 알림이 뜬다 (`.vscode/extensions.json`).
-
-## 아직 안 만든 문서
-
-- `docs/contract-frontend.md`: 컨트랙트 ↔ 프론트엔드 연결 설명. **CLAUDE.md 작업 방식 2번에 따라 2강부터 써야 했는데 아직 안 썼다.** 4강 시작 전에 지금까지의 실제 코드(chain.ts, wagmi.ts, wagmiServer.ts, contracts.ts, generated.ts, EnergyBadge의 balanceOf 읽기, 쿠키 복원) 기준으로 먼저 작성한다.
