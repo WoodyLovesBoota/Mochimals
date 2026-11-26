@@ -139,7 +139,7 @@ function PetScreen(props: { petId: string; id: bigint; pet: PetState; isOwner: b
     //   Motion이 위치·크기·회전(transform) 애니메이션을 건너뛰고 opacity 같은 나머지만 튼다.
     //   SPEC 12장 "prefers-reduced-motion이면 페이드만"을 컴포넌트마다 분기하지 않고 여기 한 줄로 처리한다.
     <MotionConfig reducedMotion="user">
-      {/* data-fit: 데스크톱에서 화면 높이에 맞춘다 (layout.module.scss의 .shell:has([data-fit]))
+      {/* data-fit: 화면 높이에 맞추고 위아래 스크롤을 없앤다 (모바일·데스크톱) (layout.module.scss의 .shell:has([data-fit]))
           data-scene: 레벨별 장면 (해금 배경, lib/unlocks.ts sceneFor). 화면 전체 배경은 layout의 .shell이 이걸 보고 바꾼다 */}
       <main className={styles.main} data-fit data-scene={sceneFor(level)}>
         <div className={styles.play}>

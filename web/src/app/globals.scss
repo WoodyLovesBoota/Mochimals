@@ -225,6 +225,13 @@ html {
   -webkit-font-smoothing: antialiased;
 }
 
+// ! 펫 화면(data-fit, layout.module.scss의 .shell 참고): 아이폰 사파리는 내용이 화면에 딱 맞아도 손가락으로 당기면 페이지 전체가 고무줄처럼 늘어난다(overscroll 바운스).
+//   펫 화면에서만 html의 바운스·스크롤을 끈다. :has() 덕분에 다른 화면(랭킹·목록)은 그대로 스크롤된다.
+html:has([data-fit]) {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
 // 헤더 + 본문의 세로 배치는 body가 아니라 layout.module.scss의 .shell이 맡는다
 body {
   // * 장면 그림이 늦게 뜰 때 잠깐 보이는 색. 시안 바깥 배경과 같은 잉크색
