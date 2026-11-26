@@ -1,19 +1,26 @@
 // * 내 펫 목록 찾기 (5강, SPEC 8장 "내 펫 찾기").
 //   펫은 NFT라 사고팔 수 있다. 그래서 "입양한 펫 1마리"가 아니라 "지금 내가 가진 펫 0마리 이상"으로 다룬다.
-//   방법: ① 나에게 들어온 Transfer 로그를 전부 모은다 (입양 = 0x0 → 나, 선물 받음 = 남 → 나)
-//         ② 그 펫들의 지금 주인(ownerOf)을 읽어 아직 내 것인 것만 남긴다 (보냈거나 판 펫은 빠진다)
+//   방법: 1번부터 totalSupply까지 모든 펫의 ownerOf를 묶어 읽고, 주인이 나인 번호만 남긴다.
+//         입양한 펫, 선물받은 펫이 들어오고, 보냈거나 판 펫은 빠진다.
+//
+//   ! SPEC 8장은 "나에게 들어온 Transfer 로그(getLogs) → ownerOf"였지만 Base Sepolia 배포에서 쓸 수 없었다 (2026-11-26).
+//     RPC가 getLogs 한 번의 블록 범위를 막는다: Alchemy 무료 10블록, sepolia.base.org 200블록.
+//     Base는 2초마다 블록이 생겨 배포 블록부터의 범위가 하루에 약 4만 블록씩 늘어난다.
+//     → 범위를 나눠 조회하면 요청이 수천 개가 되고, 요청 한도에 걸려 "내 펫을 찾는 중…"에서 멈췄다.
+//   * 그래서 "블록 수"가 아니라 "펫 수"에 비례하는 방식으로 바꿨다. multicall3가 있는 체인에서는 200마리당 요청 1번이다.
+//     랭킹(lib/ranking.ts)도 같은 방식으로 전체를 읽는다.
+//   ? 펫이 수만 마리가 되면? 그때는 인덱서(The Graph, Ponder 등)가 맞다. SPEC 14장에서 이번 범위는 인덱서를 쓰지 않는다.
 //   ? 왜 컨트랙트에 "주소별 펫 목록"을 안 두었을까? ERC721Enumerable을 쓰면 되지만 전송마다 가스가 크게 늘어난다.
-//     읽기는 공짜이니 로그로 찾고, 쓰기를 싸게 두는 쪽을 골랐다 (SPEC 14장: 인덱서도 쓰지 않는다).
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { isAddressEqual, parseAbiItem, type Address, type PublicClient } from "viem";
+import { isAddressEqual, type Address, type PublicClient } from "viem";
 import { usePublicClient } from "wagmi";
-import { DEPLOY_BLOCK, petNft } from "@/lib/contracts";
+import { petNft } from "@/lib/contracts";
 import { readMany } from "@/lib/readMany";
 
-// ERC-721 표준 Transfer 이벤트. 세 값이 모두 indexed라 "to = 나"로 노드에서 바로 걸러 받을 수 있다.
-const TRANSFER = parseAbiItem("event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)");
+// 한 번에 묶어 읽을 펫 수 (랭킹과 같은 200). 요청 하나가 너무 커지면 RPC가 거절하거나 느려진다.
+const CHUNK = 200;
 
 /** 내가 지금 가진 펫 번호들 (오름차순). 연결 안 됐으면 쿼리가 꺼진다. */
 export function useMyPets(me: Address | undefined) {
@@ -29,45 +36,20 @@ export function useMyPets(me: Address | undefined) {
 }
 
 async function findMyPets(client: PublicClient, me: Address): Promise<bigint[]> {
-  // ① 나에게 들어온 Transfer 로그. 배포 블록부터 지금까지.
-  const latest = await client.getBlockNumber();
-  const received = await receivedIds(client, me, DEPLOY_BLOCK, latest);
-  // 같은 펫을 받았다 보냈다 다시 받으면 로그가 여러 개라 Set으로 중복 제거
-  const ids = [...new Set(received)];
-  if (ids.length === 0) return [];
+  // 펫 번호는 1부터 totalSupply까지 빈칸 없이 이어진다 (adopt의 petId = ++totalSupply, 소각 기능 없음)
+  const total = await client.readContract({ ...petNft, functionName: "totalSupply" });
+  const ids = Array.from({ length: Number(total) }, (_, i) => BigInt(i + 1));
 
-  // ② 지금 주인이 나인 것만
-  const owners = await readMany(
-    client,
-    ids.map((id) => ({ ...petNft, functionName: "ownerOf", args: [id] }) as const),
-  );
-  return ids.filter((_, i) => isAddressEqual(owners[i] as Address, me)).sort((a, b) => (a < b ? -1 : 1));
-}
-
-/**
- * 나에게 들어온 Transfer 로그의 tokenId들.
- * getLogs를 부르되, RPC가 "범위가 너무 넓다"며 거절하면 범위를 반으로 나눠 다시 부른다 (SPEC 8장).
- * ? 왜 처음부터 잘게 나누지 않을까? anvil이나 넓은 범위를 허용하는 RPC에서는 한 번에 끝나는 게 가장 빠르다.
- *   거절당했을 때만 나누면 어떤 RPC든 맞춰 간다. 공급자마다 한도(블록 수, 결과 개수)가 달라서 숫자를 정해 두기 어렵다.
- */
-// * 반환 타입을 적어 둔다: 자기 자신을 부르는(재귀) 함수는 TS가 반환 타입을 추론하지 못한다.
-async function receivedIds(client: PublicClient, me: Address, from: bigint, to: bigint): Promise<bigint[]> {
-  try {
-    const logs = await client.getLogs({
-      address: petNft.address,
-      event: TRANSFER,
-      args: { to: me },
-      fromBlock: from,
-      toBlock: to,
+  const mine: bigint[] = [];
+  for (let start = 0; start < ids.length; start += CHUNK) {
+    const chunk = ids.slice(start, start + CHUNK);
+    const owners = await readMany(
+      client,
+      chunk.map((id) => ({ ...petNft, functionName: "ownerOf", args: [id] }) as const),
+    );
+    chunk.forEach((id, i) => {
+      if (isAddressEqual(owners[i] as Address, me)) mine.push(id);
     });
-    // tokenId는 indexed라 항상 있다. 타입상 optional이라 !로 알려준다
-    return logs.map((l) => l.args.tokenId!);
-  } catch (error) {
-    // 한 블록짜리도 실패하면 범위 문제가 아니다. 그대로 throw
-    if (from >= to) throw error;
-    const mid = (from + to) / 2n; // bigint 나눗셈은 소수점을 버린다
-    const left = await receivedIds(client, me, from, mid);
-    const right = await receivedIds(client, me, mid + 1n, to);
-    return [...left, ...right];
   }
+  return mine; // ids가 오름차순이라 결과도 오름차순
 }

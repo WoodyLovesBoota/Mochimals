@@ -93,7 +93,7 @@ MetaMask: 네트워크 추가(RPC `http://127.0.0.1:8545`, 체인 ID `31337`) �
 | `NEXT_PUBLIC_WC_PROJECT_ID` | (비움) | WalletConnect(Reown) 프로젝트 ID. 비우면 WalletConnect 지갑만 안 된다 |
 | `NEXT_PUBLIC_PET_NFT_ADDRESS` | `0x5FbD…0aa3` | 배포 출력 |
 | `NEXT_PUBLIC_ENERGY_ADDRESS` | `0xa16E…d2be` | 배포 출력 (`petNft.energy()`) |
-| `NEXT_PUBLIC_DEPLOY_BLOCK` | `0` | 배포 출력. 내 펫 찾기(`getLogs`)의 시작 블록 |
+| `NEXT_PUBLIC_DEPLOY_BLOCK` | `0` | 배포 출력. 지금은 코드에서 쓰지 않는다 (내 펫 찾기를 ownerOf 방식으로 바꿈). 나중에 로그 검색을 쓸 때를 위해 남겨 둔다 |
 | `NEXT_PUBLIC_APP_URL` | `http://localhost:3000` | 메타데이터 JSON의 이미지 절대 주소 |
 | `PAYMASTER_URL` | (비움) | 선택, 서버 전용. 가스비 대납 (아직 구현 안 함) |
 
@@ -126,3 +126,4 @@ cd web && pnpm lint && npx tsc --noEmit && pnpm build
 - 레벨업 연출의 "새 해금 카드"는 6초 동안 카드 아래에 띄운다. 해금 배경(Lv 6/10/14/17)은 화면 무대에만 쓰고 NFT 이미지는 종별 기본 배경을 쓴다.
 - 랭킹의 레벨·단계는 컨트랙트에서 따로 읽지 않고 XP에서 계산한다 (`look.ts`, 컨트랙트와 같은 식이 테스트로 보장됨).
 - `/dev/art`(아트 확인 페이지)는 production 빌드에서 404.
+- **내 펫 찾기**: SPEC 8장의 Transfer 로그 검색(`getLogs`) 대신 1..totalSupply의 `ownerOf`를 200개씩 묶어 읽는다. Base Sepolia RPC가 `getLogs` 범위를 막아서(Alchemy 무료 10블록, 공개 RPC 200블록) 배포 뒤 블록이 쌓이자 끝나지 않았다. 펫 수에 비례하는 방식이라 펫이 수만 마리가 되면 인덱서가 필요하다.

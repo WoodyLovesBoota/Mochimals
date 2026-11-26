@@ -104,7 +104,7 @@ NEXT_PUBLIC_DEPLOY_BLOCK=...
 | 증상 | 확인할 것 |
 | --- | --- |
 | 빌드 실패 "올바른 주소가 아니다" | Vercel env의 주소 값, Root Directory가 `web`인지 |
-| 내 펫이 안 보임 | `NEXT_PUBLIC_DEPLOY_BLOCK`이 배포 블록인지 (너무 크면 입양 로그를 못 찾는다) |
+| "내 펫을 찾는 중…"에서 멈춤 | `NEXT_PUBLIC_RPC_URL`, 네트워크 탭의 RPC 에러. (예전 getLogs 방식은 RPC 범위 제한 때문에 여기서 멈췄다. 지금은 ownerOf 방식) |
 | 랭킹 "불러오지 못했어요" | `NEXT_PUBLIC_RPC_URL`, RPC 요청 한도 |
 | 휴대폰 지갑 연결 안 됨 | `NEXT_PUBLIC_WC_PROJECT_ID`, Reown 대시보드의 허용 도메인 |
 | 마켓의 이미지가 안 바뀜 | 마켓 캐시. 아트를 바꿨다면 `ArtSet.version`을 올리고 admin이 `refreshAllMetadata()` 호출 |

@@ -47,7 +47,7 @@ web/src/lib/contracts.ts   petNft = { address, abi },  energy = { address, abi }
 | --- | --- | --- |
 | `NEXT_PUBLIC_PET_NFT_ADDRESS` | `address(nft)` | `contracts.ts` 20줄 |
 | `NEXT_PUBLIC_ENERGY_ADDRESS` | `address(nft.energy())` (PetNFT 생성자가 `new Energy()`로 같이 배포) | `contracts.ts` 21줄 |
-| `NEXT_PUBLIC_DEPLOY_BLOCK` | `block.number` | `contracts.ts` 24줄. 내 펫 찾기(`getLogs`)의 `fromBlock` (5강) |
+| `NEXT_PUBLIC_DEPLOY_BLOCK` | `block.number` | `contracts.ts` 24줄. 지금은 쓰는 곳이 없다 (11장: 내 펫 찾기를 ownerOf 방식으로 바꿈) |
 
 anvil을 새로 켜고 0번 키로 처음 배포하면 주소가 항상 같다 (주소 = 배포자 + nonce). 그래서 [PROGRESS.md](PROGRESS.md)의 env 블록을 그대로 붙여도 된다.
 
@@ -184,18 +184,18 @@ Provider 순서 (`providers.tsx` 32~36줄): `WagmiProvider` → `QueryClientProv
 | | 46, 124 | 레벨업: `useAnimate` 튀기 + 배지·별 ([LevelUpFx.tsx](../web/src/components/LevelUpFx.tsx)) |
 | | 152 | 새 해금 카드 6초 (`unlocksAt(level)`) |
 
-## 11. 내 펫 찾기: Transfer 로그 → ownerOf (`useMyPets`)
+## 11. 내 펫 찾기: 모든 펫의 ownerOf (`useMyPets`)
 
 [web/src/hooks/useMyPets.ts](../web/src/hooks/useMyPets.ts) — 홈의 "내 펫 목록".
 
 | 줄 | 내용 |
 | --- | --- |
-| 16 | ERC-721 `Transfer` 이벤트 ABI. 세 값이 indexed라 `args: { to: me }`로 노드가 걸러 준다 |
-| 24 | 쿼리 키에 주소. `usePetAction`이 행동 뒤 캐시 전체를 무효화하므로 입양 뒤 자동으로 다시 읽는다 |
-| 34 | `fromBlock = DEPLOY_BLOCK` (env, 배포 스크립트 출력). 0부터 찾으면 공개 RPC에서 느리거나 거절된다 |
-| 36 | 같은 펫을 여러 번 받았을 수 있어 `Set`으로 중복 제거 |
-| 40~44 | 지금 주인(`ownerOf`)이 나인 것만. 보냈거나 판 펫은 빠지고, **선물받은 펫은 들어온다** |
-| 54~72 | RPC가 범위를 거절하면 반으로 나눠 다시 부른다 (공급자마다 한도가 달라서 숫자를 정해 두지 않음) |
+| 6~12 | 왜 SPEC의 Transfer 로그(`getLogs`) 방식을 버렸나: Base Sepolia RPC가 한 번의 범위를 막는다 (Alchemy 무료 10블록, `sepolia.base.org` 200블록). 블록은 하루 약 4만 개씩 쌓여서 범위를 나눠 부르면 요청이 수천 개가 되고 멈췄다 |
+| 31 | 쿼리 키에 주소. `usePetAction`이 행동 뒤 캐시 전체를 무효화하므로 입양 뒤 자동으로 다시 읽는다 |
+| 40~41 | `totalSupply` → 펫 번호 1..N (소각이 없어 빈칸 없음) |
+| 44~53 | 200개씩 `ownerOf`를 묶어 읽고(`readMany`, Base 계열은 multicall 1번) 주인이 나인 번호만. **선물받은 펫도 들어오고** 보낸 펫은 빠진다 |
+
+비용은 블록 수가 아니라 펫 수에 비례한다. 펫이 수만 마리가 되면 인덱서가 맞다 (SPEC 14장에서 이번 범위는 제외).
 
 [HomeView.tsx](../web/src/components/HomeView.tsx): 88줄 `hasAdopted(me)`로 "이미 입양한 지갑"을 미리 안내(지갑당 입양 1번). 93~95줄 입양 영수증의 `Adopted.args.petId`로 바로 `/pet/<id>` 이동(로그 검색보다 빠르다). 98줄 입양만 이어받기.
 
