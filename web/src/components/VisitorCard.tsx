@@ -7,7 +7,7 @@ import { useConnectModal } from "@rainbow-me/rainbowkit";
 import Link from "next/link";
 import { useAccount } from "wagmi";
 import { EggIcon, PawIcon, TrophyIcon } from "./icons";
-import { useMyPetIds, useNavItems } from "./nav";
+import { useMyPetIds, usePetsHref } from "./nav";
 import styles from "./VisitorCard.module.scss";
 
 export function VisitorCard({ className, flat = false }: { className?: string; flat?: boolean }) {
@@ -16,7 +16,7 @@ export function VisitorCard({ className, flat = false }: { className?: string; f
   const myPets = useMyPetIds();
   const hasPets = !!myPets && myPets.length > 0;
   // "내 펫" 메뉴와 같은 주소 (1마리면 그 펫, 아니면 홈 목록)
-  const petsHref = useNavItems().find((n) => n.key === "pets")!.href;
+  const petsHref = usePetsHref();
 
   return (
     <section className={`${flat ? styles.flat : styles.sheet} ${className ?? ""}`} aria-label="구경 안내">

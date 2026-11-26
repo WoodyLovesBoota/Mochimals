@@ -1,5 +1,5 @@
 // * 모바일 아래 탭 바 (리디자인 시안 02·03·04). 900px 이상에서는 CSS로 숨긴다 (메뉴는 헤더 알약이 맡는다).
-//   홈 / 내 펫 / 랭킹. 지금 화면은 라임 사각 + 흰 아이콘, 나머지는 회갈색 아이콘.
+//   회원(펫 1마리 이상)만 내 펫 / 랭킹 두 칸. 비회원은 메뉴가 없어서 탭 바도 안 그린다 (nav.ts 참고). 지금 화면은 라임 사각 + 흰 아이콘, 나머지는 회갈색 아이콘.
 "use client";
 
 import Link from "next/link";
@@ -14,7 +14,8 @@ export function TabBar() {
   const myPets = useMyPetIds();
   // * 홈(/)의 소개·입양 화면은 아래 크림 시트가 화면 바닥까지 닿는다 (시안 01·05에는 탭 바가 없다).
   //   내 펫 목록(2마리 이상, 시안 04)일 때만 탭 바를 보여준다.
-  const hidden = pathname === "/" && !(myPets && myPets.length >= 2);
+  //   비회원이면 items가 빈 배열이라 어느 화면에서든 숨긴다.
+  const hidden = items.length === 0 || (pathname === "/" && !(myPets && myPets.length >= 2));
   if (hidden) return null;
 
   return (
