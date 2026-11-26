@@ -18,7 +18,7 @@ Claude Design 캔버스("Mochimals — Game UI", 모바일 01–16 / 데스크�
 
 두툼한 버튼은 [styles/_ui.scss](../web/src/styles/_ui.scss)의 `chunky(tone)` mixin: `background: var(--tone)` + `box-shadow: 0 5px 0 var(--tone-depth)`. 비활성은 grey 짝.
 
-글꼴은 [layout.tsx](../web/src/app/layout.tsx)의 `next/font`: 라틴·숫자는 Bricolage Grotesque(가변, opsz 12–96, wght 500–800), 한글은 Pretendard Variable(unicode-range로 한글만). 스택은 `'Bricolage Grotesque', 'Pretendard', sans-serif` 하나(`--font-sans`)이고 `--font-display`·`--font-body`·`--font-mono`가 모두 이걸 가리킨다. 제목·버튼·숫자는 굵기 800 + 자간 -0.015em(`ui.display`), 본문은 600, 주소는 고정폭 글꼴 없이 `tabular-nums`(`ui.mono`).
+글꼴은 [layout.tsx](../web/src/app/layout.tsx)의 `next/font`: 라틴·숫자는 Rubik(가변, wght 300–900 중 600–800 사용), 한글은 Pretendard Variable(unicode-range로 한글만). 스택은 `'Rubik', 'Pretendard', sans-serif` 하나(`--font-sans`)이고 `--font-display`·`--font-body`·`--font-mono`가 모두 이걸 가리킨다. 제목·버튼·숫자는 굵기 800 + 자간 -0.015em(`ui.display`), 본문은 600, 주소는 고정폭 글꼴 없이 `tabular-nums`(`ui.mono`).
 
 화면 폭 기준은 900px 하나 ([_breakpoints.scss](../web/src/styles/_breakpoints.scss)의 `desktop` / `mobile` mixin). 900px 미만 = HUD + 아래 탭 바, 이상 = 위쪽 내비 + 오른쪽 패널 + 아래 행동 트레이.
 

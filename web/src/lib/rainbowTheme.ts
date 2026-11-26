@@ -53,7 +53,7 @@ export const rainbowTheme: Theme = {
     downloadTopCardBackground: "var(--white)",
   },
   fonts: {
-    // * 모달 전체 글꼴 = Bricolage + Pretendard 스택 (--font-display). 주소도 같은 글꼴이라 따로 바꿀 필요 없다
+    // * 모달 전체 글꼴 = Rubik + Pretendard 스택 (--font-display). 주소도 같은 글꼴이라 따로 바꿀 필요 없다
     body: "var(--font-display)",
   },
   shadows: {

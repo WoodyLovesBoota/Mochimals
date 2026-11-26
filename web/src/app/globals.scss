@@ -127,13 +127,13 @@
   --scene-d-crystal: var(--tint-crystal), var(--scene-desktop-night);
 
   // ---------------------------------------------------------------
-  // 글꼴 (layout.tsx의 next/font가 --font-bricolage, --font-pretendard 변수를 <html>에 만든다)
+  // 글꼴 (layout.tsx의 next/font가 --font-rubik, --font-pretendard 변수를 <html>에 만든다)
   // ---------------------------------------------------------------
-  // * 스택 하나만 쓴다: 'Bricolage Grotesque', 'Pretendard', sans-serif
-  //   라틴·숫자 = Bricolage, 한글 = Pretendard (Pretendard는 unicode-range로 한글에만 걸려 있다)
+  // * 스택 하나만 쓴다: 'Rubik', 'Pretendard', sans-serif
+  //   라틴·숫자 = Rubik, 한글 = Pretendard (Pretendard는 unicode-range로 한글에만 걸려 있다)
   //   제목·버튼·숫자와 본문은 글꼴이 아니라 "굵기"로 나눈다 (_ui.scss의 display 믹스인 800, 본문 600).
   //   주소·해시도 고정폭 글꼴 없이 같은 글꼴 + tabular-nums (_ui.scss의 mono 믹스인)
-  --font-sans: var(--font-bricolage), var(--font-pretendard), sans-serif;
+  --font-sans: var(--font-rubik), var(--font-pretendard), sans-serif;
   --font-display: var(--font-sans);
   --font-body: var(--font-sans);
   --font-mono: var(--font-sans);
