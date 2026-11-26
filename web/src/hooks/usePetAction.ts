@@ -99,6 +99,11 @@ export function usePetAction({ onDone, resumeIf }: Options = {}) {
     },
     // ⑥ 끝: 연출, 페이지 이동 (부모가 준 onDone)
     onSuccess: (result, args) => onDoneRef.current?.(result, args),
+    // * 실패하면 원본 에러를 브라우저 콘솔에 남긴다.
+    //   ? 왜 필요할까? 화면 문구(lib/errors.ts)는 아는 revert 몇 개만 골라 한국어로 바꾸고 나머지는 전부
+    //     "처리하지 못했어요"로 뭉친다. 지갑 단계 에러(체인 불일치, 스마트 계정 거부, RPC 에러 등)는 이 문구만으로는
+    //     원인을 알 수 없어서, 개발자도구 Console에서 viem 에러(shortMessage, details, cause 사슬)를 보고 고친다.
+    onError: (error, args) => console.error(`[usePetAction] ${args.fn} 실패`, error),
     // 성공이든 실패든 끝나면 버튼을 원래대로. 기록도 지운다 (실패한 트랜잭션을 이어서 기다릴 필요는 없다)
     onSettled: () => {
       setPhase("idle");
