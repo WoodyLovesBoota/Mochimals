@@ -157,7 +157,7 @@ async function confirm(
   txHash: Hash,
   timeout?: number,
 ): Promise<PetActionResult> {
-  // ③ 확정 대기: 트랜잭션이 블록에 들어갈 때까지 기다린다 (wagmi.ts의 pollingInterval 1초마다 확인).
+  // ③ 확정 대기: 트랜잭션이 블록에 들어갈 때까지 기다린다 (wagmi.ts의 pollingInterval 4초마다 확인).
   const receipt = await waitForTransactionReceipt(config, { hash: txHash, timeout });
   // ! 블록에 들어갔어도 실행은 실패(reverted)일 수 있다. viem은 이때 throw하지 않으므로 직접 throw한다.
   //   (시뮬레이션 이후 그 사이에 상태가 바뀐 경우. 예: 다른 탭에서 먼저 충전함)

@@ -37,8 +37,11 @@ export const config = getDefaultConfig({
     },
   ],
   transports,
-  // * 새 블록, 트랜잭션 확정 등을 1초마다 확인한다 (기본 4초). Base 블록 시간이 2초라서 빠르게 맞춘다.
-  pollingInterval: 1_000,
+  // * 새 블록, 트랜잭션 확정, 이벤트 구독 등을 4초마다 확인한다 (wagmi 기본값과 같다).
+  // ! SPEC은 1초였지만, 탭을 켜 두기만 해도 Alchemy 무료 플랜의 초당 요청 한도(throughput)를 넘겨서 4초로 늘렸다.
+  //   Base 블록 시간이 2초라 확정 표시가 최대 몇 초 늦을 뿐 동작은 같다.
+  //   이벤트 구독(getLogs)은 한 번에 약 2블록만 읽으므로 Alchemy 무료 getLogs 범위 제한(10블록) 안에 든다.
+  pollingInterval: 4_000,
   storage,
   // * 서버에서도 렌더링한다는 표시. 서버에서는 지갑에 접근하지 않고, 브라우저에서 hydrate한 뒤 다시 연결한다.
   ssr: true,

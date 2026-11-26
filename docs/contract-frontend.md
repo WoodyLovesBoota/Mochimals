@@ -70,7 +70,7 @@ anvil을 새로 켜고 0번 키로 처음 배포하면 주소가 항상 같다 (
 | 파일 | 어디서 쓰나 | 내용 |
 | --- | --- | --- |
 | [web/src/lib/chain.ts](../web/src/lib/chain.ts) | 서버 + 클라이언트 | 16~28줄 `NEXT_PUBLIC_CHAIN_ID`로 체인 선택 (31337 anvil / 84532 Base Sepolia / 8453 Base). 32줄 `transports`(RPC), 38줄 `storage`(쿠키) |
-| [web/src/lib/wagmi.ts](../web/src/lib/wagmi.ts) | 클라이언트만 (`providers.tsx`) | 20~45줄 RainbowKit `getDefaultConfig`. 지갑 목록, 41줄 `pollingInterval: 1_000`. 49~53줄 `Register`로 config 타입을 앱 전체에 등록 |
+| [web/src/lib/wagmi.ts](../web/src/lib/wagmi.ts) | 클라이언트만 (`providers.tsx`) | 20~48줄 RainbowKit `getDefaultConfig`. 지갑 목록, `pollingInterval: 4_000` (SPEC은 1초, Alchemy 무료 플랜 초당 한도 때문에 4초로 늘림). 52~56줄 `Register`로 config 타입을 앱 전체에 등록 |
 | [web/src/lib/wagmiServer.ts](../web/src/lib/wagmiServer.ts) | 서버만 (`layout.tsx`) | 9~14줄 지갑 없는 `createConfig`. 쿠키 복원에만 쓴다 |
 
 SPEC은 `wagmi.ts` 하나지만, RainbowKit의 `getDefaultConfig`는 서버에서 부르면 빌드가 실패해서 나눴다. 공통 부분(체인, RPC, storage)은 `chain.ts` 하나에서 가져오므로 서버·클라이언트 설정이 어긋나지 않는다.
@@ -218,7 +218,7 @@ Provider 순서 (`providers.tsx` 32~36줄): `WagmiProvider` → `QueryClientProv
 | | 50 | 레벨·단계는 `levelFromXp`/`stageFromLevel`로 계산 (컨트랙트와 같은 식, 3강 테스트). 읽기 요청 절반 절약 |
 | | 56 | XP 내림차순, 같으면 번호 오름차순 |
 | [ranking/page.tsx](../web/src/app/ranking/page.tsx) | 15 | `unstable_cache(..., { revalidate: 30 })`. SPEC은 페이지 `revalidate = 30`이지만 layout이 쿠키를 읽어 모든 페이지가 동적이라 효과가 없다 → 데이터를 30초 캐시 |
-| [RankingList.tsx](../web/src/components/RankingList.tsx) | 34 | `useWatchContractEvent({ eventName: "LevelUp" })`: 누구의 레벨업이든 1초 폴링으로 받아 피드 |
+| [RankingList.tsx](../web/src/components/RankingList.tsx) | 34 | `useWatchContractEvent({ eventName: "LevelUp" })`: 누구의 레벨업이든 4초 폴링으로 받아 피드 |
 | | 43 | 단계가 바뀐 레벨업이면 "진화" |
 | | 55 | `router.refresh()`로 목록 갱신 (데이터 캐시 때문에 최대 30초 늦을 수 있음) |
 | | 61 | 내 펫 강조, 가장 높은 내 순위를 sticky로 고정 표시 |

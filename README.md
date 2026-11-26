@@ -127,3 +127,4 @@ cd web && pnpm lint && npx tsc --noEmit && pnpm build
 - 랭킹의 레벨·단계는 컨트랙트에서 따로 읽지 않고 XP에서 계산한다 (`look.ts`, 컨트랙트와 같은 식이 테스트로 보장됨).
 - `/dev/art`(아트 확인 페이지)는 production 빌드에서 404.
 - **내 펫 찾기**: SPEC 8장의 Transfer 로그 검색(`getLogs`) 대신 1..totalSupply의 `ownerOf`를 200개씩 묶어 읽는다. Base Sepolia RPC가 `getLogs` 범위를 막아서(Alchemy 무료 10블록, 공개 RPC 200블록) 배포 뒤 블록이 쌓이자 끝나지 않았다. 펫 수에 비례하는 방식이라 펫이 수만 마리가 되면 인덱서가 필요하다.
+- **폴링 4초**: SPEC의 `pollingInterval: 1_000` 대신 4초(wagmi 기본값). 탭을 켜 두기만 해도 Alchemy 무료 플랜의 초당 요청 한도를 넘었다. Base 블록이 2초라 확정·레벨업 피드가 몇 초 늦을 뿐이다.

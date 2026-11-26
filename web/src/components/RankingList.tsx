@@ -29,7 +29,7 @@ export function RankingList({ rows }: { rows: RankRow[] }) {
   // 펫 번호 → 주인 주소 (피드 문구용). rows가 바뀔 때만 다시 만든다
   const ownerOf = useMemo(() => new Map(rows.map((r) => [r.id, r.owner])), [rows]);
 
-  // * ③ LevelUp 구독. wagmi가 pollingInterval(1초)마다 새 로그를 확인해 onLogs로 넘긴다.
+  // * ③ LevelUp 구독. wagmi가 pollingInterval(4초)마다 새 로그를 확인해 onLogs로 넘긴다.
   //   ? 다른 사람의 레벨업도 오나? 그렇다. 필터가 "PetNFT의 LevelUp 전부"라서 누구의 펫이든 온다 (SPEC: 다른 지갑의 레벨업이 피드에 뜬다).
   useWatchContractEvent({
     ...petNft,
