@@ -7,11 +7,12 @@ import { useAddRecentTransaction } from "@rainbow-me/rainbowkit";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { isAddressEqual, parseEventLogs, type Hash } from "viem";
-import { useConfig, useWriteContract, type Config } from "wagmi";
+import { useConfig, useDisconnect, useWriteContract, type Config } from "wagmi";
 import { getBlockNumber, simulateContract, waitForTransactionReceipt } from "wagmi/actions";
 import { foundry } from "wagmi/chains";
 import { chain } from "@/lib/chain";
 import { petNft } from "@/lib/contracts";
+import { isUnauthorized } from "@/lib/errors";
 import { clearPending, readPending, savePending } from "@/lib/pendingTx";
 
 // * 버튼에 보여줄 단계 (SPEC 12장 버튼 상태 표).
@@ -46,6 +47,8 @@ export function usePetAction({ onDone, resumeIf }: Options = {}) {
   const queryClient = useQueryClient();
   // writeContractAsync: 지갑에 서명을 요청하고, 사용자가 승인하면 트랜잭션 해시를 돌려준다.
   const { writeContractAsync } = useWriteContract();
+  // 지갑 권한이 풀렸을 때(4100) 연결 상태를 지우는 데 쓴다 (아래 onError)
+  const { disconnect } = useDisconnect();
   // * RainbowKit "최근 트랜잭션": 헤더 계정 버튼에 스피너, 계정 창에 목록이 뜬다. RainbowKit이 localStorage에 둬서
   //   새로고침해도 남는다. 표시만 해 준다 (우리 버튼 잠금이나 연출은 아래 sessionStorage 쪽이 맡는다).
   const addRecentTransaction = useAddRecentTransaction();
@@ -103,7 +106,12 @@ export function usePetAction({ onDone, resumeIf }: Options = {}) {
     //   ? 왜 필요할까? 화면 문구(lib/errors.ts)는 아는 revert 몇 개만 골라 한국어로 바꾸고 나머지는 전부
     //     "처리하지 못했어요"로 뭉친다. 지갑 단계 에러(체인 불일치, 스마트 계정 거부, RPC 에러 등)는 이 문구만으로는
     //     원인을 알 수 없어서, 개발자도구 Console에서 viem 에러(shortMessage, details, cause 사슬)를 보고 고친다.
-    onError: (error, args) => console.error(`[usePetAction] ${args.fn} 실패`, error),
+    //   ! 권한 없음(4100)이면 연결을 끊는다. 사이트에 남은 "연결됨"은 가짜라서 몇 번을 눌러도 똑같이 실패한다.
+    //     끊으면 계정 버튼이 "지갑 연결"로 바뀌고, 다시 연결할 때 지갑이 권한을 새로 묻는다.
+    onError: (error, args) => {
+      console.error(`[usePetAction] ${args.fn} 실패`, error);
+      if (isUnauthorized(error)) disconnect();
+    },
     // 성공이든 실패든 끝나면 버튼을 원래대로. 기록도 지운다 (실패한 트랜잭션을 이어서 기다릴 필요는 없다)
     onSettled: () => {
       setPhase("idle");

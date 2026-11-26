@@ -2,7 +2,7 @@
 //   순수 함수라서 React, wagmi 없이 단위 테스트할 수 있다 (errors.test.ts).
 //   ! 이 파일은 contracts.ts를 import하지 않는다. contracts.ts는 env 주소가 없으면 throw하므로
 //     테스트에서 import하면 터진다. 에러 이름만 보면 되니 ABI도 필요 없다.
-import { BaseError, ContractFunctionRevertedError, UserRejectedRequestError } from "viem";
+import { BaseError, ContractFunctionRevertedError, UnauthorizedProviderError, UserRejectedRequestError } from "viem";
 
 // * 커스텀 에러 이름 → 화면 문구. 이름은 Solidity의 `error NotPetOwner();` 그대로다.
 //   ERC20InsufficientBalance는 PetNFT가 아니라 Energy(OZ ERC20)의 에러다.
@@ -13,6 +13,9 @@ const MESSAGES: Record<string, string> = {
   AlreadyAdopted: "이미 입양한 지갑이에요",
   NotPetOwner: "이 펫의 주인만 돌볼 수 있어요",
 };
+
+// 지갑이 이 사이트에 계정 권한을 안 준 상태 (EIP-1193 에러 코드 4100). usePetAction이 연결을 끊는다
+export const UNAUTHORIZED_MESSAGE = "지갑 연결이 풀렸어요. 다시 연결해 주세요";
 
 // TX_REVERTED(블록에 들어갔지만 실패)와 그 밖의 모든 에러
 const FALLBACK = "처리하지 못했어요. 다시 시도해주세요";
@@ -28,6 +31,12 @@ export function toErrorMessage(error: unknown): string | null {
   if (error instanceof BaseError) {
     // ① 지갑에서 거절 (EIP-1193 에러 코드 4001). 사용자가 일부러 한 거라 문구를 안 띄운다.
     if (error.walk((e) => e instanceof UserRejectedRequestError)) return null;
+
+    // ①-2 권한 없음 (코드 4100): 사이트는 "연결됨"으로 알고 있는데, 지갑은 이 계정을 이 사이트에 허락하지 않은 상태.
+    //   ? 언제 생기나? 연결 정보는 쿠키(wagmi.store)에 남아 있는데 지갑 쪽에서 사이트 연결을 끊었거나, 지갑에서
+    //     다른 계정으로 바꿨거나, 잠금 후 권한이 풀렸을 때다. 읽기(RPC 직접)는 되니까 화면은 멀쩡하고 서명만 막힌다.
+    //   다시 연결하면 지갑이 권한을 새로 묻는다 → 해결.
+    if (isUnauthorized(error)) return UNAUTHORIZED_MESSAGE;
 
     // ② 컨트랙트 revert: 시뮬레이션 단계(usePetAction ①)에서 잡힌다.
     //   walk(조건)은 조건에 맞는 첫 에러를 돌려주고, 없으면 null이다.
@@ -51,4 +60,9 @@ export function isNonexistentToken(error: unknown): boolean {
   if (!(error instanceof BaseError)) return false;
   const reverted = error.walk((e) => e instanceof ContractFunctionRevertedError);
   return reverted instanceof ContractFunctionRevertedError && reverted.data?.errorName === "ERC721NonexistentToken";
+}
+
+/** 지갑이 이 사이트에 계정·메서드 권한을 안 준 에러인지 (EIP-1193 4100, viem UnauthorizedProviderError) */
+export function isUnauthorized(error: unknown): boolean {
+  return error instanceof BaseError && !!error.walk((e) => e instanceof UnauthorizedProviderError);
 }

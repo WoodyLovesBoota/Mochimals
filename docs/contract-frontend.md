@@ -144,9 +144,10 @@ Provider 순서 (`providers.tsx` 32~36줄): `WagmiProvider` → `QueryClientProv
 | --- | --- |
 | 10~15 | 에러 이름 → 문구 표. 이름은 Solidity `error NotPetOwner();` 그대로 |
 | 28 | viem 에러(`BaseError`)는 원인을 `cause`로 겹겹이 감싼다. `walk`로 사슬을 따라 내려간다 |
-| 30 | `UserRejectedRequestError`(지갑 거절) → `null`. 문구 없이 버튼만 되돌린다 |
-| 34~39 | `ContractFunctionRevertedError`의 `data.errorName`. ABI에 그 에러 정의가 있어야 이름이 나온다 |
-| 43 | `TX_REVERTED`, 네트워크 에러 등 나머지 → 기본 문구 |
+| 33 | `UserRejectedRequestError`(지갑 거절) → `null`. 문구 없이 버튼만 되돌린다 |
+| 35~39 | `UnauthorizedProviderError`(EIP-1193 코드 4100) → "지갑 연결이 풀렸어요". 사이트는 연결됨(쿠키)인데 지갑이 이 계정을 사이트에 허락하지 않은 상태라 서명만 막힌다. [usePetAction.ts](../web/src/hooks/usePetAction.ts)의 `onError`가 이때 `disconnect()`해서 다시 연결하게 한다 (2026-11-26 Base Sepolia에서 실제로 났다) |
+| 43~48 | `ContractFunctionRevertedError`의 `data.errorName`. ABI에 그 에러 정의가 있어야 이름이 나온다 |
+| 52 | `TX_REVERTED`, 네트워크 에러 등 나머지 → 기본 문구. 원본 에러는 `usePetAction`의 `onError`가 콘솔에 `[usePetAction] <fn> 실패`로 남긴다 |
 
 [errors.test.ts](../web/src/lib/errors.test.ts)의 세 번째 테스트가 `contracts.ts` 39줄(Energy 에러 합치기)이 없으면 `ERC20InsufficientBalance`가 기본 문구로 떨어지는 것을 보여준다.
 

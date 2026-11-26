@@ -3,6 +3,8 @@ import {
   ContractFunctionExecutionError,
   ContractFunctionRevertedError,
   encodeErrorResult,
+  TransactionExecutionError,
+  UnauthorizedProviderError,
   UserRejectedRequestError,
 } from "viem";
 import { describe, expect, it } from "vitest";
@@ -54,6 +56,18 @@ describe("toErrorMessage", () => {
 
   it("지갑에서 거절하면 null (문구 없이 버튼만 되돌림)", () => {
     expect(toErrorMessage(new UserRejectedRequestError(new Error("User rejected")))).toBeNull();
+  });
+
+  // * 2026-11-26 Base Sepolia에서 실제로 난 에러와 같은 사슬:
+  //   ContractFunctionExecutionError → TransactionExecutionError → UnauthorizedProviderError (코드 4100)
+  it("지갑 권한이 풀렸으면(4100) 다시 연결하라는 문구", () => {
+    const inner = new TransactionExecutionError(new UnauthorizedProviderError(new Error("not authorized")), {
+      account: "0x0000000000000000000000000000000000000001",
+      chain: undefined,
+    } as never);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const err = new ContractFunctionExecutionError(inner, { abi: abi as any, functionName: "train", args: [1n] });
+    expect(toErrorMessage(err)).toBe("지갑 연결이 풀렸어요. 다시 연결해 주세요");
   });
 
   it("TX_REVERTED와 알 수 없는 에러는 기본 문구", () => {
