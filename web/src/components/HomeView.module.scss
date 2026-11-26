@@ -1,232 +1,477 @@
 @use "../styles/breakpoints" as bp;
+@use "../styles/ui";
 
-.main {
-  // 부모 .shell(layout.module.scss)이 세로 flex라서 flex: 1이면 헤더를 뺀 남은 높이를 전부 채운다
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-6);
-  padding: var(--space-8) var(--space-4);
-  text-align: center;
-}
+// =====================================================================
+// 틀: 모바일 [제목 / 장면 / 시트] 세로, 데스크톱 [제목·장면 | 카드 440px]
+// =====================================================================
+// * grid-template-areas: 칸에 이름을 붙이고 자식이 grid-area로 자기 칸을 고른다.
+//   같은 마크업으로 모바일·데스크톱 배치를 CSS만 바꿔서 만든다.
+.home {
+  flex: 1; // .shell(세로 flex)에서 헤더를 뺀 남은 높이를 채운다 → 시트가 화면 바닥에 붙는다
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto; // 가운데 장면 칸은 남는 만큼만 (모자라면 0까지 줄어든다)
+  grid-template-areas:
+    "hero"
+    "scene"
+    "sheet";
 
-.hero {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-.title {
-  font-size: var(--text-2xl);
-  font-weight: 700;
-
-  @include bp.sm {
-    font-size: 2rem; // 640px 이상에서 조금 크게
+  @include bp.desktop {
+    grid-template-columns: minmax(0, 1fr) 440px;
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      "hero sheet"
+      "scene sheet";
+    column-gap: var(--space-6);
+    width: 100%;
+    max-width: var(--page-max);
+    margin: 0 auto;
+    padding: var(--space-6) var(--space-8) 0;
   }
 }
 
-.lead,
-.muted {
-  color: var(--color-muted);
+// 입양 화면: 오른쪽 카드 460px (시안 D5. 알약 세 개가 한 줄에 들어가는 폭)
+.homeWide {
+  composes: home;
+
+  @include bp.desktop {
+    grid-template-columns: minmax(0, 1fr) 460px;
+  }
 }
 
-.muted {
-  font-size: var(--text-sm);
-}
-
-// 진화 미리보기: 다섯 단계를 가로로. 휴대폰에서 넘치면 줄바꿈
-.preview {
+// 상태 카드 하나만 가운데 (불러오는 중 / 실패)
+.center {
+  flex: 1;
   display: flex;
-  flex-wrap: wrap;
+  align-items: center;
   justify-content: center;
-  gap: var(--space-3);
+  padding: var(--space-4);
+}
+
+// =====================================================================
+// 제목 (시안 01: 흰 글자 + 잉크 외곽선 + 아래 그림자)
+// =====================================================================
+.hero {
+  grid-area: hero;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding-top: 26px; // 헤더(14 + 44) 아래 → 시안 top 84
+
+  @include bp.desktop {
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding-top: 40px;
+  }
+}
+
+.logo {
+  @include ui.display;
+  color: var(--white);
+  font-size: 2.75rem; // 44px
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+  -webkit-text-stroke: 2px var(--ink); // 글자 외곽선 (Safari·Chrome 모두 지원)
+  paint-order: stroke fill; // 외곽선을 글자 뒤에 그려 글자가 가늘어지지 않게
+  text-shadow: 0 5px 0 var(--ink);
+
+  @include bp.desktop {
+    font-size: 5.25rem; // 84px
+    line-height: 1;
+    -webkit-text-stroke-width: 3px;
+    text-shadow: 0 7px 0 var(--ink);
+  }
+}
+
+.tagline {
+  @include ui.display;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  background: var(--ink);
+  color: var(--lime);
+  font-size: 0.9375rem; // 15px
+
+  @include bp.desktop {
+    padding: 8px 18px;
+    font-size: var(--text-xl);
+  }
+}
+
+// =====================================================================
+// 장면 (펫 + 말풍선)
+// =====================================================================
+.scene {
+  grid-area: scene;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  min-height: 160px;
+  padding-bottom: var(--space-2);
+
+  @include bp.desktop {
+    padding-bottom: 110px; // 시안 D1: 펫 아래 150px
+  }
+}
+
+.petWrap {
+  position: relative;
+}
+
+.pet {
+  width: min(260px, 66vw); // 펫 몸통 ≈ 200px (시안 01)
+  height: auto;
+
+  @include bp.desktop {
+    width: 440px;
+  }
+}
+
+// 흰 말풍선 + 아래 왼쪽 꼬리 (시안 "같이 놀자!")
+.bubble {
+  @include ui.display;
+  position: absolute;
+  top: 6%;
+  left: 68%;
+  z-index: 1;
+  padding: 10px 16px;
+  border-radius: var(--radius-btn);
+  background: var(--white);
+  box-shadow: 0 4px 0 var(--panel-depth);
+  font-size: 1.0625rem; // 17px
+  white-space: nowrap;
+
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: -8px;
+    left: 24px;
+    width: 16px;
+    height: 16px;
+    background: var(--white);
+    box-shadow: 3px 3px 0 var(--panel-depth);
+    rotate: 45deg;
+  }
+}
+
+.bubbleEgg {
+  composes: bubble;
+  top: -40px;
+  left: 62%;
+}
+
+// 입양: 노란 빛 + 기울어진 흰 원 안의 알 (시안 05: 170px, D5: 220px)
+.eggWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 300px;
+  height: 300px;
+  margin-bottom: -20px; // 빛 아래쪽은 시트 뒤로 살짝 숨긴다
+
+  @include bp.desktop {
+    width: 420px;
+    height: 420px;
+    margin-bottom: 120px;
+  }
+}
+
+.glow {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--glow);
+}
+
+.eggCircle {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 170px;
+  height: 170px;
+  overflow: hidden;
+  border: 3px solid var(--panel-edge);
+  border-radius: 50%;
+  background: var(--white);
+  box-shadow: 0 6px 0 var(--panel-depth);
+  rotate: -6deg;
+  animation: wobble 2.4s ease-in-out infinite; // 알이 흔들흔들
+
+  @include bp.desktop {
+    width: 220px;
+    height: 220px;
+    border-width: 4px;
+    box-shadow: 0 8px 0 var(--panel-depth);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+.egg {
+  width: 120%; // 아트 둘레 여백만큼 키워 원을 채운다
+  max-width: none;
+  height: auto;
+}
+
+@keyframes wobble {
+  0%,
+  60%,
+  100% {
+    rotate: -6deg;
+  }
+  70% {
+    rotate: 2deg;
+  }
+  80% {
+    rotate: -12deg;
+  }
+  90% {
+    rotate: -2deg;
+  }
+}
+
+// =====================================================================
+// 크림 시트 (모바일: 바닥에 붙은 시트 / 데스크톱: 카드)
+// =====================================================================
+.sheet {
+  grid-area: sheet;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 10px 18px 30px;
+  border-top: 2px solid var(--panel-edge);
+  border-radius: var(--radius-sheet) var(--radius-sheet) 0 0;
+  background: var(--panel);
+  box-shadow: 0 -10px 40px var(--drop-sheet);
+  color: var(--ink);
+
+  @include bp.desktop {
+    @include ui.card;
+    align-self: start;
+    gap: var(--space-4);
+    margin-top: var(--space-6);
+    padding: var(--space-6);
+  }
+}
+
+.grabber {
+  align-self: center;
+  width: 44px;
+  height: 5px;
+  border-radius: var(--radius-pill);
+  background: var(--panel-edge);
+
+  @include bp.desktop {
+    display: none;
+  }
+}
+
+.sheetTitle {
+  @include ui.display;
+  font-size: var(--text-2xl);
+  text-align: center;
+
+  @include bp.desktop {
+    font-size: 1.75rem; // 28px
+    text-align: left;
+  }
+}
+
+// 01: 데스크톱에서만 보이는 설명
+.sheetDesc {
+  display: none;
+
+  @include bp.desktop {
+    display: block;
+    margin-top: -6px;
+    color: var(--muted);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    line-height: 1.55;
+  }
+}
+
+// 05: 부제 (모바일·데스크톱 모두)
+.sheetSub {
+  margin-top: -4px;
+  color: var(--muted);
+  font-size: var(--text-sm);
+  text-align: center;
+
+  @include bp.desktop {
+    font-size: 0.9375rem;
+    text-align: left;
+  }
+}
+
+// 규칙 세 칸
+.rules {
+  display: flex;
+  gap: var(--space-2);
   padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 4px;
+    border: 2px solid var(--panel-edge);
+    border-radius: var(--radius-md);
+    background: var(--white);
+  }
+
+  strong {
+    @include ui.display;
+    font-size: 0.9375rem;
+  }
+
+  span:last-child {
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 700;
+  }
+}
+
+.chipAmber {
+  @include ui.icon-chip(amber, 36px, 12px);
+}
+.chipBlue {
+  @include ui.icon-chip(blue, 36px, 12px);
+}
+.chipPink {
+  @include ui.icon-chip(pink, 36px, 12px);
+}
+
+// 진화 단계 다섯 개
+.stages {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 6px;
   list-style: none;
 
   li {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: var(--space-1);
-    color: var(--color-muted);
-    font-size: var(--text-sm);
+    gap: 4px;
+  }
+
+  strong {
+    @include ui.display;
+    font-size: var(--text-xs);
+  }
+
+  li > span:last-child {
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 700;
   }
 }
 
-.rules {
-  max-width: 26rem;
+.stageThumb {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  padding: 0;
-  list-style: none;
-  color: var(--color-ink);
-  font-size: var(--text-sm);
-  text-align: left;
-
-  // 앞에 작은 점
-  li::before {
-    content: "· ";
-    color: var(--color-muted);
-  }
-}
-
-.adoptPanel {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-3);
-}
-
-// * 흔들리는 알 (SPEC 12장 "흔들리는 알"). 바닥 가운데를 축으로 좌우로 기울었다 돌아온다.
-//   3초 중 앞부분에만 흔들고 나머지는 가만히 → "가끔 흔들림" (SPEC 6-3 알)
-.wobble {
-  transform-origin: 50% 88%; // 아트 바닥선 y=352 (SPEC 6-2)
-  animation: wobble 3s ease-in-out infinite;
-}
-
-@keyframes wobble {
-  0%,
-  30%,
-  100% {
-    transform: rotate(0);
-  }
-  6% {
-    transform: rotate(-7deg);
-  }
-  12% {
-    transform: rotate(6deg);
-  }
-  18% {
-    transform: rotate(-4deg);
-  }
-  24% {
-    transform: rotate(2deg);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .wobble {
-    animation: none;
-  }
-}
-
-// 입양 버튼: 주 버튼 (PetActions .primary와 같은 모양)
-.adopt {
-  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-2);
-  min-width: 12rem;
-  min-height: 3.5rem;
-  padding: var(--space-3) var(--space-6);
-  border: none;
-  border-radius: var(--radius-pill);
-  background: var(--color-ink);
-  color: var(--color-on-ink);
-  font: inherit;
-  font-weight: 700;
-  cursor: pointer;
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--color-ink);
-    outline-offset: 2px;
-  }
-}
-
-.spinner {
-  width: 1em;
-  height: 1em;
-  border: 2px solid currentcolor;
-  border-right-color: transparent;
+  width: 50px;
+  height: 50px;
+  overflow: hidden;
+  border: 2px solid var(--panel-edge);
   border-radius: 50%;
-  animation: spin 0.8s linear infinite;
+  background: var(--white);
+  box-shadow: 0 3px 0 var(--panel-depth);
+
+  svg {
+    width: 130%; // 아트 둘레 여백만큼 키워 원을 채운다
+    max-width: none;
+    height: auto;
+  }
 }
 
-@keyframes spin {
-  to {
-    rotate: 360deg;
+// 각성: 금색 테두리 (시안 outline 3px #FFD23F)
+.stageThumbGold {
+  composes: stageThumb;
+  outline: 3px solid var(--gold);
+}
+
+// 05: 알약 세 개
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  padding: 0;
+  list-style: none;
+
+  li {
+    @include ui.pill;
+    @include ui.display;
+    height: 36px;
+    padding: 0 14px 0 6px;
+    font-size: var(--text-sm);
+  }
+
+  @include bp.desktop {
+    justify-content: flex-start;
+    gap: var(--space-2);
+
+    li {
+      height: 38px;
+      font-size: 0.9375rem;
+    }
+  }
+}
+
+.factLime {
+  @include ui.icon-chip(lime, 26px, 9px);
+}
+.factAmber {
+  @include ui.icon-chip(amber, 26px, 9px);
+}
+.factBlue {
+  @include ui.icon-chip(blue, 26px, 9px);
+}
+
+// 큰 라임 버튼 (무료로 입양하기 / 입양하기)
+.cta {
+  @include ui.chunky(lime);
+  flex-direction: row;
+  gap: var(--space-2);
+  width: 100%;
+  height: 62px;
+  font-size: 1.375rem; // 22px
+
+  @include bp.desktop {
+    height: 64px;
+    font-size: 1.4375rem; // 23px
+  }
+}
+
+.help {
+  @include ui.display;
+  margin-top: -4px;
+  color: var(--muted);
+  font-size: 0.9375rem;
+  text-align: center;
+
+  &:hover {
+    color: var(--ink);
   }
 }
 
 .error {
-  color: var(--color-feed-ink);
+  @include ui.pill;
+  justify-content: center;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  color: var(--red-depth);
   font-size: var(--text-sm);
-}
-
-// 내 펫 목록
-.myPets {
-  width: 100%;
-  max-width: 26rem;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  text-align: left;
-}
-
-.sectionTitle {
-  font-size: var(--text-lg);
   font-weight: 700;
-}
-
-.petList {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  padding: 0;
-  list-style: none;
-}
-
-// 펫 한 줄 카드: [그림] [이름 Lv] [보러 가기]
-.petLink {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  grid-template-rows: auto auto;
-  column-gap: var(--space-3);
-  align-items: center;
-  padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--color-line);
-  border-radius: var(--radius-card);
-  background: var(--color-surface);
-  color: inherit;
-  text-decoration: none;
-
-  // 그림은 두 줄을 차지
-  > :first-child {
-    grid-row: 1 / 3;
-  }
-
-  &:hover {
-    border-color: var(--color-ink);
-  }
-}
-
-.thumbPlaceholder {
-  width: 72px;
-  height: 72px;
-  border-radius: var(--radius-card);
-  background: var(--color-line);
-}
-
-.petName {
-  font-weight: 700;
-}
-
-.petLevel {
-  grid-column: 2;
-  color: var(--color-muted);
-  font-size: var(--text-sm);
-}
-
-.go {
-  grid-column: 3;
-  grid-row: 1 / 3;
-  color: var(--color-muted);
-  font-size: var(--text-sm);
+  text-align: center;
 }

@@ -10,14 +10,37 @@
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
+  // 연출(빛줄기 560px 등)이 화면 옆으로 삐져나가도 가로 스크롤이 생기지 않게 자른다.
+  // ? hidden이 아니라 clip: hidden은 스크롤 상자를 만들어 position: sticky 같은 것이 깨질 수 있다. clip은 자르기만 한다.
+  overflow-x: clip;
   // * 장면 그림 (시안 .sm). 아래 가운데를 기준으로 화면을 덮는다 → 길이 화면 아래에서 시작한다.
-  //   --scene은 펫 화면이 밤 장면으로 바꿀 때 덮어쓴다 (PetView가 style로 넘기는 게 아니라 data 속성 + CSS로).
-  background: var(--scene, var(--scene-mobile-day)) center bottom / cover no-repeat;
-  // 모바일 탭 바(fixed, 88px) 아래로 내용이 숨지 않게 그만큼 비워 둔다
-  padding-bottom: var(--tabbar-height);
+  //   모바일 탭 바 높이만큼의 빈칸은 TabBar가 직접 둔다 (홈 소개·입양 화면은 탭 바가 없어서).
+  //   장면은 두 겹(색 덧칠 + 그림)이라 background-size 등도 두 겹 모두에 같은 값이 들어간다.
+  background-color: var(--ink);
+  background-image: var(--scene-m, var(--scene-m-field));
+  background-position: center bottom;
+  background-size: cover;
+  background-repeat: no-repeat;
 
   @include bp.desktop {
-    background-image: var(--scene-desktop, var(--scene-desktop-day));
-    padding-bottom: 0; // 데스크톱은 탭 바가 없다
+    background-image: var(--scene-d, var(--scene-d-field));
+  }
+
+  // * 레벨별 장면 (해금 배경): 자식 중에 data-scene="<id>"가 있으면 그 장면으로 바꾼다.
+  //   펫 화면(PetView)이 펫 레벨로, 404(NotFoundView)가 "night"로 이 속성을 단다.
+  //   :has(): "이런 자식을 가진 부모"를 고르는 CSS 선택자. JS로 부모 상태를 바꾸지 않아도 된다.
+  //   @each: Sass 반복문. 다섯 장면의 규칙을 한 번에 만든다.
+  @each $id in base, field, sunset, night, crystal {
+    &:has([data-scene="#{$id}"]) {
+      --scene-m: var(--scene-m-#{$id});
+      --scene-d: var(--scene-d-#{$id});
+    }
+  }
+
+  // * 화면 높이에 딱 맞추는 페이지 (데스크톱 펫 화면): 스크롤 없이 펫이 남은 높이만큼만 커진다
+  @include bp.desktop {
+    &:has([data-fit]) {
+      height: 100dvh;
+    }
   }
 }

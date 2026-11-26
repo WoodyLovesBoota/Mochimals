@@ -4,11 +4,12 @@
 "use client";
 
 import type { PetState } from "@/hooks/usePet";
+import { tinyAddress } from "@/lib/links";
 import { levelProgress } from "@/lib/look";
 import { formatClock } from "@/lib/time";
 import { AccountButton } from "./AccountButton";
 import { EnergyBadge } from "./EnergyBadge";
-import { HeartIcon } from "./icons";
+import { EyeIcon, HeartIcon } from "./icons";
 import { LevelRing } from "./LevelRing";
 import styles from "./PetHud.module.scss";
 
@@ -19,9 +20,11 @@ type Props = {
   subtitle: string;
   /** 배고파지기까지 남은 밀리초 (useHungerTimer) */
   hungryInMs: number;
+  /** false면 구경 모드 (시안 11): 이름판 아랫줄 "0x70…C8 님의 펫", 배고픔 대신 "구경 중" */
+  isOwner: boolean;
 };
 
-export function PetHud({ petId, pet, subtitle, hungryInMs }: Props) {
+export function PetHud({ petId, pet, subtitle, hungryInMs, isOwner }: Props) {
   // * XP: 이번 레벨 구간에서 얼마나 찼는지. look.ts의 levelProgress가 컨트랙트 levelOf와 같은 식을 쓴다.
   //   예: xp 70 → Lv 2(50부터), Lv 3은 120 → current 20 / needed 70 → 28%
   const { current, needed } = levelProgress(pet.xp);
@@ -37,7 +40,7 @@ export function PetHud({ petId, pet, subtitle, hungryInMs }: Props) {
           {/* 이름판. SPEC 12장: 이름은 Mochi #id (이름 짓기 기능은 없다) */}
           <div className={styles.nameplate}>
             <h1 className={styles.name}>Mochi #{petId}</h1>
-            <p className={styles.subtitle}>{subtitle}</p>
+            <p className={styles.subtitle}>{isOwner ? subtitle : `${tinyAddress(pet.owner)} 님의 펫`}</p>
           </div>
         </div>
         {/* 모바일에서만 (데스크톱은 위쪽 헤더에 같은 것이 있다) */}
@@ -48,6 +51,15 @@ export function PetHud({ petId, pet, subtitle, hungryInMs }: Props) {
       </div>
 
       <div className={styles.pills}>
+        {/* 구경 모드: 맨 앞에 "구경 중" (시안 11) */}
+        {!isOwner && (
+          <span className={styles.pill}>
+            <span className={styles.eye}>
+              <EyeIcon size={14} />
+            </span>
+            <span className={styles.pillText}>구경 중</span>
+          </span>
+        )}
         {/* ① XP 알약: "XP" 딱지 + 70px 막대 + 0/170 */}
         <span className={styles.pill}>
           <span className={styles.xpTag}>XP</span>
@@ -75,15 +87,17 @@ export function PetHud({ petId, pet, subtitle, hungryInMs }: Props) {
           </span>
         </span>
 
-        {/* ② 배고픔 알약. 판정은 컨트랙트 isHungry, 남은 시간 글자만 lastFedAt으로 계산 (SPEC 8장) */}
-        <span className={pet.hungry ? styles.pillHungry : styles.pill}>
-          <span className={styles.heart}>
-            <HeartIcon size={14} />
+        {/* ② 배고픔 알약 (주인만). 판정은 컨트랙트 isHungry, 남은 시간 글자만 lastFedAt으로 계산 (SPEC 8장) */}
+        {isOwner && (
+          <span className={pet.hungry ? styles.pillHungry : styles.pill}>
+            <span className={styles.heart}>
+              <HeartIcon size={14} />
+            </span>
+            <span className={styles.pillText}>
+              {pet.hungry ? "배고파요" : `${formatClock(hungryInMs) ?? "곧"} 남음`}
+            </span>
           </span>
-          <span className={styles.pillText}>
-            {pet.hungry ? "배고파요" : `${formatClock(hungryInMs) ?? "곧"} 남음`}
-          </span>
-        </span>
+        )}
       </div>
     </div>
   );

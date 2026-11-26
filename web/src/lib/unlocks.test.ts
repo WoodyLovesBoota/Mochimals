@@ -1,5 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { canDance, currentBackground, currentTitle, rankBorder, UNLOCKS, unlocksAt, unlockToast } from "./unlocks";
+import {
+  canDance,
+  currentBackground,
+  currentTitle,
+  rankBorder,
+  sceneFor,
+  UNLOCKS,
+  unlockReward,
+  unlocksAt,
+  unlockToast,
+} from "./unlocks";
 
 describe("UNLOCKS 표", () => {
   it("레벨 오름차순이다 (latest가 이 순서를 믿는다)", () => {
@@ -64,5 +74,29 @@ describe("unlockToast", () => {
   });
   it("해금이 없는 레벨은 null", () => {
     expect(unlockToast(21)).toBeNull();
+  });
+});
+
+describe("unlockReward", () => {
+  it("이름만, 조사는 받침에 맞게", () => {
+    expect(unlockReward(8)).toBe("Lv 8 보상 · 스카프를 받았어요!");
+    expect(unlockReward(14)).toBe("Lv 14 보상 · 밤하늘을 받았어요!");
+  });
+  it("해금이 없으면 null", () => {
+    expect(unlockReward(21)).toBeNull();
+  });
+});
+
+describe("sceneFor: 레벨별 장면", () => {
+  it.each([
+    [1, "base"],
+    [5, "base"],
+    [6, "field"],
+    [10, "sunset"],
+    [14, "night"],
+    [17, "crystal"],
+    [20, "crystal"],
+  ])("Lv %i → %s", (level, expected) => {
+    expect(sceneFor(level)).toBe(expected);
   });
 });

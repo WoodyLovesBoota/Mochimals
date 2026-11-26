@@ -3,7 +3,9 @@
 //     레벨은 체인에 있으니, 해금은 레벨에서 언제든 다시 계산할 수 있다 (SPEC 14장: 레벨·단계 저장 추가 금지와 같은 생각).
 //   SPEC: "액세서리와 배경은 해금된 것 중 최신 것을 자동 적용". 이번 범위에서 액세서리는 그림 없이 이름만 보여준다.
 
-/** 해금 배경 id. globals.scss의 --bg-<id> CSS 변수와 이름이 같다 */
+import { eulReul, euro } from "./josa";
+
+/** 해금 배경 id. globals.scss의 장면 변수(--scene-m-<id>)와 이름이 같다 */
 export type BackgroundId = "field" | "sunset" | "night" | "crystal";
 
 /** 랭킹 테두리 */
@@ -79,7 +81,17 @@ function latest<K extends NonNullable<Unlock["effect"]>["kind"]>(
   return found;
 }
 
-/** 지금 적용할 배경. 없으면 null → 아트 세트의 종별 기본 배경 */
+/**
+ * 장면 id: 해금 배경 넷 + Lv 1~5의 기본 장면. globals.scss의 --scene-m-<id> / --scene-d-<id>와 이름이 같다.
+ */
+export type SceneId = BackgroundId | "base";
+
+/** * 지금 레벨의 장면 (펫 화면 배경). 배경 해금 전(Lv 1~5)이면 "base" */
+export function sceneFor(level: number): SceneId {
+  return currentBackground(level) ?? "base";
+}
+
+/** 지금 적용할 배경. 없으면 null (Lv 1~5) */
 export function currentBackground(level: number): BackgroundId | null {
   return latest(level, "background")?.id ?? null;
 }
@@ -107,16 +119,28 @@ export function unlockToast(level: number): string | null {
   const list = unlocksAt(level);
   if (list.length === 0) return null;
   const parts = list.map((u) => {
-    // "진화 · 어린이" → "어린이로 진화!", "진화 · 어른" → "어른으로 진화!"
-    // ? 조사 "로/으로"는 마지막 글자의 받침으로 정한다. 한글 글자 코드 = 0xAC00 + (초성×21 + 중성)×28 + 종성 이라서
-    //   (코드 - 0xAC00) % 28 이 종성 번호다. 0 = 받침 없음, 8 = ㄹ (ㄹ 받침은 "로": "길로")
+    // "진화 · 어린이" → "어린이로 진화!", "진화 · 어른" → "어른으로 진화!" (조사는 lib/josa.ts)
     if (u.kind === "evolve" && u.label.startsWith("진화 · ")) {
-      const name = u.label.slice("진화 · ".length);
-      const code = name.charCodeAt(name.length - 1) - 0xac00;
-      const hasFinal = code >= 0 && code % 28 !== 0 && code % 28 !== 8; // 받침 있음 (ㄹ 받침(8)은 "로")
-      return `${name}${hasFinal ? "으로" : "로"} 진화!`;
+      return `${euro(u.label.slice("진화 · ".length))} 진화!`;
     }
     return u.label;
   });
   return `Lv ${level} 해금 · ${parts.join(" · ")}`;
+}
+
+/**
+ * * 레벨업 연출의 보상 알약 문구 (시안 07 "Lv 8 보상 · 스카프를 받았어요!").
+ *   "분류 · 이름"이면 이름만 쓴다 ("액세서리 · 스카프" → "스카프"). 여러 개면 쉼표로 잇는다.
+ * @returns 이 레벨에 해금이 없으면 null
+ */
+export function unlockReward(level: number): string | null {
+  const names = unlocksAt(level).map((u) => u.label.split(" · ").at(-1)!);
+  if (names.length === 0) return null;
+  const last = names.at(-1)!;
+  // 을/를: 받침 있으면 "을", 없으면 "를"
+  // 을/를: 마지막 이름의 받침으로 고른다 (lib/josa.ts)
+  return `Lv ${level} 보상 · ${names
+    .slice(0, -1)
+    .map((n) => n + ", ")
+    .join("")}${eulReul(last)} 받았어요!`;
 }

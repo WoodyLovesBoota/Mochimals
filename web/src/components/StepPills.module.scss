@@ -1,0 +1,55 @@
+@use "../styles/ui";
+
+.steps {
+  display: flex;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pill {
+  @include ui.display;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 12px;
+  border: 2px solid var(--panel-edge);
+  border-radius: var(--radius-pill);
+  font-size: 0.8125rem; // 13px
+  white-space: nowrap;
+}
+
+// 입양 시트: 세 칸을 똑같이 나눠 꽉 채우는 흰 칸 (시안 05)
+.stretch li {
+  flex: 1;
+  height: 40px;
+  border-radius: 12px;
+}
+
+.stretch .active,
+.stretch .todo {
+  background: var(--white);
+}
+
+.done {
+  composes: pill;
+  border-color: var(--lime-depth);
+  background: var(--lime);
+  color: var(--ink);
+}
+
+.active {
+  composes: pill;
+  background: var(--panel);
+  color: var(--ink);
+}
+
+.todo {
+  composes: pill;
+  background: var(--panel);
+  color: var(--muted);
+  opacity: 0.7;
+}

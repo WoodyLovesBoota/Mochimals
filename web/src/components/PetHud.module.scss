@@ -142,3 +142,8 @@
   box-shadow: inset 0 -2px 0 var(--pink-depth);
   color: var(--white);
 }
+
+// 구경 중: 파란 둥근 사각 안의 눈
+.eye {
+  @include ui.icon-chip(blue, 26px, 9px);
+}

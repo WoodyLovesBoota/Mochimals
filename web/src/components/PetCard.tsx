@@ -1,6 +1,7 @@
 // * 펫 카드: 무대(그림 + 연출) (4강). PetView에서 분리했다 (SPEC 2장 구조의 PetCard).
 //   리디자인 뒤로 이름·레벨·칭호는 PetHud가, 새 해금 알림은 PetView가 그린다. 여기는 펫과 펫 주변 연출만 남았다.
-//   이 파일이 그리는 연출: XP 숫자, 레벨업(튀기·배지·별), 배고픔(축 처짐·말풍선), 춤(Lv 16).
+//   이 파일이 그리는 연출: XP 숫자, 레벨업 튀기, 배고픔(축 처짐·말풍선), 춤(Lv 16).
+//   레벨업의 리본·링·보상 알약은 LevelUpOverlay(PetView가 무대 위에 겹침)가 그린다.
 //   진화/부화는 화면 전체를 덮어서 PetView가 따로 그린다 (EvolveOverlay).
 "use client";
 
@@ -10,7 +11,6 @@ import type { PetState } from "@/hooks/usePet";
 import type { usePetEffect } from "@/hooks/usePetEffect";
 import { getPetLook, type Emotion } from "@/lib/look";
 import { canDance } from "@/lib/unlocks";
-import { LevelUpBadge, StarBurst } from "./LevelUpFx";
 import styles from "./PetCard.module.scss";
 import { PetSprite } from "./PetSprite";
 
@@ -28,7 +28,7 @@ export function PetCard({ pet, isOwner, fx, className }: Props) {
   //   ?? : 왼쪽이 null/undefined일 때만 오른쪽을 쓴다. 연출 표정이 없으면 기본 규칙으로.
   const emotion = fx.emotion ?? pickEmotion(pet, isOwner);
   const xpGained = fx.current?.effect.xpGained ?? null;
-  // * 레벨업 연출 (배지, 별, 튀기). 단계가 바뀐 레벨업이면 usePetEffect.play가 levelUp을 비워서 여기 안 온다.
+  // * 레벨업 튀기. 단계가 바뀐 레벨업이면 usePetEffect.play가 levelUp을 비워서 여기 안 온다.
   //   그때는 진화 연출(EvolveOverlay, PetView)이 대신 튼다 (SPEC 12장: 레벨업은 "단계 그대로"일 때).
   const levelUp = fx.current?.effect.levelUp ?? null;
 
@@ -45,7 +45,7 @@ export function PetCard({ pet, isOwner, fx, className }: Props) {
     if (levelUp === null || reduceMotion) return;
     // y: 위로 크게 한 번, 작게 한 번 튀고 제자리 (px). 1.5초 중 앞 0.8초만 쓴다.
     animate(scope.current, { y: [0, -36, 0, -12, 0] }, { duration: 0.8, ease: "easeOut" });
-    // levelUp은 일부러 의존성에서 뺀다: 배지가 끝나 clear("levelUp")로 null이 될 때 다시 돌 필요가 없다.
+    // levelUp은 일부러 의존성에서 뺀다: 연출이 끝나 clear("levelUp")로 null이 될 때 다시 돌 필요가 없다.
     //   "새 연출 번호(fxKey)가 왔을 때 한 번"이 의도다.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fxKey]);
@@ -57,8 +57,7 @@ export function PetCard({ pet, isOwner, fx, className }: Props) {
   const level = Number(pet.level);
   // 춤(Lv 16): 배고플 때는 안 춘다 (축 처짐과 겹치면 이상하다)
   const dancing = canDance(level) && !pet.hungry;
-  // ? 해금 배경(들판·노을·밤하늘·수정 동굴)은 리디자인에서 화면 전체 장면 그림(layout의 --scene)으로 바뀌어 여기서 칠하지 않는다.
-  //   TODO 리뷰 후 결정: 해금 배경을 장면 그림 위에 어떻게 보여줄지
+  // * 해금 배경(들판·노을·밤하늘·수정 동굴)은 화면 전체 장면이 된다: PetView의 data-scene → layout .shell (globals.scss 장면 토큰)
 
   // 그림 감싸는 div의 클래스: 배고프면 축 처짐, 춤 해금이면 흔들흔들 (둘 다 CSS 애니메이션, PetCard.module.scss)
   const spriteMotion = pet.hungry ? styles.droop : dancing ? styles.dance : "";
@@ -87,7 +86,8 @@ export function PetCard({ pet, isOwner, fx, className }: Props) {
             AnimatePresence: 자식이 사라질 때 exit 애니메이션을 끝까지 튼 뒤에 DOM에서 뺀다.
             key가 연출 번호라서, 밥을 연달아 주면 새 숫자가 처음부터 다시 떠오른다 (usePetEffect의 current.key). */}
       <AnimatePresence>
-        {xpGained !== null && (
+        {/* 레벨업이면 큰 "+40 XP"를 LevelUpOverlay가 띄우니 여기서는 생략 */}
+        {xpGained !== null && levelUp === null && (
           <motion.span
             key={fx.current?.key}
             className={styles.xpFloat}
@@ -104,15 +104,6 @@ export function PetCard({ pet, isOwner, fx, className }: Props) {
           </motion.span>
         )}
       </AnimatePresence>
-
-      {/* * 레벨업 배지 + 별 (LevelUpFx.tsx). 배지 애니메이션이 끝나면 clear("levelUp") → 둘 다 빠진다.
-            fragment(<>)에는 key를 줄 수 없어서 두 요소에 각각 key를 준다. */}
-      {levelUp !== null && (
-        <>
-          <StarBurst key={`stars-${fxKey}`} />
-          <LevelUpBadge key={`badge-${fxKey}`} level={levelUp} onDone={() => fx.clear("levelUp")} />
-        </>
-      )}
     </div>
   );
 }

@@ -56,6 +56,37 @@
   // 배고픔 알약의 연한 분홍 (시안 04 "배고파요")
   --pink-soft: #ffe6ef;
   --pink-edge: #ffc2d6;
+  --pink-shadow: #f3b0c8; // 배고픔 안내 알약의 두께 (시안 10)
+  --grey-ink: #8c8399; // 비활성 버튼 글자 (시안 10)
+
+  // 주황 리본 제목 ("레벨 랭킹", "레벨 업!", "부화!")
+  --ribbon: #ff8a5b;
+  --ribbon-depth: #d9623a;
+
+  // 랭킹 메달 (1·2·3위) + 내 펫 줄
+  --gold: #ffd23f;
+  --gold-depth: #d9a400;
+  --silver: #d7dee8;
+  --silver-depth: #a9b4c4;
+  --bronze: #f2a66b;
+  --bronze-depth: #c77a3e;
+  --mine-bg: #f1fbd9; // 랭킹의 내 펫 줄 바탕
+  --amber-glow: rgb(255 194 71 / 30%); // 실시간 점 둘레
+
+  // 네트워크 전환 (시안 13)
+  --chain-wrong-bg: #ffe3e3;
+  --chain-base: #2151f5;
+  --chain-base-bg: #e2eaff;
+
+  // 연출 (레벨업·부화·진화)
+  --night-tint: rgb(20 16 48 / 35%); // 밤 장면 위 어두운 막
+  --glow: radial-gradient(circle, rgb(255 246 200 / 95%) 0%, rgb(255 246 200 / 35%) 40%, rgb(255 246 200 / 0%) 70%);
+  --rays: repeating-conic-gradient(rgb(255 246 200 / 55%) 0deg 9deg, rgb(255 246 200 / 0%) 9deg 22deg);
+  --ghost: rgb(255 255 255 / 18%); // 어두운 바탕 위 반투명 알약
+  --ghost-edge: rgb(255 255 255 / 40%);
+  --ghost-text: rgb(255 255 255 / 16%); // 404 큰 숫자
+  --dashed-edge: rgb(255 250 240 / 80%); // "마켓에서 데려오기" 점선 카드
+  --dashed-bg: rgb(255 250 240 / 35%);
 
   // 계정 아바타 (시안: 주소별 그림 대신 산호색 구슬)
   --avatar: radial-gradient(circle at 35% 30%, #ffb0a0, var(--red) 60%);
@@ -70,30 +101,30 @@
   --scene-desktop-night: url("/game/scene-desktop-night.png");
 
   // ---------------------------------------------------------------
-  // 예전 토큰 이름 (아직 리디자인 전인 화면이 쓰는 것). 값만 새 팔레트로 바꿔 둔다
+  // * 레벨별 장면 (해금 배경, SPEC 12장 해금표). 펫 화면·내 펫 카드·랭킹 카드의 배경이 된다.
   // ---------------------------------------------------------------
-  // TODO 2단계(홈·랭킹·연출 리디자인)에서 이 이름들을 쓰는 곳을 새 토큰으로 옮기고 지운다
-  --color-ink: var(--ink);
-  --color-muted: var(--muted);
-  --color-line: var(--track);
-  --color-surface: var(--panel);
-  --color-on-ink: var(--white);
-  --color-stage-fallback: var(--panel);
-  --color-energy: var(--amber);
-  --color-energy-soft: var(--row-next);
-  --color-xp: var(--lime-depth);
-  --color-feed: var(--amber);
-  --color-feed-ink: var(--red-depth);
-  --color-overlay: rgb(45 38 69 / 92%);
-  --color-highlight: rgb(184 238 58 / 20%);
-  --color-silver: #d7dee8;
-  --color-gold: #ffd23f;
+  //   장면 하나 = background-image 두 겹: [위: 색 덧칠] , [아래: 장면 그림].
+  //   ? 원본 장면 그림은 낮·밤 두 가지뿐이라, 노을·수정 동굴은 그림 위에 반투명 색을 덮어 만든다.
+  //     전용 그림이 생기면 아래 값의 url()만 바꾸고 덧칠을 --tint-none으로 두면 된다 (화면 코드는 그대로).
+  //   이름 규칙: --scene-m-<id> (모바일 세로 그림), --scene-d-<id> (데스크톱 가로 그림). id는 lib/unlocks.ts의 SceneId.
+  --tint-none: linear-gradient(transparent, transparent);
+  // Lv 1~5 기본: 낮 장면에 크림빛을 살짝 → 들판(Lv 6)보다 흐린 아침 느낌
+  --tint-base: linear-gradient(rgb(255 250 240 / 28%), rgb(255 250 240 / 28%));
+  // Lv 10 노을 언덕: 위는 주황, 아래로 갈수록 자주
+  --tint-sunset: linear-gradient(180deg, rgb(255 138 91 / 50%) 0%, rgb(255 170 120 / 32%) 45%, rgb(150 80 150 / 30%) 100%);
+  // Lv 17 수정 동굴: 밤 장면에 보라·하늘색 빛
+  --tint-crystal: linear-gradient(160deg, rgb(156 140 255 / 55%) 0%, rgb(120 220 240 / 42%) 50%, rgb(110 92 224 / 52%) 100%);
 
-  // * 해금 배경 (SPEC 12장: "배경은 CSS 그라데이션으로"). 랭킹 썸네일 등 아직 쓰는 곳이 있다.
-  --bg-field: linear-gradient(180deg, #dff3ff 0%, #eaf8e6 60%, #b9e3a6 100%); // Lv 6 들판
-  --bg-sunset: linear-gradient(180deg, #ffd3a5 0%, #fca9a0 55%, #c98bb9 100%); // Lv 10 노을 언덕
-  --bg-night: radial-gradient(circle at 30% 20%, #3b4a8a 0%, #1d2350 55%, #0f1330 100%); // Lv 14 밤하늘
-  --bg-crystal: linear-gradient(160deg, #d9c8ff 0%, #a8e0f0 50%, #7d7fd8 100%); // Lv 17 수정 동굴
+  --scene-m-base: var(--tint-base), var(--scene-mobile-day);
+  --scene-d-base: var(--tint-base), var(--scene-desktop-day);
+  --scene-m-field: var(--tint-none), var(--scene-mobile-day); // Lv 6 들판 (원본 낮 장면 그대로)
+  --scene-d-field: var(--tint-none), var(--scene-desktop-day);
+  --scene-m-sunset: var(--tint-sunset), var(--scene-mobile-day);
+  --scene-d-sunset: var(--tint-sunset), var(--scene-desktop-day);
+  --scene-m-night: var(--tint-none), var(--scene-mobile-night); // Lv 14 밤하늘 (404도 이 장면)
+  --scene-d-night: var(--tint-none), var(--scene-desktop-night);
+  --scene-m-crystal: var(--tint-crystal), var(--scene-mobile-night);
+  --scene-d-crystal: var(--tint-crystal), var(--scene-desktop-night);
 
   // ---------------------------------------------------------------
   // 글꼴 (layout.tsx의 next/font가 --font-jua 등 변수를 <html>에 만든다)

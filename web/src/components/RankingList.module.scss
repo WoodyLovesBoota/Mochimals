@@ -1,42 +1,142 @@
-.wrap {
-  width: 100%;
-  max-width: 32rem;
+@use "../styles/breakpoints" as bp;
+@use "../styles/ui";
+
+// =====================================================================
+// 틀
+// =====================================================================
+.main {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
-}
+  padding: 18px 12px 80px; // 아래 80: 고정된 "내 순위" 막대(56 + 여백) 자리
 
-.muted {
-  color: var(--color-muted);
-}
-
-// 진화 피드: 비어 있으면 높이 0
-.feed {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  padding: 0;
-  list-style: none;
-  font-size: var(--text-sm);
-
-  li {
-    padding: var(--space-2) var(--space-3);
-    border-radius: var(--radius-pill);
-    background: var(--color-energy-soft);
+  @include bp.desktop {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--panel-width);
+    gap: var(--space-6);
+    width: 100%;
+    max-width: var(--page-max);
+    margin: 0 auto;
+    padding: var(--space-8) var(--space-8) 36px;
   }
 }
 
-// * 내 순위 고정 표시. sticky: 평소엔 제자리, 스크롤로 화면 위에 닿으면 거기 붙는다.
-.myRank {
-  position: sticky;
-  top: var(--space-2);
-  z-index: 1; // 아래 목록 행 위에
-  padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-pill);
-  background: var(--color-ink);
-  color: var(--color-on-ink);
+.center {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+}
+
+.left {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+
+  @include bp.desktop {
+    > :first-child {
+      align-self: flex-start; // 데스크톱 리본은 왼쪽 정렬
+    }
+  }
+}
+
+.right {
+  display: none;
+
+  @include bp.desktop {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+}
+
+.desktopOnly {
+  @include bp.mobile {
+    display: none;
+  }
+}
+
+.mono {
+  @include ui.mono;
+}
+
+// =====================================================================
+// 최신 소식 한 줄 (모바일)
+// =====================================================================
+.latest {
+  @include ui.pill;
+  gap: 10px;
+  padding: 10px 16px 10px 10px;
+  box-shadow: 0 4px 0 var(--panel-depth);
   font-size: var(--text-sm);
-  text-decoration: none;
+  font-weight: 700;
+
+  @include bp.desktop {
+    display: none;
+  }
+}
+
+// 깜빡이는 듯한 호박색 점 (둘레 빛)
+.liveDot {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  margin-left: var(--space-2);
+  border-radius: 50%;
+  background: var(--amber);
+  box-shadow: 0 0 0 4px var(--amber-glow);
+}
+
+.latestText {
+  flex: 1;
+}
+
+.ago {
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+
+// =====================================================================
+// 순위표 카드
+// =====================================================================
+.board {
+  @include ui.card;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+
+  @include bp.desktop {
+    padding: var(--space-4);
+  }
+}
+
+.boardHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 0 4px;
+}
+
+.boardTitle {
+  @include ui.display;
+  font-size: var(--text-lg);
+
+  @include bp.desktop {
+    font-size: var(--text-xl);
+  }
+}
+
+.boardNote {
+  color: var(--muted);
+  font-size: var(--text-xs);
+  font-weight: 700;
+
+  @include bp.desktop {
+    font-size: 0.8125rem;
+  }
 }
 
 .list {
@@ -47,83 +147,315 @@
   list-style: none;
 }
 
-// 한 줄: [순위] [썸네일] [이름 / 종·주소] [레벨]
+// 한 줄: 흰 카드 + 두께
 .row {
-  display: grid;
-  grid-template-columns: 2rem auto 1fr auto;
-  grid-template-areas:
-    "rank thumb name level"
-    "rank thumb meta level";
-  column-gap: var(--space-3);
+  display: flex;
   align-items: center;
-  padding: var(--space-2) var(--space-3);
-  border: 2px solid var(--color-line);
-  border-radius: var(--radius-card);
-  background: var(--color-surface);
-  color: inherit;
-  text-decoration: none;
-
-  > :nth-child(2) {
-    grid-area: thumb;
-  }
+  gap: var(--space-3);
+  min-height: 64px;
+  margin-bottom: 3px;
+  padding: 8px 12px 8px 8px;
+  border: 2px solid var(--panel-edge);
+  border-radius: var(--radius-btn);
+  background: var(--white);
+  box-shadow: 0 3px 0 var(--panel-depth);
 
   &:hover {
-    border-color: var(--color-muted);
+    background: var(--panel);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--ink);
+    outline-offset: 2px;
+  }
+
+  // 썸네일 모서리 14px (시안)
+  > span:nth-child(2) {
+    border-radius: 14px;
   }
 }
 
-// 내 펫 행 강조 (SPEC 12장)
+// 내 펫 줄: 연두 바탕 + 라임 테두리
 .mine {
-  background: var(--color-highlight);
+  border-color: var(--lime);
+  background: var(--mine-bg);
+  box-shadow: 0 3px 0 var(--lime-depth);
+
+  &:hover {
+    background: var(--mine-bg);
+  }
 }
 
-// 랭킹 테두리 (해금표). .row의 border-color를 덮어쓴다
+// 해금 테두리 (Lv 10 은색 / Lv 20 금색). 내 펫이어도 테두리는 해금 색이 우선
 .silver {
-  border-color: var(--color-silver);
+  border-color: var(--silver-depth);
 }
 
 .gold {
-  border-color: var(--color-gold);
-  box-shadow: 0 0 0 2px var(--color-gold); // 금색은 한 겹 더 두껍게
+  border-color: var(--gold);
 }
 
+// 순위 숫자: 4위부터는 흐린 숫자, 1·2·3위는 메달 동그라미
 .rank {
-  grid-area: rank;
-  font-weight: 800;
-  text-align: center;
-  font-variant-numeric: tabular-nums;
+  @include ui.display;
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  color: var(--muted);
+  font-size: 1.0625rem;
+}
+
+.rank.gold {
+  background: var(--gold);
+  box-shadow: inset 0 -3px 0 var(--gold-depth);
+  color: var(--ink);
+}
+
+.rank.silverMedal {
+  background: var(--silver);
+  box-shadow: inset 0 -3px 0 var(--silver-depth);
+  color: var(--ink);
+}
+
+.rank.bronze {
+  background: var(--bronze);
+  box-shadow: inset 0 -3px 0 var(--bronze-depth);
+  color: var(--ink);
+}
+
+.nameCol {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
 }
 
 .name {
-  grid-area: name;
+  @include ui.display;
   display: flex;
   align-items: center;
-  gap: var(--space-2);
-  font-weight: 700;
+  gap: 6px;
+  font-size: 1.0625rem;
 }
 
 .meTag {
-  padding: 0 var(--space-2);
+  @include ui.display;
+  padding: 2px 7px;
   border-radius: var(--radius-pill);
-  background: var(--color-xp);
-  color: var(--color-on-ink);
-  font-size: 0.75rem;
+  background: var(--lime);
+  font-size: 11px;
 }
 
-// 둘째 줄: 종 · 줄인 주소
-.meta {
-  grid-area: meta;
-  color: var(--color-muted);
-  font-size: var(--text-sm);
+.metaMobile {
+  color: var(--muted);
+  font-size: var(--text-xs);
+  font-weight: 700;
+
+  @include bp.desktop {
+    display: none;
+  }
+}
+
+.speciesCol,
+.addrCol {
+  display: none;
+  color: var(--muted);
+
+  @include bp.desktop {
+    display: block;
+  }
+}
+
+.speciesCol {
+  width: 110px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.addrCol {
+  @include ui.mono;
+  width: 100px;
+  font-size: var(--text-xs);
 }
 
 .level {
-  grid-area: level;
-  padding: var(--space-1) var(--space-3);
-  border-radius: var(--radius-pill);
-  background: var(--color-ink);
-  color: var(--color-on-ink);
-  font-size: var(--text-sm);
-  font-weight: 700;
+  @include ui.display;
+  padding: 6px 12px;
+  border-radius: 12px;
+  background: var(--ink);
+  color: var(--lime);
+  font-size: 0.9375rem;
   white-space: nowrap;
+}
+
+// =====================================================================
+// 모바일 "내 순위" 막대 (탭 바 위 12px에 고정)
+// =====================================================================
+.myBar {
+  position: fixed;
+  right: 12px;
+  bottom: calc(var(--tabbar-height) + 12px);
+  left: 12px;
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 56px;
+  padding: 0 16px 0 8px;
+  border-radius: var(--radius-btn);
+  background: var(--lime);
+  box-shadow: 0 5px 0 var(--lime-depth);
+  color: var(--ink);
+
+  > span:first-child {
+    border-radius: 12px;
+  }
+
+  @include bp.desktop {
+    display: none;
+  }
+}
+
+.myBarText {
+  @include ui.display;
+  flex: 1;
+  font-size: var(--text-lg);
+}
+
+.myBarLv {
+  @include ui.display;
+  font-size: 0.9375rem;
+}
+
+// =====================================================================
+// 데스크톱 오른쪽: 내 펫 카드
+// =====================================================================
+.myCard {
+  @include ui.card;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: 14px;
+}
+
+.myScene {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  height: 180px;
+  overflow: hidden;
+  border: 2px solid var(--panel-edge);
+  border-radius: var(--radius-btn);
+  background-color: var(--ink);
+  background-image: var(--card-scene, var(--scene-d-base));
+  background-position: center bottom;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.mySprite {
+  width: 200px;
+  height: auto;
+  margin-bottom: -14px;
+}
+
+.myHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.myName {
+  @include ui.display;
+  font-size: 1.375rem;
+}
+
+.myRank {
+  @include ui.display;
+  color: var(--link);
+  font-size: 1.75rem;
+}
+
+.myNote {
+  color: var(--muted);
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.myGo {
+  @include ui.chunky(lime);
+  flex-direction: row;
+  gap: var(--space-2);
+  height: 54px;
+  font-size: var(--text-lg);
+}
+
+// =====================================================================
+// 데스크톱 오른쪽: 실시간 소식
+// =====================================================================
+.feedCard {
+  @include ui.card;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: var(--space-4);
+}
+
+.feedHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.feedEmpty {
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+.feedList {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+  }
+}
+
+.feedChipBlue {
+  @include ui.icon-chip(blue, 36px, 12px);
+}
+
+.feedChipLime {
+  @include ui.icon-chip(lime, 36px, 12px);
+}
+
+.feedBody {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.feedLine {
+  @include ui.display;
+  font-size: var(--text-sm);
+
+  span {
+    color: var(--muted);
+  }
+}
+
+.feedMeta {
+  @include ui.mono;
+  color: var(--muted);
+  font-size: 11px;
 }

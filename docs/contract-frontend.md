@@ -88,16 +88,18 @@ Provider 순서 (`providers.tsx` 32~36줄): `WagmiProvider` → `QueryClientProv
 
 ## 6. 읽기: 브라우저 (wagmi 훅)
 
-[web/src/components/EnergyBadge.tsx](../web/src/components/EnergyBadge.tsx) — 헤더(데스크톱)와 펫 HUD(모바일)의 활동력 알약 "4/10".
+[web/src/hooks/useEnergy.ts](../web/src/hooks/useEnergy.ts) — 지금 지갑의 활동력. 헤더 알약([EnergyBadge.tsx](../web/src/components/EnergyBadge.tsx) "4/10")과 내 펫 목록 안내("지금 4/10")가 같이 쓴다.
 
 | 줄 | 내용 |
 | --- | --- |
-| 16 | `useAccount()`로 연결된 주소 |
-| 21~30 | `useReadContract({ ...energy, functionName: "balanceOf", args })`. 가스비·서명 없는 view 호출 |
-| 26, 29 | 주소가 없으면 `args: undefined` + `enabled: false`로 요청 자체를 안 보낸다 |
-| 50 | 반환값은 `bigint`. Energy의 decimals가 0이라 `toString()`만 한다. 분모 10은 `MAX_ENERGY` 상수 |
+| 13 | `useAccount()`로 연결된 주소 |
+| 18~27 | `useReadContract({ ...energy, functionName: "balanceOf", args })`. 가스비·서명 없는 view 호출 |
+| 23, 26 | 주소가 없으면 `args: undefined` + `enabled: false`로 요청 자체를 안 보낸다 |
+| [EnergyBadge.tsx](../web/src/components/EnergyBadge.tsx) 26 | 반환값은 `bigint`. Energy의 decimals가 0이라 `toString()`만 한다. 분모 10은 `MAX_ENERGY` 상수 |
 
 지갑 버튼은 [AccountButton.tsx](../web/src/components/AccountButton.tsx): RainbowKit `ConnectButton.Custom`으로 연결 상태(`account`, `chain.unsupported`)와 창 여는 함수만 받아 모양을 직접 그린다. 모달 색은 [rainbowTheme.ts](../web/src/lib/rainbowTheme.ts)가 CSS 토큰(`var(--lime)`)으로 넣는다.
+
+잘못된 네트워크는 [WrongNetworkSheet.tsx](../web/src/components/WrongNetworkSheet.tsx) 31줄: `useAccount().chainId`가 `chain.id`와 다르면 어느 화면에서든 시트를 띄우고 `useSwitchChain`으로 바꾼다 (layout에 한 번).
 
 행동 후 갱신: 아래 `usePetAction`의 `confirm`이 캐시 전체를 무효화하므로 이 값도 다시 읽힌다.
 
@@ -153,22 +155,23 @@ Provider 순서 (`providers.tsx` 32~36줄): `WagmiProvider` → `QueryClientProv
 | 파일 | 줄 | 내용 |
 | --- | --- | --- |
 | [pet/[id]/page.tsx](../web/src/app/pet/[id]/page.tsx) | 17 | 서버 컴포넌트. 1 이상 정수가 아니면 404. 펫 번호는 컨트랙트에서 1부터 (`petId = ++totalSupply`) |
-| [PetView.tsx](../web/src/components/PetView.tsx) | 41 | `usePet(id, address)`. viewer는 지금 연결된 지갑 |
-| | 52, 189 | 없는 펫: `ownerOf`의 OZ 에러 `ERC721NonexistentToken`을 `walk`로 찾는다 (`isNonexistent`) |
-| | 59 | 주인 여부 `isAddressEqual(address, pet.owner)` |
-| | 74 | `useHungerTimer`를 한 번만 부르고 남은 시간을 HUD("23:57 남음")와 패널("23시간 57분 남음")에 나눠 준다 |
-| [PetHud.tsx](../web/src/components/PetHud.tsx) | 79~84 | 배고픔 알약: `pet.hungry`(컨트랙트 `isHungry`)면 "배고파요", 아니면 `formatClock` |
-| [PetPanel.tsx](../web/src/components/PetPanel.tsx) | 109~111 | 배고픔 줄. 활동력 10칸은 주인일 때만 (`pet.energy`는 보는 사람의 잔액) |
-| [PetCard.tsx](../web/src/components/PetCard.tsx) | 29, 125 | 표정: 연출 표정(excited/happy, 10장) → hungry(`isHungry`) → sleepy(활동력 0, 주인일 때만) → idle |
+| [PetView.tsx](../web/src/components/PetView.tsx) | 52 | `usePet(id, address)`. viewer는 지금 연결된 지갑 |
+| | 65 | 없는 펫: `ownerOf`의 OZ 에러 `ERC721NonexistentToken`이면 404 화면 (`isNonexistentToken`, [errors.ts](../web/src/lib/errors.ts)) |
+| | 80 | 주인 여부 `isAddressEqual(address, pet.owner)`. 아니면 구경 모드 (시안 11) |
+| | 108 | `useHungerTimer`를 한 번만 부르고 남은 시간을 HUD("23:57 남음")와 패널("23시간 57분 남음")에 나눠 준다 |
+| [usePet.ts](../web/src/hooks/usePet.ts) | 57 | 없는 펫 revert는 다시 시도하지 않는다 (바로 404) |
+| [PetHud.tsx](../web/src/components/PetHud.tsx) | 92~97 | 배고픔 알약: `pet.hungry`(컨트랙트 `isHungry`)면 "배고파요", 아니면 `formatClock` |
+| [PetPanel.tsx](../web/src/components/PetPanel.tsx) | 168 | 배고픔 줄. 활동력 10칸은 주인일 때만 (`pet.energy`는 보는 사람의 잔액) |
+| [PetCard.tsx](../web/src/components/PetCard.tsx) | 29, 117 | 표정: 연출 표정(excited/happy, 10장) → hungry(`isHungry`) → sleepy(활동력 0, 주인일 때만) → idle |
 | | 80 | 배고픔 말풍선. 위치는 아트 앵커 (330, 96) → 82.5% / 24% |
 | [useHungerTimer.ts](../web/src/hooks/useHungerTimer.ts) | 31~39 | `lastFedAt + 24시간 + 1초`에 `refetch` 1회. 블록마다 읽는 watch 대신 (SPEC 8장) |
 | [time.ts](../web/src/lib/time.ts) | 16 | `+ 1`: 컨트랙트 `isHungry`가 `>` 비교라서. 판정은 항상 컨트랙트 `pet.hungry`, 여기는 남은 시간 글자만 |
-| [PetActions.tsx](../web/src/components/PetActions.tsx) | 43, 58 | 지갑 `chainId`가 `chain.id`와 다르면 행동 버튼 대신 `useSwitchChain` 전환 버튼 |
-| | 34, 36 | `onDone` → 연출, `resumeIf` → 이 펫의 밥/훈련 또는 충전만 이어받기 |
-| | 49 | `pendingArgs.fn` → 누른 버튼만 "확인 중 / 지갑에서 확인 / 처리 중" |
-| | 52~54 | 잔액(`pet.energy`, bigint)으로 버튼 활성: 밥 ≥1, 훈련 ≥3, 0이면 충전 버튼 |
-| | 76 | `toErrorMessage(action.error)`. 지갑 거절은 null이라 문구 없음 |
-| | 79 | 확정 대기 중 트랜잭션 링크 `txUrl(hash)` ([links.ts](../web/src/lib/links.ts), anvil은 탐색기가 없어 안 보임) |
+| [PetView.tsx](../web/src/components/PetView.tsx) | 103, 105 | 쓰기 훅 `usePetAction`은 PetView가 갖는다 (버튼과 알림 줄이 같은 상태를 본다). `onDone` → 연출, `resumeIf` → 이 펫의 밥/훈련 또는 충전만 이어받기 |
+| | 126 | `pendingArgs.fn` → 알림 줄 "훈련 기록 중 · 블록 확정을 기다려요" + 단계 알약(지갑 서명 → 블록 확정 → 반영) |
+| | 129 | `toErrorMessage(action.error)` → 빨간 알림. 지갑 거절은 null이라 문구 없음 |
+| [PetActions.tsx](../web/src/components/PetActions.tsx) | 35, 49 | 지갑 `chainId`가 `chain.id`와 다르면 행동 버튼 대신 `useSwitchChain` 전환 버튼 |
+| | 43~45 | 잔액(`pet.energy`, bigint)으로 버튼 활성: 밥 ≥1, 훈련 ≥3, 0이면 충전 버튼 |
+| | 62, 154 | 확정 중이면 누른 버튼 안에 스피너 + "확정 중…" + 트랜잭션 링크 `txUrl(hash)` ([links.ts](../web/src/lib/links.ts), anvil은 탐색기가 없어 해시 글자만) |
 
 정보 패널의 OpenSea·Basescan 링크와 토큰 번호도 [links.ts](../web/src/lib/links.ts)가 `petNft.address`와 체인 id로 만든다 (anvil은 둘 다 없음 → 버튼 숨김).
 
@@ -185,11 +188,12 @@ Provider 순서 (`providers.tsx` 32~36줄): `WagmiProvider` → `QueryClientProv
 | [usePetEffect.ts](../web/src/hooks/usePetEffect.ts) | 17, 24, 30 | 연출 번호(key), 표정, 새 해금 카드를 따로 둔다. 표정 없는 훈련이 happy 타이머를 지우지 않게 |
 | | 41 | 진화면 `levelUp`을 비운다 → 레벨업 배지 대신 진화 연출만 |
 | | 67 | `clear(part)`: 끝난 조각(XP 숫자, 배지, 진화)만 끈다 |
-| [PetView.tsx](../web/src/components/PetView.tsx) | 94 | `MotionConfig reducedMotion="user"`: 동작 줄이기면 transform을 건너뛰고 페이드만 |
-| | 162 | 진화/부화 `EvolveOverlay` (화면 전체, 3초, 건너뛰기·Esc) |
-| | 84, 102 | 새 해금 알림 6초 (`unlockToast(level)`: "Lv 7 해금 · 어린이로 진화!") |
-| [PetCard.tsx](../web/src/components/PetCard.tsx) | 92 | XP 숫자 `+10`/`+40`. `AnimatePresence` + 연출 번호 key |
-| | 39, 112 | 레벨업: `useAnimate` 튀기 + 배지·별 ([LevelUpFx.tsx](../web/src/components/LevelUpFx.tsx)) |
+| [PetView.tsx](../web/src/components/PetView.tsx) | 141 | `MotionConfig reducedMotion="user"`: 동작 줄이기면 transform을 건너뛰고 페이드만 |
+| | 226 | 레벨업 [LevelUpOverlay.tsx](../web/src/components/LevelUpOverlay.tsx): 리본·큰 링·+XP·보상 알약("Lv 8 보상 · 스카프를 받았어요!"), 2.6초 뒤 저절로 닫힘, 건너뛰기·Esc |
+| | 274 | 진화/부화 [EvolveOverlay.tsx](../web/src/components/EvolveOverlay.tsx) (밤 장면, 1.8초 흔들림 → 공개 카드, "좋아요!"·건너뛰기·Esc) |
+| | 120 | 새 해금 알림 6초 (`unlockToast(level)`: "Lv 7 해금 · 어린이로 진화!") |
+| [PetCard.tsx](../web/src/components/PetCard.tsx) | 93 | XP 숫자 `+10`/`+40` (레벨업이면 LevelUpOverlay가 크게 띄워서 생략). `AnimatePresence` + 연출 번호 key |
+| | 39 | 레벨업 튀기 (`useAnimate`) |
 
 ## 11. 내 펫 찾기: 모든 펫의 ownerOf (`useMyPets`)
 
@@ -206,7 +210,7 @@ Provider 순서 (`providers.tsx` 32~36줄): `WagmiProvider` → `QueryClientProv
 
 비용은 블록 수가 아니라 펫 수에 비례한다. 펫이 수만 마리가 되면 인덱서가 맞다 (SPEC 14장에서 이번 범위는 제외).
 
-[HomeView.tsx](../web/src/components/HomeView.tsx): 88줄 `hasAdopted(me)`로 "이미 입양한 지갑"을 미리 안내(지갑당 입양 1번). 93~95줄 입양 영수증의 `Adopted.args.petId`로 바로 `/pet/<id>` 이동(로그 검색보다 빠르다). 98줄 입양만 이어받기.
+[HomeView.tsx](../web/src/components/HomeView.tsx): 41줄 `hasAdopted(me)`로 "이미 입양한 지갑"을 미리 안내(지갑당 입양 1번). 46줄 `useMyPets` 결과가 1마리면 그 펫 화면으로 바로 이동, 2마리 이상이면 [MyPetList.tsx](../web/src/components/MyPetList.tsx). 183~184줄 입양 영수증의 `Adopted.args.petId`로 바로 `/pet/<id>` 이동(로그 검색보다 빠르다). 187줄 입양만 이어받기.
 
 ## 12. 서버에서 읽기: `publicClient` + `readMany`
 
@@ -224,10 +228,10 @@ Provider 순서 (`providers.tsx` 32~36줄): `WagmiProvider` → `QueryClientProv
 | | 50 | 레벨·단계는 `levelFromXp`/`stageFromLevel`로 계산 (컨트랙트와 같은 식, 3강 테스트). 읽기 요청 절반 절약 |
 | | 56 | XP 내림차순, 같으면 번호 오름차순 |
 | [ranking/page.tsx](../web/src/app/ranking/page.tsx) | 15 | `unstable_cache(..., { revalidate: 30 })`. SPEC은 페이지 `revalidate = 30`이지만 layout이 쿠키를 읽어 모든 페이지가 동적이라 효과가 없다 → 데이터를 30초 캐시 |
-| [RankingList.tsx](../web/src/components/RankingList.tsx) | 34 | `useWatchContractEvent({ eventName: "LevelUp" })`: 누구의 레벨업이든 4초 폴링으로 받아 피드 |
-| | 43 | 단계가 바뀐 레벨업이면 "진화" |
-| | 55 | `router.refresh()`로 목록 갱신 (데이터 캐시 때문에 최대 30초 늦을 수 있음) |
-| | 61 | 내 펫 강조, 가장 높은 내 순위를 sticky로 고정 표시 |
+| [RankingList.tsx](../web/src/components/RankingList.tsx) | 55 | `useWatchContractEvent({ eventName: "LevelUp" })`: 누구의 레벨업이든 4초 폴링으로 받아 실시간 소식 |
+| | 67 | 단계가 바뀐 레벨업이면 "진화" |
+| | 73 | `router.refresh()`로 목록 갱신 (데이터 캐시 때문에 최대 30초 늦을 수 있음) |
+| | 91, 93 | 내 펫 강조, 가장 높은 내 순위를 모바일 아래 막대·데스크톱 오른쪽 카드로 |
 
 ## 14. 메타데이터 API: `tokenURI` → JSON → PNG
 
@@ -242,8 +246,10 @@ Provider 순서 (`providers.tsx` 32~36줄): `WagmiProvider` → `QueryClientProv
 | [api/pet/[id]/route.ts](../web/src/app/api/pet/[id]/route.ts) | 17 | `?v=${ACTIVE_ART_SET.version}`: 아트를 바꾸면 주소가 달라져 캐시된 옛 이미지를 피한다 |
 | | 29 | 부화 전 종은 `Unknown` |
 | | 37 | `s-maxage=60`: CDN이 60초 재사용 |
-| [api/pet/[id]/image.png/route.tsx](../web/src/app/api/pet/[id]/image.png/route.tsx) | 19, 30 | 화면과 같은 `ACTIVE_ART_SET.render` + [compose.ts](../web/src/art/compose.ts) `layersToSvg` → `next/og` `ImageResponse`로 800px PNG |
-| | 31, 48 | `kind: "image"` 아트는 서버가 직접 받아 data URI로 넣는다 (`next/og`가 localhost 주소를 SSRF로 막기 때문) |
+| [api/pet/[id]/image.png/route.tsx](../web/src/app/api/pet/[id]/image.png/route.tsx) | 28~35 | 화면과 같은 `ACTIVE_ART_SET.render` + [compose.ts](../web/src/art/compose.ts) `layersToSvg` → `next/og` `ImageResponse`로 800px PNG. `kind: "image"` 아트는 서버가 직접 받아 data URI로 (`next/og`가 localhost 주소를 SSRF로 막기 때문) |
+| | 37, 203 | 장면 그림은 `public/game`에서 파일로 바로 읽는다 (APP_URL로 자기 자신을 부르지 않는다) |
+| | 46 | Jua 글꼴은 이 그림의 글자만 구글 폰트에서 받는다 ([ogFont.ts](../web/src/lib/ogFont.ts), 못 받으면 기본 글꼴) |
+| | 131 | 레벨 링: satori는 conic-gradient가 없어서 SVG 원의 `strokeDasharray`로 XP 비율만큼 칠한다. 색은 [tokens.ts](../web/src/styles/tokens.ts) (CSS 변수를 못 쓴다) |
 
 아트를 교체할 때: 새 아트 세트 → `art/index.ts`의 `ACTIVE_ART_SET` 변경(version 증가) → admin이 `refreshAllMetadata()` 호출 (ERC-4906 `BatchMetadataUpdate`로 마켓에 새로고침 요청). [art/dummy](../web/src/art/dummy/index.ts)로 바꿔도 다른 파일 수정 없이 화면과 이미지 API가 동작하는 것을 확인했다.
 

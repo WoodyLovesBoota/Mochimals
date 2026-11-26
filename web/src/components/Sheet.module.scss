@@ -54,6 +54,13 @@
   }
 }
 
+// 넓은 카드 (데스크톱 720px)
+.wide {
+  @include bp.desktop {
+    width: 720px;
+  }
+}
+
 .body {
   display: flex;
   flex-direction: column;
@@ -82,7 +89,14 @@
 
 .title {
   @include ui.display;
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
   font-size: var(--text-2xl);
+}
+
+.suffix {
+  font-size: var(--text-lg);
 }
 
 // 닫기: 흰 사각 버튼 (시안 14)

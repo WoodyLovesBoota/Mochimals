@@ -1,0 +1,27 @@
+.spinner {
+  display: inline-block;
+  flex: none;
+  width: var(--spinner-size);
+  height: var(--spinner-size);
+  // 고리 두께: 작으면 2px, 크면 3px
+  border: max(2px, calc(var(--spinner-size) * 0.14)) solid var(--track);
+  border-top-color: var(--ink);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+// 파랑·빨강 버튼 위 (흰 글자 버튼): 흰 고리
+.light {
+  border-color: var(--ghost-edge);
+  border-top-color: var(--white);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

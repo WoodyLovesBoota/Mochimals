@@ -123,7 +123,7 @@ cd web && pnpm lint && npx tsc --noEmit && pnpm build
 - `ArtSet`에 선택 기능 두 개를 더했다: `render(look, { idPrefix })`(한 페이지 여러 펫의 SVG id 충돌 방지), `background?(look)`(무대 배경색).
 - 홈에서 펫이 있으면 자동으로 이동하지 않고 **내 펫 목록**을 보여준다. 펫은 여러 마리일 수 있고, 로고(홈)로 돌아올 수 있어야 해서다.
 - 확정 대기 중 새로고침 대응: 서명 직후 해시를 sessionStorage에 두고, 페이지가 다시 열리면 이어서 기다린다(버튼 잠금, 연출 복원). RainbowKit 최근 트랜잭션도 켰다.
-- 레벨업 연출의 "새 해금 알림"은 6초 동안 HUD 아래에 띄운다. 해금 배경(Lv 6/10/14/17)은 리디자인 뒤 펫 화면에 칠하지 않는다 (장면 그림으로 바뀜, [docs/redesign.md](docs/redesign.md) 미결 사항).
+- 레벨업 연출의 "새 해금 알림"은 6초 동안 HUD 아래에 띄운다. 해금 배경(Lv 6/10/14/17)은 펫 화면 전체의 장면이 된다 (낮·밤 그림 + 색 덧칠, [docs/redesign.md](docs/redesign.md) "레벨별 장면"). NFT 이미지는 낮 장면 하나.
 - **리디자인 (Mochimals)**: 서비스 이름을 Silo Pets → Mochimals로 바꿨다 (화면, `<title>`, OG, NFT 메타데이터 설명). 컨트랙트의 ERC-721 이름 `"Silo Pet"`은 배포된 값이라 그대로 둔다. 토큰·화면 대응·RainbowKit 차이는 [docs/redesign.md](docs/redesign.md).
 - 랭킹의 레벨·단계는 컨트랙트에서 따로 읽지 않고 XP에서 계산한다 (`look.ts`, 컨트랙트와 같은 식이 테스트로 보장됨).
 - `/dev/art`(아트 확인 페이지)는 production 빌드에서 404.

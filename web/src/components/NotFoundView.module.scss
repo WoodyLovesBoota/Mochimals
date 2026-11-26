@@ -1,0 +1,155 @@
+@use "../styles/breakpoints" as bp;
+@use "../styles/ui";
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: calc(100dvh - 58px - var(--tabbar-height));
+
+  @include bp.desktop {
+    align-items: center;
+    justify-content: flex-start;
+    gap: var(--space-6);
+    min-height: calc(100dvh - 64px);
+    padding: var(--space-6) var(--space-8) 0;
+  }
+}
+
+// 큰 404 + 알 + 물음표
+.art {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  height: 260px;
+
+  @include bp.desktop {
+    width: 360px;
+    height: 240px;
+  }
+}
+
+.big {
+  @include ui.display;
+  position: absolute;
+  top: 8px;
+  color: var(--ghost-text);
+  font-size: 7.5rem; // 120px
+  line-height: 1;
+}
+
+.eggCircle {
+  position: absolute;
+  top: 78px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 120px;
+  height: 120px;
+  overflow: hidden;
+  border: 3px solid var(--panel-edge);
+  border-radius: 50%;
+  background: var(--white);
+  box-shadow: 0 6px 0 var(--panel-depth);
+
+  @include bp.desktop {
+    top: 60px;
+    width: 140px;
+    height: 140px;
+  }
+}
+
+.egg {
+  width: 150%;
+  max-width: none;
+  height: auto;
+}
+
+.question {
+  position: absolute;
+  top: 56px;
+  left: calc(50% + 40px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--amber);
+  box-shadow: 0 4px 0 var(--amber-depth);
+  color: var(--ink);
+
+  @include bp.desktop {
+    top: 40px;
+    left: calc(50% + 50px);
+    width: 56px;
+    height: 56px;
+  }
+}
+
+.sheet {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px 18px 30px;
+  border-top: 2px solid var(--panel-edge);
+  border-radius: var(--radius-sheet) var(--radius-sheet) 0 0;
+  background: var(--panel);
+  box-shadow: 0 -10px 40px var(--drop-sheet);
+
+  @include bp.desktop {
+    @include ui.card;
+    width: 720px;
+    gap: 14px;
+    padding: var(--space-6);
+  }
+}
+
+.grabber {
+  align-self: center;
+  width: 44px;
+  height: 5px;
+  border-radius: var(--radius-pill);
+  background: var(--panel-edge);
+
+  @include bp.desktop {
+    display: none;
+  }
+}
+
+.title {
+  @include ui.display;
+  font-size: var(--text-2xl);
+
+  @include bp.desktop {
+    font-size: 1.75rem;
+  }
+}
+
+.desc {
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
+.buttons {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.primary {
+  @include ui.chunky(lime);
+  flex-direction: row;
+  gap: var(--space-2);
+  height: 54px;
+  font-size: var(--text-lg);
+}
+
+.secondary {
+  @include ui.chunky(white);
+  flex-direction: row;
+  gap: var(--space-2);
+  height: 54px;
+  font-size: var(--text-lg);
+}

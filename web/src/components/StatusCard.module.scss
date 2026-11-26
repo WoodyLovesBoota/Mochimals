@@ -1,0 +1,61 @@
+@use "../styles/ui";
+
+.card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 420px;
+  padding: 10px;
+  border: 2px solid var(--panel-edge);
+  border-radius: var(--radius-md);
+  background: var(--white);
+  box-shadow: 0 3px 0 var(--panel-depth);
+  color: var(--ink);
+}
+
+.chipBlank {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: var(--panel-edge);
+}
+
+.chipRed {
+  @include ui.icon-chip(red, 36px, 12px);
+}
+
+.chipLime {
+  @include ui.icon-chip(lime, 36px, 12px);
+}
+
+.body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+
+  strong {
+    @include ui.display;
+    font-size: 0.9375rem;
+  }
+
+  span {
+    color: var(--muted);
+    font-size: var(--text-xs);
+  }
+}
+
+.retry {
+  @include ui.chunky(white);
+  height: 36px;
+  padding: 0 10px;
+  font-size: 0.8125rem;
+}
+
+.link {
+  @include ui.display;
+  color: var(--link);
+  font-size: var(--text-sm);
+}

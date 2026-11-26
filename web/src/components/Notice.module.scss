@@ -1,0 +1,40 @@
+@use "../styles/ui";
+
+.notice {
+  @include ui.pill;
+  gap: 10px;
+  width: fit-content;
+  max-width: 100%;
+  padding: 10px 16px 10px 10px;
+  box-shadow: 0 4px 0 var(--panel-depth);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  text-align: left;
+}
+
+button.notice {
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 3px solid var(--ink);
+    outline-offset: 2px;
+  }
+}
+
+.text {
+  flex: 1;
+}
+
+// 배고픔: 연분홍 바탕 + 분홍 두께
+.hungry {
+  background: var(--pink-soft);
+  box-shadow: 0 4px 0 var(--pink-shadow);
+}
+
+// 실패: 빨강 바탕 + 흰 글자
+.error {
+  border-color: var(--red-depth);
+  background: var(--red);
+  box-shadow: 0 4px 0 var(--red-depth);
+  color: var(--white);
+}

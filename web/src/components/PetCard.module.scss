@@ -8,6 +8,10 @@
   display: flex;
   align-items: flex-end;
   justify-content: center;
+
+  @include bp.desktop {
+    min-height: 0;
+  }
 }
 
 // * 펫 그림 크기. PetSprite의 width/height(400)는 해상도용이고, 화면 크기는 여기서 정한다.
@@ -16,8 +20,12 @@
   width: min(380px, 96vw); // 펫 몸통 ≈ 236px (시안 02)
   height: auto;
 
+  // * 데스크톱: 화면 높이에 맞춰 줄어든다. 무대(.stage)가 남은 높이만큼만 받고(flex: 1, min-height: 0),
+  //   그림은 그 높이를 꽉 채우되 480px을 넘지 않는다 → 충전 버튼이 한 줄 더 생겨도 화면 아래로 밀려나지 않는다.
   @include bp.desktop {
-    width: 480px; // 펫 몸통 ≈ 300px (시안 D2)
+    width: auto;
+    height: 100%;
+    max-height: 480px; // 펫 몸통 ≈ 300px (시안 D2)
   }
 }
 
@@ -39,6 +47,11 @@
 //   flex 아이템이라 그림 크기만큼만 차지한다 (가운데 정렬은 .stage의 justify-content).
 .spriteBox {
   position: relative;
+
+  @include bp.desktop {
+    display: flex;
+    height: 100%;
+  }
 }
 
 // * 배고픔: 펫이 축 처진다 (SPEC 12장). 바닥 가운데를 기준으로 납작해졌다 돌아오기를 천천히 반복.

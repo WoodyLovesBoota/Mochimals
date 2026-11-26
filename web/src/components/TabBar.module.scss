@@ -63,3 +63,12 @@
   @include ui.display;
   font-size: 0.8125rem; // 13px
 }
+
+.spacer {
+  flex: none;
+  height: var(--tabbar-height);
+
+  @include bp.desktop {
+    display: none;
+  }
+}

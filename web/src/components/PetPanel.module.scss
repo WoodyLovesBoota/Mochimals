@@ -69,6 +69,11 @@
   white-space: nowrap;
 }
 
+.statValueHungry {
+  composes: statValue;
+  color: var(--pink-depth);
+}
+
 .dim {
   color: var(--muted);
 }
@@ -220,6 +225,11 @@
 
 .mono {
   @include ui.mono;
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.plain {
   font-size: 0.8125rem;
   font-weight: 700;
 }

@@ -98,7 +98,10 @@ export function StarIcon(p: IconProps) {
 export function SparkleIcon(p: IconProps) {
   return (
     <Svg {...p}>
-      <path d="M12 2c.9 5.6 3.4 8.1 10 10-6.6 1.9-9.1 4.4-10 10-.9-5.6-3.4-8.1-10-10 6.6-1.9 9.1-4.4 10-10z" fill="currentColor" />
+      <path
+        d="M12 2c.9 5.6 3.4 8.1 10 10-6.6 1.9-9.1 4.4-10 10-.9-5.6-3.4-8.1-10-10 6.6-1.9 9.1-4.4 10-10z"
+        fill="currentColor"
+      />
     </Svg>
   );
 }
@@ -201,6 +204,42 @@ export function MountainIcon(p: IconProps) {
   );
 }
 
+/** 눈 = 구경 중 (시안 11). 눈동자는 잉크색 */
+export function EyeIcon(p: IconProps) {
+  return (
+    <Svg {...p}>
+      <path d="M2 12s3.8-6.5 10-6.5S22 12 22 12s-3.8 6.5-10 6.5S2 12 2 12z" fill="currentColor" />
+      <circle cx="12" cy="12" r="3.2" style={{ fill: "var(--ink)" }} />
+    </Svg>
+  );
+}
+
+/** 끊어진 고리 = 잘못된 네트워크 (시안 13) */
+export function ChainIcon(p: IconProps) {
+  return (
+    <Svg {...p}>
+      <rect x="2.5" y="8.5" width="10" height="7" rx="3.5" stroke="currentColor" strokeWidth="2.6" fill="none" />
+      <rect x="11.5" y="8.5" width="10" height="7" rx="3.5" stroke="currentColor" strokeWidth="2.6" fill="none" />
+    </Svg>
+  );
+}
+
+/** 물음표 (시안 12 404) */
+export function QuestionIcon(p: IconProps) {
+  return (
+    <Svg {...p}>
+      <path
+        d="M9 9a3 3 0 1 1 4.5 2.6c-1 .6-1.5 1.2-1.5 2.4"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
+        fill="none"
+      />
+      <circle cx="12" cy="18.5" r="1.8" fill="currentColor" />
+    </Svg>
+  );
+}
+
 /** 셔츠 = 액세서리 해금 */
 export function ShirtIcon(p: IconProps) {
   return (
@@ -247,7 +286,14 @@ export function ExternalIcon(p: IconProps) {
 export function ChevronRightIcon(p: IconProps) {
   return (
     <Svg {...p}>
-      <path d="M9 5l7 7-7 7" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <path
+        d="M9 5l7 7-7 7"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
     </Svg>
   );
 }
@@ -284,7 +330,13 @@ export function LogoMark({ size = 30 }: { size?: number }) {
       <rect x="2" y="9" width="24" height="18" rx="9" fill="none" style={{ stroke: "var(--ink)" }} strokeWidth="2" />
       <circle cx="10" cy="17.5" r="1.9" style={{ fill: "var(--ink)" }} />
       <circle cx="18" cy="17.5" r="1.9" style={{ fill: "var(--ink)" }} />
-      <path d="M12.4 21q1.6 1.3 3.2 0" style={{ stroke: "var(--ink)" }} strokeWidth="1.5" fill="none" strokeLinecap="round" />
+      <path
+        d="M12.4 21q1.6 1.3 3.2 0"
+        style={{ stroke: "var(--ink)" }}
+        strokeWidth="1.5"
+        fill="none"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }

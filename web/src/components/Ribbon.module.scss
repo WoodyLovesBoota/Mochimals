@@ -1,0 +1,56 @@
+@use "../styles/breakpoints" as bp;
+@use "../styles/ui";
+
+.ribbon {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-self: center;
+  padding: 0 28px; // 꼬리가 판 밖으로 28px씩 나온다 (시안: 꼬리 46px 중 18px는 판 뒤에 숨는다)
+}
+
+// 가운데 판
+.plate {
+  @include ui.display;
+  position: relative;
+  z-index: 1;
+  padding: 0 var(--space-6);
+  border-radius: 12px;
+  background: var(--ribbon);
+  box-shadow: 0 5px 0 var(--ribbon-depth);
+  color: var(--white);
+  font-size: var(--text-2xl);
+  line-height: 50px;
+  text-shadow: 0 2px 0 var(--ribbon-depth);
+  white-space: nowrap;
+
+  @include bp.desktop {
+    font-size: 1.75rem; // 28px
+    line-height: 58px;
+  }
+}
+
+.lg .plate {
+  font-size: 1.875rem; // 30px
+  line-height: 63px;
+}
+
+// 꼬리: 판보다 10px 아래에서 시작, 바깥쪽이 V자로 파였다
+.tailLeft,
+.tailRight {
+  position: absolute;
+  top: 10px;
+  bottom: -4px;
+  width: 46px;
+  background: var(--ribbon-depth);
+}
+
+.tailLeft {
+  left: 0;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 14px 50%);
+}
+
+.tailRight {
+  right: 0;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 14px) 50%, 100% 100%, 0 100%);
+}

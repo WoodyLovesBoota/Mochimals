@@ -20,6 +20,8 @@
     min-height: 0;
     margin: 0 auto;
     padding: var(--space-8) var(--space-8) 36px; // 헤더(64) + 32 = 시안 D2의 본문 시작 96px, 아래 36px
+    // * 데스크톱 펫 화면은 화면 높이에 딱 맞춘다 (layout의 .shell이 data-fit을 보고 높이를 100dvh로 고정)
+    overflow: hidden;
   }
 }
 
@@ -36,8 +38,18 @@
   }
 }
 
-// 펫 무대 (PetCard): 남은 높이를 모두 차지하고 펫을 바닥에 세운다
+// 펫 무대 + 레벨업 연출을 겹치는 자리: 남은 높이를 모두 차지한다
+.stageWrap {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0; // flex 아이템의 기본 최소 높이(= 내용 높이)를 없애야 줄어든다
+}
+
+// 펫 무대 (PetCard): 펫을 바닥에 세운다. z-index 1: 레벨업 빛줄기(0)보다 앞, 리본·보상(2)보다 뒤
 .stage {
+  z-index: 1;
   flex: 1;
   // ? 아트(400×400)는 발 아래에 여백이 약 12% 있다. 그 여백까지 계산해서 시안의 간격에 맞춘다
   margin-bottom: 0; // 시안 02: 펫 발끝 ↔ 버튼 약 50px (아트 아래 여백이 대신한다)
@@ -68,25 +80,57 @@
 }
 
 // =====================================================================
-// 새 해금 알림 (시안 02: HUD 아래 16px, 크림 알약 + 라임 아이콘 상자)
+// 알림 줄 (시안 02 해금, 06 진행 중 + 단계, 10 배고픔·실패)
 // =====================================================================
-// 자리는 늘 비워 둔다: 알림이 떴다 사라질 때 아래 내용이 들썩이지 않게
-.toastSlot {
-  min-height: 56px;
+// 자리는 늘 비워 둔다: 알림이 떴다 사라질 때 아래 펫이 들썩이지 않게 (알림 두 줄 높이)
+.notices {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  min-height: 108px;
   padding-top: var(--space-4);
 }
 
-.toast {
-  @include ui.pill;
-  gap: 10px;
-  padding: 10px 16px 10px 10px;
-  box-shadow: 0 4px 0 var(--panel-depth);
-  font-size: var(--text-sm);
-  font-weight: 700;
+// 옆 버튼이 보일 때: 오른쪽 64px 비우기 (옆 버튼 52px + 여백)
+.noticesNarrow {
+  composes: notices;
+  padding-right: 64px;
+
+  @include bp.desktop {
+    padding-right: 0;
+  }
 }
 
-.toastIcon {
+.stepCount {
+  @include ui.display;
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+.chipLime {
   @include ui.icon-chip(lime, 30px, 10px);
+}
+
+.chipPink {
+  @include ui.icon-chip(pink, 30px, 10px);
+}
+
+// 실패 알림의 흰 동그라미 X
+.errorIcon {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--white);
+  color: var(--red);
+}
+
+.dim {
+  color: var(--muted);
 }
 
 // =====================================================================
@@ -102,6 +146,11 @@
   gap: 14px;
 
   @include bp.desktop {
+    display: none;
+  }
+
+  // hidden 속성: 알림이 화면 폭을 쓸 때 숨김 (display: flex가 hidden을 덮지 않게 직접 적는다)
+  &[hidden] {
     display: none;
   }
 }
@@ -153,25 +202,18 @@
 // =====================================================================
 // 기타
 // =====================================================================
-// 구경 문구 (TODO 2단계: 시안 11)
-.readonly {
-  @include ui.pill;
-  align-self: center;
-  padding: var(--space-2) var(--space-4);
-  color: var(--muted);
-  font-size: var(--text-sm);
-  font-weight: 700;
+// 구경 카드: 모바일만 (데스크톱은 오른쪽 패널 맨 위에 같은 내용)
+.visitorMobile {
+  @include bp.desktop {
+    display: none;
+  }
 }
 
-// 로딩·에러 문구 (TODO 2단계: 시안 12)
+// 로딩·에러 카드 가운데 (시안 12의 "같은 틀")
 .message {
-  @include ui.display;
   display: flex;
   flex: 1;
   align-items: center;
   justify-content: center;
-  padding: var(--space-6);
-  color: var(--white);
-  font-size: var(--text-xl);
-  text-shadow: 0 2px 0 var(--ink);
+  padding: var(--space-6) var(--space-4);
 }

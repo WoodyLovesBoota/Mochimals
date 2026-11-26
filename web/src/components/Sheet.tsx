@@ -12,10 +12,16 @@ type Props = {
   open: boolean;
   onClose: () => void;
   title: string;
+  /** 제목 옆 작은 글자 (예: 해금 목록 "7/24") */
+  titleSuffix?: ReactNode;
+  /** 데스크톱에서 넓은 카드 (720px, 시안 D16 해금 목록) */
+  wide?: boolean;
+  /** 제목 위 큰 아이콘 (시안 13 빨간 고리) */
+  icon?: ReactNode;
   children: ReactNode;
 };
 
-export function Sheet({ open, onClose, title, children }: Props) {
+export function Sheet({ open, onClose, title, titleSuffix, wide = false, icon, children }: Props) {
   const ref = useRef<HTMLDialogElement>(null);
 
   // * open prop ↔ 실제 dialog 상태 맞추기. <dialog open>속성으로 열면 "모달"이 아니라서 showModal()을 직접 부른다.
@@ -29,7 +35,7 @@ export function Sheet({ open, onClose, title, children }: Props) {
   return (
     <dialog
       ref={ref}
-      className={styles.sheet}
+      className={`${styles.sheet} ${wide ? styles.wide : ""}`}
       aria-label={title}
       // Esc나 close()로 닫히면 부모 상태도 닫힘으로 맞춘다
       onClose={onClose}
@@ -40,8 +46,12 @@ export function Sheet({ open, onClose, title, children }: Props) {
     >
       <div className={styles.body}>
         <span className={styles.grabber} aria-hidden />
+        {icon}
         <div className={styles.head}>
-          <h2 className={styles.title}>{title}</h2>
+          <h2 className={styles.title}>
+            {title}
+            {titleSuffix && <span className={styles.suffix}>{titleSuffix}</span>}
+          </h2>
           <button type="button" className={styles.close} onClick={onClose} aria-label="닫기">
             <CloseIcon size={20} />
           </button>

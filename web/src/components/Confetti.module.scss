@@ -1,0 +1,87 @@
+// 빛줄기(회전하는 부채꼴) + 가운데 노란 빛. 크기는 --burst
+.burst {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--burst);
+  height: var(--burst);
+  translate: -50% -50%;
+  pointer-events: none;
+}
+
+.rays {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--rays);
+  // 가장자리를 흐리게 (원 바깥으로 갈수록 투명)
+  mask-image: radial-gradient(circle, black 30%, transparent 70%);
+  animation: spin 18s linear infinite;
+}
+
+.glow {
+  position: absolute;
+  inset: 21%;
+  border-radius: 50%;
+  background: var(--glow);
+}
+
+.confetti {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.piece {
+  position: absolute;
+  animation: fall 2.4s ease-in both;
+}
+
+.lime {
+  background: var(--lime);
+}
+.amber {
+  background: var(--amber);
+}
+.blue {
+  background: var(--blue);
+}
+.pink {
+  background: var(--pink);
+}
+.purple {
+  background: var(--purple);
+}
+.white {
+  background: var(--white);
+}
+
+@keyframes spin {
+  to {
+    rotate: 360deg;
+  }
+}
+
+// 위에서 살짝 떨어지며 돈다
+@keyframes fall {
+  from {
+    transform: translateY(-40px) rotate(0deg);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  to {
+    transform: translateY(60px) rotate(220deg);
+    opacity: 0.9;
+  }
+}
+
+// ! 동작 줄이기: 회전·낙하 없이 그 자리에 그대로 (CSS 애니메이션은 MotionConfig가 모른다)
+@media (prefers-reduced-motion: reduce) {
+  .rays,
+  .piece {
+    animation: none;
+  }
+}

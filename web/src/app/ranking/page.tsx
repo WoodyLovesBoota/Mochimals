@@ -5,7 +5,6 @@ import { RankingList } from "@/components/RankingList";
 import { unstable_cache } from "next/cache";
 import { petNft } from "@/lib/contracts";
 import { getRanking, type RankRow } from "@/lib/ranking";
-import styles from "./page.module.scss";
 
 // * SPEC은 `export const revalidate = 30`(ISR)이지만 이 앱에서는 효과가 없다.
 //   layout.tsx가 쿠키(headers())를 읽어서 모든 페이지가 요청마다 렌더되는 동적 페이지가 되기 때문이다 (빌드 출력의 ƒ 표시).
@@ -26,14 +25,6 @@ export default async function RankingPage() {
     rows = null;
   }
 
-  return (
-    <main className={styles.main}>
-      <h1 className={styles.title}>랭킹</h1>
-      {rows ? (
-        <RankingList rows={rows} />
-      ) : (
-        <p className={styles.muted}>랭킹을 불러오지 못했어요. 잠시 뒤 새로고침해 주세요</p>
-      )}
-    </main>
-  );
+  // 화면은 RankingList(클라이언트)가 전부 그린다. rows가 null이면 "불러오지 못했어요" 카드
+  return <RankingList rows={rows} />;
 }

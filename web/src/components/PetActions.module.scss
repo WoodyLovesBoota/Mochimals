@@ -15,15 +15,18 @@
   }
 }
 
-// 밥 주기 | 훈련. 모바일은 두 칸 꽉 채움, 데스크톱은 230px 두 개 (간격 16)
+// 밥 주기 | 훈련. 모바일은 두 칸 꽉 채움, 데스크톱은 230px 두 개 (간격 16). 충전 버튼은 맨 위 한 줄 전체
 .buttons {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-3);
+  gap: 10px var(--space-3);
 
   @include bp.desktop {
     display: flex;
-    gap: var(--space-4);
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px var(--space-4);
+    max-width: 476px;
   }
 }
 
@@ -51,14 +54,90 @@
   @include ui.chunky(blue, white);
 }
 
-// 충전: 라임 (활동력 0일 때만 나온다)
+// 충전: 호박색, 두 칸 전체 (활동력 0일 때만 나온다, 시안 10)
 .refill {
   composes: base;
-  @include ui.chunky(lime);
+  @include ui.chunky(amber);
+  grid-column: 1 / -1;
+  height: 64px;
+  font-size: 1.3125rem; // 21px
 
   @include bp.desktop {
     width: 476px; // 두 버튼 폭(230 × 2 + 16)과 같게
   }
+}
+
+// 충전 버튼이 있을 때 아래 두 버튼은 조금 작게 (시안 10: 58px, 18px)
+// ! composes는 한 단계만 따라간다 (Turbopack CSS Modules). feed가 composes한 base까지 직접 적는다
+.feedSmall {
+  composes: base feed;
+  height: 58px;
+  font-size: var(--text-lg);
+}
+
+.trainSmall {
+  composes: base train;
+  height: 58px;
+  font-size: var(--text-lg);
+}
+
+// 비활성 글자: 회갈색 (시안 10 #8C8399)
+.feed:disabled,
+.train:disabled {
+  color: var(--grey-ink);
+}
+
+// 다른 행동이 진행 중: 원래 색 그대로 반투명 (시안 06)
+.waiting {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+// 누른 버튼: 진행 중이라 눌린 모양 유지 없이 그대로, 마우스만 기다림
+.pressed {
+  cursor: progress;
+}
+
+// 버튼 하나의 자리. 확정 중 해시 링크를 버튼 위에 겹쳐 띄우려고 relative
+.slot {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+
+  &:has(.refill) {
+    grid-column: 1 / -1;
+
+    @include bp.desktop {
+      flex-basis: 100%;
+    }
+  }
+}
+
+// 확정 중 트랜잭션 링크: 버튼 아랫줄 자리에 겹친다 (시안 06 "0x3fa2…9c1e ↗")
+.txLink {
+  @include ui.mono;
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  translate: -50% 0;
+  color: inherit;
+  font-size: var(--text-xs);
+  text-decoration: underline;
+  opacity: 0.9;
+}
+
+.train ~ .txLink {
+  color: var(--white);
+}
+
+.feed ~ .txLink {
+  color: var(--ink);
+}
+
+.hash {
+  @include ui.mono;
+  font-size: var(--text-xs);
+  opacity: 0.85;
 }
 
 // 네트워크 전환: 라임 (한 칸 전체)
@@ -89,43 +168,4 @@
   opacity: 0.85;
 }
 
-// "처리 중" 스피너: 테두리 한쪽만 투명하게 하고 돌린다
-.spinner {
-  width: 1em;
-  height: 1em;
-  border: 3px solid currentcolor; // 버튼 글자색을 따라간다
-  border-right-color: transparent;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
 
-  // 움직임 줄이기 설정이면 돌리지 않는다 (SPEC 12장)
-  @media (prefers-reduced-motion: reduce) {
-    animation: none;
-  }
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-// 실패 문구: 크림 알약 + 빨간 글자 (TODO 2단계: 시안 10 실패 카드 모양으로)
-.error {
-  @include ui.pill;
-  justify-content: center;
-  padding: var(--space-2) var(--space-4);
-  border-radius: var(--radius-md);
-  color: var(--red-depth);
-  font-size: var(--text-sm);
-  font-weight: 700;
-  text-align: center;
-}
-
-.link {
-  @include ui.display;
-  color: var(--ink);
-  font-size: var(--text-sm);
-  text-align: center;
-  text-decoration: underline;
-}

@@ -3,7 +3,7 @@
 > 다음 세션을 시작할 때 Claude는 이 파일부터 읽고 "다음 할 일"에서 이어간다.
 > 한 강이 끝날 때마다 이 파일을 갱신하고 같이 커밋한다.
 
-마지막 갱신: 2026-11-25 (6강까지 개발, 설명 전)
+마지막 갱신: 2026-11-26 (Mochimals 리디자인 1·2단계 개발, 설명 전)
 
 ## 현재 위치
 
@@ -12,6 +12,8 @@
 이전까지: 1강 컨트랙트, 2강 Next.js/wagmi/RainbowKit/쿠키 복원/ABI 생성, 3강 `look.ts`·`flat-v1`·`PetSprite`, 4강 1~6교시(`usePet`, `usePetAction`, `errors.ts`, `/pet/[id]`, `PetStats`, `PetActions`)와 7교시 1~3부(`effects.ts`, `usePetEffect`, XP 숫자, 레벨업)는 강의로 진행했다.
 
 ## 다음 할 일
+
+0. **리디자인 리뷰** (2026-11-26): Claude Design 캔버스대로 화면 전체를 다시 만들었다 (서비스 이름 Silo Pets → Mochimals). 기록은 [redesign.md](redesign.md). 커밋은 수강생이 직접 한다. 해금 배경은 레벨별 장면으로 정했다(2026-11-26). 남은 "미결": 종 칩.
 
 1. **한 번에 몰아서 개발한 부분 정리 설명** (수강생이 원한 방식: 끝까지 개발 → 설명은 한 번에). 순서 제안:
    - 4강 마무리: 진화/부화 `EvolveOverlay`, 배고픔 말풍선과 축 처짐, 해금 `lib/unlocks.ts` + `UnlockList` + 새 해금 카드, `PetCard` 분리

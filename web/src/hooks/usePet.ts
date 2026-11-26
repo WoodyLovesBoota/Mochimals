@@ -5,6 +5,7 @@
 import { zeroAddress, type Address } from "viem";
 import { useReadContracts } from "wagmi";
 import { energy, petNft } from "@/lib/contracts";
+import { isNonexistentToken } from "@/lib/errors";
 
 // * 화면에서 쓰기 좋은 모양으로 정리한 결과 타입.
 //   컨트랙트에서 uint64/uint256은 bigint로, uint8/uint32는 number로 온다 (viem 규칙: 48비트 이하만 number).
@@ -51,6 +52,9 @@ export function usePet(petId: bigint, viewer?: Address) {
       // * 10초 동안은 캐시를 "신선하다"고 보고 다시 요청하지 않는다 (같은 화면을 오가도 RPC를 아낀다).
       //   행동 후에는 usePetAction이 invalidate로 이 캐시를 강제로 버린다 (다음 수업).
       staleTime: 10_000,
+      // * 없는 펫 번호(ownerOf revert)는 다시 시도해도 똑같다. 바로 404를 보여주도록 재시도하지 않는다.
+      //   그 밖의 실패(네트워크 등)는 TanStack Query 기본처럼 3번까지 다시 시도한다.
+      retry: (failureCount, error) => !isNonexistentToken(error) && failureCount < 3,
       // * select: 받은 튜플을 화면용 객체로 바꾼다. 결과 타입이 PetState가 된다.
       //   allowFailure: false라서 각 칸은 { status, result }가 아니라 결과값 그 자체다.
       select: ([pet, level, stage, hungry, owner, balance]): PetState => {

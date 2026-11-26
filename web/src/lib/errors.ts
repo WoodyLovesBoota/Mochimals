@@ -42,3 +42,13 @@ export function toErrorMessage(error: unknown): string | null {
   // ③ 나머지: usePetAction의 throw new Error("TX_REVERTED"), 네트워크 끊김, RPC 에러 등
   return FALLBACK;
 }
+
+/**
+ * * 없는 펫 번호인지: ownerOf가 OZ의 ERC721NonexistentToken으로 revert했는지 본다 (위 toErrorMessage와 같은 walk 방식).
+ *   펫 화면이 404를 띄울지, usePet이 다시 시도하지 않을지 판단하는 데 쓴다.
+ */
+export function isNonexistentToken(error: unknown): boolean {
+  if (!(error instanceof BaseError)) return false;
+  const reverted = error.walk((e) => e instanceof ContractFunctionRevertedError);
+  return reverted instanceof ContractFunctionRevertedError && reverted.data?.errorName === "ERC721NonexistentToken";
+}

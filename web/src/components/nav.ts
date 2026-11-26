@@ -17,15 +17,22 @@ export type NavItem = { key: NavKey; label: string; href: string; active: boolea
  */
 export function useNavItems(): NavItem[] {
   const pathname = usePathname();
-  const { address } = useAccount();
-  // useMyPets는 react-query 캐시를 쓰므로, 홈·펫 화면에서 이미 읽었다면 요청이 다시 나가지 않는다
-  const { data: myPets } = useMyPets(address);
+  const myPets = useMyPetIds();
   const petsHref = myPets?.length === 1 ? `/pet/${myPets[0]}` : "/";
+  // 홈(/)이 내 펫 목록을 보여주는 중이면(2마리 이상, 시안 04) "홈"이 아니라 "내 펫"이 켜진다
+  const homeIsList = pathname === "/" && !!myPets && myPets.length >= 2;
 
   return [
-    { key: "home", label: "홈", href: "/", active: pathname === "/" },
+    { key: "home", label: "홈", href: "/", active: pathname === "/" && !homeIsList },
     // 펫 화면(/pet/…)에 있으면 "내 펫"이 켜진다 (남의 펫을 구경할 때도 같은 화면이라 켜 둔다)
-    { key: "pets", label: "내 펫", href: petsHref, active: pathname.startsWith("/pet/") },
+    { key: "pets", label: "내 펫", href: petsHref, active: pathname.startsWith("/pet/") || homeIsList },
     { key: "ranking", label: "랭킹", href: "/ranking", active: pathname.startsWith("/ranking") },
   ];
+}
+
+/** 지금 지갑의 펫 번호 목록 (연결 안 됐거나 읽는 중이면 undefined). react-query 캐시를 같이 쓴다 */
+export function useMyPetIds(): bigint[] | undefined {
+  const { address } = useAccount();
+  // useMyPets는 react-query 캐시를 쓰므로, 홈·펫 화면에서 이미 읽었다면 요청이 다시 나가지 않는다
+  return useMyPets(address).data;
 }

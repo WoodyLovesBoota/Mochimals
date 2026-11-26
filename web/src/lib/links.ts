@@ -41,3 +41,15 @@ export function shortHash(hash: string): string {
 export function tokenNo(petId: bigint | string): string {
   return `#${String(petId).padStart(4, "0")}`;
 }
+
+/** OpenSea 컬렉션 페이지 (내 펫 목록의 "마켓에서 데려오기"). OpenSea에 없는 체인이면 undefined */
+export function openseaCollectionUrl(): string | undefined {
+  if (chain.id === base.id) return `https://opensea.io/assets/base/${petNft.address}`;
+  if (chain.id === baseSepolia.id) return `https://testnets.opensea.io/assets/base_sepolia/${petNft.address}`;
+  return undefined;
+}
+
+/** 랭킹·구경 화면의 짧은 주소: 0x70…C8 (앞 4글자 + … + 뒤 2글자, SPEC 12장 "줄인 주소") */
+export function tinyAddress(address: string): string {
+  return `${address.slice(0, 4)}…${address.slice(-2)}`;
+}

@@ -1,46 +1,201 @@
-// 진화·부화 연출 전체 화면. 어두운 반투명 배경 위에 가운데 정렬.
+@use "../styles/breakpoints" as bp;
+@use "../styles/ui";
+
+// * 진화·부화 연출 전체 화면 (시안 08·09: 밤 장면 + 어두운 막).
+//   배경 그림 두 겹: 위 = 어두운 막(--night-tint), 아래 = 밤 장면 그림.
 .backdrop {
   position: fixed;
   inset: 0; // top/right/bottom/left 0을 한 번에: 화면 전체
-  z-index: 100; // 헤더, RainbowKit 버튼보다 위
+  z-index: 100; // 헤더, 탭 바, RainbowKit 버튼보다 위
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: var(--space-6);
-  padding: var(--space-4);
-  background: var(--color-overlay);
+  overflow: hidden auto;
+  padding: 76px 16px 28px; // 시안 08: 리본 top 76, 아래 28
+  background:
+    linear-gradient(var(--night-tint), var(--night-tint)),
+    var(--scene-mobile-night) center bottom / cover no-repeat;
+  color: var(--white);
+
+  @include bp.desktop {
+    padding: 44px 16px 40px;
+    background:
+      linear-gradient(var(--night-tint), var(--night-tint)),
+      var(--scene-desktop-night) center bottom / cover no-repeat;
+  }
+}
+
+// 건너뛰기: 오른쪽 위 반투명 알약 (시안: 흰 테두리 40%, 바탕 12%)
+.skip {
+  @include ui.display;
+  position: absolute;
+  top: 16px;
+  right: 14px;
+  z-index: 2;
+  height: 40px;
+  padding: 0 16px;
+  border: 2px solid var(--ghost-edge);
+  border-radius: var(--radius-pill);
+  background: var(--ghost);
+  color: var(--white);
+  font-size: 0.9375rem;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 3px solid var(--white);
+    outline-offset: 2px;
+  }
+
+  @include bp.desktop {
+    top: 28px;
+    right: 32px;
+  }
+}
+
+.ribbonSlot {
+  position: relative;
+  z-index: 1;
+  min-height: 68px;
 }
 
 .stage {
-  // 그림이 바뀌어도 레이아웃이 흔들리지 않게 크기를 고정한다 (PetSprite size 240)
-  width: 15rem;
-  height: 15rem;
-  display: grid;
-  place-items: center;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  min-height: 220px;
 }
 
-// * 흰 실루엣 + 빛. filter는 왼쪽부터 차례로 적용된다:
-//   brightness(0) → 모든 색이 검정 / invert(1) → 검정이 흰색 / drop-shadow → 모양 둘레에 흰 빛
-//   (투명한 부분은 그대로 투명이라 펫 윤곽만 남는다)
+.sprite {
+  width: min(300px, 76vw);
+  height: auto;
+
+  @include bp.desktop {
+    width: 340px;
+  }
+}
+
+// 공개 전: 그림을 하얗게 (빛나는 실루엣)
 .silhouette {
-  filter: brightness(0) invert(1) drop-shadow(0 0 1rem var(--color-on-ink)) drop-shadow(0 0 2.5rem var(--color-energy));
+  filter: brightness(0) invert(1);
+}
+
+.bottom {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  max-width: 440px; // 시안 D8: 가운데 440px
 }
 
 .title {
-  color: var(--color-on-ink);
-  font-size: var(--text-2xl);
-  font-weight: 800;
+  @include ui.display;
+  font-size: 1.875rem; // 30px
   text-align: center;
-  min-height: 2em; // 문구가 바뀔 때 버튼 위치가 출렁이지 않게
+  text-shadow: 0 3px 0 var(--ink);
 }
 
-.skip {
-  padding: var(--space-2) var(--space-4);
-  border: 1px solid var(--color-on-ink);
+.reveal {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.stages {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.stageFrom {
+  @include ui.display;
+  padding: 6px 14px;
   border-radius: var(--radius-pill);
-  background: transparent;
-  color: var(--color-on-ink);
+  background: var(--ghost);
+  font-size: 0.9375rem;
+}
+
+.stageTo {
+  composes: stageFrom;
+  background: var(--lime);
+  box-shadow: 0 3px 0 var(--lime-depth);
+  color: var(--ink);
+}
+
+// "새로 열렸어요" 크림 카드
+.card {
+  @include ui.card;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+
+  @include bp.desktop {
+    padding: var(--space-4);
+  }
+}
+
+.cardTitle {
+  @include ui.display;
+  color: var(--muted);
   font-size: var(--text-sm);
-  cursor: pointer;
+}
+
+.items {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0;
+  list-style: none;
+
+  li {
+    @include ui.display;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: var(--text-base);
+  }
+}
+
+.chipLime {
+  @include ui.icon-chip(lime, 34px, 12px);
+}
+
+.chipPink {
+  @include ui.icon-chip(pink, 34px, 12px);
+}
+
+.nft {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 0.8125rem;
+  font-weight: 700;
+
+  &:hover {
+    color: var(--ink);
+  }
+}
+
+.ok {
+  @include ui.chunky(lime);
+  width: 100%;
+  height: 60px;
+  font-size: 1.375rem;
+}
+
+// 화면에는 안 보이고 스크린리더만 읽는 글자
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }

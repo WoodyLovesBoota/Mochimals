@@ -1,0 +1,305 @@
+@use "../styles/breakpoints" as bp;
+@use "../styles/ui";
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: 18px 12px var(--space-6); // 시안 04: 리본 top 76, 목록 top 150
+
+  @include bp.desktop {
+    align-items: center;
+    gap: 22px;
+    width: 100%;
+    max-width: var(--page-max);
+    margin: 0 auto;
+    padding: 26px var(--space-8) 36px;
+  }
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 0;
+  list-style: none;
+
+  @include bp.desktop {
+    flex-direction: row;
+    justify-content: center;
+    gap: var(--space-6);
+    width: 100%;
+
+    > li {
+      display: flex;
+      flex: 0 1 340px;
+      min-width: 0;
+    }
+  }
+}
+
+// ---------------------------------------------------------------
+// 카드
+// ---------------------------------------------------------------
+.card {
+  @include ui.card;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 100%;
+  padding: 14px;
+}
+
+.cardLoading {
+  composes: card;
+  height: 180px;
+  opacity: 0.6;
+}
+
+// 모바일: [장면 108px | 정보] 가로 / 데스크톱: 장면 230px 위, 정보 아래
+.top {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+
+  @include bp.desktop {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.scene {
+  position: relative;
+  display: flex;
+  flex: none;
+  align-items: flex-end;
+  justify-content: center;
+  width: 108px;
+  height: 108px;
+  overflow: hidden;
+  border: 2px solid var(--panel-edge);
+  border-radius: var(--radius-btn);
+  background-color: var(--ink);
+  background-image: var(--card-scene-m, var(--scene-m-base)); // 두 겹(덧칠 + 그림), MyPetList.tsx가 레벨로 고른다
+  background-position: center bottom;
+  background-size: cover;
+  background-repeat: no-repeat;
+
+  @include bp.desktop {
+    width: auto;
+    height: 230px;
+    border-radius: 20px;
+    background-image: var(--card-scene-d, var(--scene-d-base));
+  }
+}
+
+.sprite {
+  width: 120px;
+  height: auto;
+  margin-bottom: -8px;
+
+  @include bp.desktop {
+    width: 240px;
+    margin-bottom: -16px;
+  }
+}
+
+// 레벨 링: 데스크톱 장면 왼쪽 위에만 (모바일은 이름 옆 Lv 배지)
+.ring {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+
+  @include bp.mobile {
+    display: none;
+  }
+}
+
+.info {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.nameRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.name {
+  @include ui.display;
+  font-size: var(--text-xl);
+
+  @include bp.desktop {
+    font-size: var(--text-2xl);
+  }
+}
+
+// 모바일: 잉크 Lv 배지 / 데스크톱: 링이 대신해서 숨김
+.lv {
+  @include ui.display;
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--ink);
+  color: var(--lime);
+  font-size: var(--text-sm);
+
+  @include bp.desktop {
+    display: none;
+  }
+}
+
+.meta {
+  margin-top: -4px;
+  color: var(--muted);
+  font-size: var(--text-xs);
+  font-weight: 700;
+
+  @include bp.desktop {
+    margin-top: -8px;
+    font-size: 0.8125rem;
+  }
+}
+
+.track {
+  @include ui.track(8px);
+
+  @include bp.desktop {
+    height: 10px;
+  }
+}
+
+.fill {
+  @include ui.fill(lime);
+  min-width: 8px;
+}
+
+// 배고픔 알약 (PetHud와 같은 모양)
+.pill {
+  @include ui.pill;
+  @include ui.display;
+  align-self: flex-start;
+  height: 36px;
+  padding: 0 14px 0 6px;
+  font-size: var(--text-sm);
+}
+
+.pillHungry {
+  composes: pill;
+  border-color: var(--pink-edge);
+  background: var(--pink-soft);
+  color: var(--pink-depth);
+}
+
+.heart {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--pink);
+  box-shadow: inset 0 -2px 0 var(--pink-depth);
+  color: var(--white);
+}
+
+.hungerDesktop {
+  @include bp.mobile {
+    display: none;
+  }
+}
+
+.hungerMobile {
+  @include bp.desktop {
+    display: none;
+  }
+}
+
+// 돌보러 가기 (모바일 50 / 데스크톱 56)
+.go {
+  @include ui.chunky(lime);
+  flex-direction: row;
+  gap: var(--space-2);
+  height: 50px;
+  font-size: 1.0625rem;
+
+  @include bp.desktop {
+    height: 56px;
+    font-size: 1.1875rem;
+  }
+}
+
+// 배고픈 펫: 호박색 (모양은 .go 그대로, 색만 바꾼다)
+.goHungry {
+  composes: go;
+  background: var(--amber);
+  box-shadow:
+    0 5px 0 var(--amber-depth),
+    0 10px 18px var(--drop);
+}
+
+// ---------------------------------------------------------------
+// 마켓 점선 카드 (데스크톱만)
+// ---------------------------------------------------------------
+.marketItem {
+  @include bp.mobile {
+    display: none !important;
+  }
+}
+
+.market {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: 300px;
+  border: 3px dashed var(--dashed-edge);
+  border-radius: var(--radius-card);
+  background: var(--dashed-bg);
+
+  strong {
+    @include ui.display;
+    font-size: var(--text-xl);
+  }
+
+  span:last-child {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.8125rem;
+    font-weight: 700;
+  }
+
+  &:hover {
+    background: var(--panel);
+  }
+}
+
+.marketIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  background: var(--panel);
+  box-shadow: inset 0 -3px 0 var(--panel-depth);
+  color: var(--panel-depth);
+}
+
+.boltChip {
+  @include ui.icon-chip(amber, 30px, 10px);
+}
+
+.desktopOnly {
+  @include bp.mobile {
+    display: none;
+  }
+}

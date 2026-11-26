@@ -9,6 +9,7 @@ import { headers } from "next/headers";
 import { cookieToInitialState } from "wagmi";
 import { Header } from "@/components/Header";
 import { TabBar } from "@/components/TabBar";
+import { WrongNetworkSheet } from "@/components/WrongNetworkSheet";
 import { appUrl } from "@/lib/metadata";
 // ! 서버용 config. 클라이언트용 @/lib/wagmi(RainbowKit)는 서버 컴포넌트에서 import하면 빌드가 실패한다.
 import { serverConfig } from "@/lib/wagmiServer";
@@ -85,6 +86,8 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
             {children}
             <TabBar />
           </div>
+          {/* 지갑이 다른 체인에 있으면 어느 화면에서든 뜨는 전환 시트 (시안 13) */}
+          <WrongNetworkSheet />
         </Providers>
       </body>
     </html>

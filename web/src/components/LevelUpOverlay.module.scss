@@ -1,0 +1,117 @@
+@use "../styles/breakpoints" as bp;
+@use "../styles/ui";
+
+// 무대(.stageWrap) 전체를 덮는다. 아래 행동 버튼은 덮지 않는다
+.overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none; // 장식 영역은 클릭을 통과시킨다 (버튼만 받는다)
+
+  button {
+    pointer-events: auto;
+  }
+}
+
+// 펫 뒤: 빛줄기 + 노란 빛 (펫 무대는 PetView.module.scss의 .stage에서 z-index 1)
+.back {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+// 펫 앞: 색종이, 리본, 링, +XP, 보상 알약, 건너뛰기
+.front {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.top {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-top: var(--space-2);
+}
+
+// "+40 XP": 라임 글자 + 잉크 외곽선 (시안 07: 오른쪽, 30px)
+.xp {
+  @include ui.display;
+  position: absolute;
+  top: 46%;
+  right: 8%;
+  color: var(--lime);
+  font-size: 1.875rem;
+  -webkit-text-stroke: 2px var(--ink);
+  paint-order: stroke fill;
+  text-shadow: 0 3px 0 var(--ink);
+
+  @include bp.desktop {
+    top: 24%;
+    right: 18%;
+    font-size: 2.25rem;
+  }
+}
+
+// 보상 알약 (펫 발 아래, 버튼 위)
+.reward {
+  @include ui.pill;
+  position: absolute;
+  right: 4px;
+  bottom: 8px;
+  left: 4px;
+  gap: 10px;
+  padding: 10px 16px 10px 10px;
+  box-shadow: 0 4px 0 var(--panel-depth);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+
+  @include bp.desktop {
+    right: auto;
+    left: 50%;
+    translate: -50% 0;
+  }
+}
+
+.rewardIcon {
+  @include ui.icon-chip(amber, 34px, 11px);
+}
+
+.rewardText {
+  flex: 1;
+}
+
+// 건너뛰기: 무대 오른쪽 위 반투명 알약
+.skip {
+  @include ui.display;
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 1;
+  height: 36px;
+  padding: 0 14px;
+  border: 2px solid var(--panel-edge);
+  border-radius: var(--radius-pill);
+  background: var(--panel);
+  box-shadow: 0 3px 0 var(--panel-depth);
+  color: var(--ink);
+  font-size: var(--text-sm);
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 3px solid var(--ink);
+    outline-offset: 2px;
+  }
+
+  // 모바일은 옆 버튼(52px)과 겹치지 않게 왼쪽 위로
+  @include bp.mobile {
+    right: auto;
+    left: 0;
+  }
+}
