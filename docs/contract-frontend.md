@@ -119,15 +119,16 @@ Provider 순서 (`providers.tsx` 32~36줄): `WagmiProvider` → `QueryClientProv
 | --- | --- | --- |
 | 17 | | `ActionPhase` = `idle / simulating / signing / confirming`. 버튼 문구용 (`isPending`만으로는 "지갑에서 확인"과 "처리 중"을 못 나눈다) |
 | 30, 35 | | 옵션 `onDone(result, args)`: 끝나면(다시 읽기까지 끝난 뒤) 부른다. `resumeIf(args)`: 새로고침 뒤 이어받을 행동 고르기 |
-| 70~88 | ① 시뮬레이션 ② 서명 | `simulateContract` → `writeContractAsync(request)`. revert하면 ①에서 커스텀 에러로 throw되고 **지갑 창이 뜨지 않는다**. 갈래마다 ①②를 같이 하는 건 request 타입 유니온 문제 때문 |
-| 91 | | 서명 직후 `savePending({ hash, args })` → sessionStorage ([pendingTx.ts](../web/src/lib/pendingTx.ts)) |
-| 92 | | RainbowKit `addRecentTransaction`: 헤더 계정 버튼 스피너, 계정 창 최근 목록 (`providers.tsx`의 `showRecentTransactions`) |
-| 152~172 | ③④⑤ `confirm` | `waitForTransactionReceipt` → `status === "reverted"`면 `TX_REVERTED`(viem은 throw하지 않음) → `parseEvents` → `await invalidateQueries()`. 일반 흐름과 이어받기가 같이 쓴다 |
-| 180 | ④ 이벤트 | `parseEventLogs`. PetNFT 주소의 로그만 (`isAddressEqual`). Energy의 Transfer 로그가 섞여 있다 |
-| 99 | ⑥ onDone | 연출(PetActions), 입양 후 이동(HomeView) |
-| 101 | | `onSettled`: 단계 되돌리기 + 기록 지우기 |
-| 113~138 | 이어받기 | 페이지가 열릴 때 기록을 읽어 `resumeIf`가 참이면 ③부터 기다린다. 버튼이 잠겨서 두 번 누르기(충전 → `StillHasEnergy` revert로 가스비만 날림)를 막는다. `resumingRef`는 개발 모드 StrictMode의 effect 두 번 실행 방지 |
-| 143 | | `pendingArgs` = 이어받은 행동 또는 `mutation.variables` → 어떤 버튼이 눌렸는지 |
+| 72~90 | ① 시뮬레이션 ② 서명 | `simulateContract` → `writeContractAsync(request)`. revert하면 ①에서 커스텀 에러로 throw되고 **지갑 창이 뜨지 않는다**. 갈래마다 ①②를 같이 하는 건 request 타입 유니온 문제 때문 |
+| 93 | | 서명 직후 `savePending({ hash, args })` → sessionStorage ([pendingTx.ts](../web/src/lib/pendingTx.ts)) |
+| 94 | | RainbowKit `addRecentTransaction`: 헤더 계정 버튼 스피너, 계정 창 최근 목록 (`providers.tsx`의 `showRecentTransactions`) |
+| 154~181 | ③④⑤ `confirm` | `waitForTransactionReceipt` → `status === "reverted"`면 `TX_REVERTED`(viem은 throw하지 않음) → `parseEvents` → `await invalidateQueries()`. 일반 흐름과 이어받기가 같이 쓴다 |
+| 174, 185 | 노드 따라잡기 | 확정 블록 다음 블록이 보일 때까지 최대 4초 기다린 뒤 다시 읽는다. RPC가 여러 노드에 나눠 보내서 확정 직후 옛 값을 줄 수 있기 때문 (Base Sepolia 첫 입양에서 "이미 입양함 + 펫 0마리"). anvil은 건너뛴다 |
+| 201 | ④ 이벤트 | `parseEventLogs`. PetNFT 주소의 로그만 (`isAddressEqual`). Energy의 Transfer 로그가 섞여 있다 |
+| 101 | ⑥ onDone | 연출(PetActions), 입양 후 이동(HomeView) |
+| 103 | | `onSettled`: 단계 되돌리기 + 기록 지우기 |
+| 115~141 | 이어받기 | 페이지가 열릴 때 기록을 읽어 `resumeIf`가 참이면 ③부터 기다린다. 버튼이 잠겨서 두 번 누르기(충전 → `StillHasEnergy` revert로 가스비만 날림)를 막는다. `resumingRef`는 개발 모드 StrictMode의 effect 두 번 실행 방지 |
+| 145 | | `pendingArgs` = 이어받은 행동 또는 `mutation.variables` → 어떤 버튼이 눌렸는지 |
 
 [pendingTx.ts](../web/src/lib/pendingTx.ts): 키 `silo-pets:pending-tx`(10줄). `petId`는 bigint라 JSON이 못 다뤄 문자열로 저장한다(18줄). 읽을 때 `isHash` 등으로 모양을 검사한다(32줄). sessionStorage라 탭마다 따로다.
 
@@ -194,6 +195,8 @@ Provider 순서 (`providers.tsx` 32~36줄): `WagmiProvider` → `QueryClientProv
 | 31 | 쿼리 키에 주소. `usePetAction`이 행동 뒤 캐시 전체를 무효화하므로 입양 뒤 자동으로 다시 읽는다 |
 | 40~41 | `totalSupply` → 펫 번호 1..N (소각이 없어 빈칸 없음) |
 | 44~53 | 200개씩 `ownerOf`를 묶어 읽고(`readMany`, Base 계열은 multicall 1번) 주인이 나인 번호만. **선물받은 펫도 들어오고** 보낸 펫은 빠진다 |
+
+홈([HomeView.tsx](../web/src/components/HomeView.tsx))은 `hasAdopted`가 true인데 결과가 비어 있으면 `pollWhileEmpty`로 5초마다 다시 찾는다 (입양 직후 노드 지연 대비).
 
 비용은 블록 수가 아니라 펫 수에 비례한다. 펫이 수만 마리가 되면 인덱서가 맞다 (SPEC 14장에서 이번 범위는 제외).
 

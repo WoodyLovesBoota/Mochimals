@@ -22,8 +22,13 @@ import { readMany } from "@/lib/readMany";
 // 한 번에 묶어 읽을 펫 수 (랭킹과 같은 200). 요청 하나가 너무 커지면 RPC가 거절하거나 느려진다.
 const CHUNK = 200;
 
-/** 내가 지금 가진 펫 번호들 (오름차순). 연결 안 됐으면 쿼리가 꺼진다. */
-export function useMyPets(me: Address | undefined) {
+/**
+ * 내가 지금 가진 펫 번호들 (오름차순). 연결 안 됐으면 쿼리가 꺼진다.
+ * @param pollWhileEmpty true면 결과가 비어 있는 동안 5초마다 다시 읽는다.
+ *   홈이 "이미 입양했는데 펫이 0마리"일 때 켠다: 입양 직후 RPC 노드가 늦게 따라잡아 빈 결과가 캐시된 경우
+ *   잠시 뒤 스스로 맞춰진다. 펫을 정말 남에게 보낸 지갑이면 계속 비어 있고, 요청 2개를 5초마다 보내는 정도다.
+ */
+export function useMyPets(me: Address | undefined, { pollWhileEmpty = false } = {}) {
   const client = usePublicClient();
   return useQuery({
     // * 쿼리 키에 주소를 넣는다: 지갑을 바꾸면 키가 달라져 새로 읽는다.
@@ -32,6 +37,8 @@ export function useMyPets(me: Address | undefined) {
     enabled: !!me && !!client,
     queryFn: async () => findMyPets(client!, me!),
     staleTime: 10_000,
+    // refetchInterval에 함수를 주면 매번 현재 결과를 보고 정한다. 펫이 생기면 false → 멈춘다
+    refetchInterval: (query) => (pollWhileEmpty && query.state.data?.length === 0 ? 5_000 : false),
   });
 }
 

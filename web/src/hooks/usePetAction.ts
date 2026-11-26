@@ -8,7 +8,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { isAddressEqual, parseEventLogs, type Hash } from "viem";
 import { useConfig, useWriteContract, type Config } from "wagmi";
-import { simulateContract, waitForTransactionReceipt } from "wagmi/actions";
+import { getBlockNumber, simulateContract, waitForTransactionReceipt } from "wagmi/actions";
+import { foundry } from "wagmi/chains";
+import { chain } from "@/lib/chain";
 import { petNft } from "@/lib/contracts";
 import { clearPending, readPending, savePending } from "@/lib/pendingTx";
 
@@ -163,12 +165,31 @@ async function confirm(
 
   const events = parseEvents(receipt.logs);
 
+  // * 노드 따라잡기 대기: 확정 블록 다음 블록이 보일 때까지 잠깐(최대 4초) 기다린다.
+  //   ! Alchemy 같은 RPC는 요청을 여러 노드에 나눠 보낸다. 확정 직후 바로 읽으면 아직 그 블록을 못 받은 노드가
+  //     옛 값을 줄 수 있다 (Base Sepolia 첫 입양에서 "이미 입양함 + 펫 0마리" 화면이 나왔다, 2026-11-26).
+  //     한 블록(Base는 약 2초) 더 지나면 대부분의 노드가 따라잡는다.
+  //   ? 왜 최대 4초일까? 블록이 늦게 나와도 화면이 너무 오래 "처리 중"에 머물지 않게 한다.
+  //   anvil(31337)은 노드가 하나라 지연이 없고, 트랜잭션이 없으면 새 블록을 안 만들어서 기다리면 4초를 그냥 버린다 → 건너뛴다.
+  if (chain.id !== foundry.id) await waitForNextBlock(config, receipt.blockNumber, 4_000);
+
   // ⑤ 성공하면 wagmi 읽기 캐시를 전부 버린다 → usePet, 헤더 EnergyBadge가 자동으로 다시 읽는다.
   //   * await: 다시 읽기가 끝난 뒤에 onDone(연출)을 부른다. 그래서 연출이 시작될 때 화면 수치는 이미 새 값이다.
   //   ? 왜 특정 키만이 아니라 전부일까? 행동 하나가 펫(XP, 레벨)과 잔액(활동력) 둘 다 바꾸고,
   //     wagmi의 쿼리 키는 길고 복잡하다. 이 게임 규모에서는 전부 버려도 요청이 몇 개 안 된다.
   await queryClient.invalidateQueries();
   return { hash: txHash, events };
+}
+
+/** RPC가 보는 최신 블록이 after보다 커질 때까지 기다린다. maxMs가 지나면 그냥 넘어간다 (에러 아님). */
+async function waitForNextBlock(config: Config, after: bigint, maxMs: number): Promise<void> {
+  const deadline = Date.now() + maxMs;
+  while (Date.now() < deadline) {
+    // cacheTime: 0 → viem이 잠깐 기억해 둔 블록 번호를 쓰지 않고 매번 새로 묻는다
+    const latest = await getBlockNumber(config, { cacheTime: 0 });
+    if (latest > after) return;
+    await new Promise((r) => setTimeout(r, 500));
+  }
 }
 
 /**

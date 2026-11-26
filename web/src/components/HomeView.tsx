@@ -28,7 +28,16 @@ const STAGES: Stage[] = [0, 1, 2, 3, 4];
 
 export function HomeView() {
   const { address, isConnected } = useAccount();
-  const myPets = useMyPets(address);
+  // * 이미 입양한 지갑인지. 펫을 남에게 보내면 "펫 0마리 + 입양 불가"가 될 수 있다 (컨트랙트: 지갑당 입양 1번).
+  //   AdoptPanel이 버튼 대신 안내를 보여주는 데 쓰고, 아래 useMyPets의 다시 찾기 조건으로도 쓴다.
+  const { data: adopted } = useReadContract({
+    ...petNft,
+    functionName: "hasAdopted",
+    args: address ? [address] : undefined,
+    query: { enabled: !!address },
+  });
+  // 입양했는데 펫이 안 보이면 5초마다 다시 찾는다 (입양 직후 RPC 노드 지연 대비, useMyPets 주석)
+  const myPets = useMyPets(address, { pollWhileEmpty: !!adopted });
 
   return (
     <main className={styles.main}>
@@ -55,7 +64,7 @@ export function HomeView() {
         <>
           {myPets.isPending && <p className={styles.muted}>내 펫을 찾는 중…</p>}
           {myPets.error && <p className={styles.muted}>내 펫을 불러오지 못했어요. 새로고침해 주세요</p>}
-          {myPets.data && myPets.data.length === 0 && <AdoptPanel me={address} />}
+          {myPets.data && myPets.data.length === 0 && <AdoptPanel adopted={!!adopted} />}
           {myPets.data && myPets.data.length > 0 && <MyPetList ids={myPets.data} viewer={address} />}
         </>
       )}
@@ -78,18 +87,14 @@ function EvolutionPreview() {
 }
 
 /** ② 펫이 없을 때: 흔들리는 알 + 입양하기 */
-function AdoptPanel({ me }: { me: Address }) {
+function AdoptPanel({ adopted }: { adopted: boolean }) {
   const router = useRouter();
   const { chainId } = useAccount();
   const { switchChain, isPending: switching } = useSwitchChain();
 
-  // * 이미 입양한 지갑인지. 펫을 남에게 보내면 "펫 0마리 + 입양 불가"가 될 수 있다 (컨트랙트: 지갑당 입양 1번).
-  //   미리 읽어서 버튼을 막는다. 시뮬레이션도 AlreadyAdopted로 막아 주지만, 누르기 전에 알려주는 게 낫다.
-  const { data: adopted } = useReadContract({ ...petNft, functionName: "hasAdopted", args: [me] });
-
   const action = usePetAction({
     // * 입양 영수증의 Adopted 이벤트에서 새 펫 번호를 바로 꺼낸다 (SPEC 8장 "입양 직후에는 영수증의 Adopted에서").
-    //   ? 왜 useMyPets를 다시 읽어 찾지 않을까? 로그 검색은 느리고, 방금 받은 영수증에 답이 이미 있다.
+    //   ? 왜 useMyPets를 다시 읽어 찾지 않을까? 모든 펫의 ownerOf를 읽어야 하고 RPC 노드 지연도 탈 수 있다. 방금 받은 영수증에 답이 이미 있다.
     onDone: ({ events }) => {
       const adoptedEvent = events.find((e) => e.eventName === "Adopted");
       if (adoptedEvent?.eventName === "Adopted") router.push(`/pet/${adoptedEvent.args.petId}`);
