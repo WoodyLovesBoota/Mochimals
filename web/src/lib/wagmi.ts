@@ -18,7 +18,7 @@ import { chain, storage, transports } from "./chain";
 const projectId = process.env.NEXT_PUBLIC_WC_PROJECT_ID || "YOUR_PROJECT_ID";
 
 export const config = getDefaultConfig({
-  appName: "Silo Pets",
+  appName: "Mochimals",
   projectId,
   // * 튜플 [chain] 하나만 둔다. 지갑이 다른 체인에 있으면 RainbowKit이 "잘못된 네트워크"로 표시한다.
   chains: [chain],

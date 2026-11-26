@@ -1,6 +1,7 @@
 // * 해금 목록 (SPEC 12장 내 펫 화면 "해금 목록"). lib/unlocks.ts의 표를 레벨과 비교해 열림/잠김으로 보여준다.
 //   <details>: 브라우저 기본 접기/펴기. JS 상태 없이 열고 닫을 수 있고, 키보드·스크린리더 지원도 기본으로 된다.
 import { UNLOCKS } from "@/lib/unlocks";
+import { CheckIcon, LockIcon } from "./icons";
 import styles from "./UnlockList.module.scss";
 
 export function UnlockList({ level }: { level: number }) {
@@ -28,7 +29,15 @@ export function UnlockList({ level }: { level: number }) {
               <span className={styles.lv}>Lv {u.level}</span>
               <span>{u.label}</span>
               {/* 글자로도 상태를 알린다 (색만으로 구분하지 않기: 색약 사용자 고려) */}
-              <span className={styles.state}>{open ? "✓" : u.level === next ? "다음" : "🔒"}</span>
+              <span className={styles.state}>
+                {open ? (
+                  <CheckIcon size={16} aria-label="열림" />
+                ) : u.level === next ? (
+                  "다음"
+                ) : (
+                  <LockIcon size={16} aria-label="잠김" />
+                )}
+              </span>
             </li>
           );
         })}

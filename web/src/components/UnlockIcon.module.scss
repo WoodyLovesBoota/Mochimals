@@ -1,0 +1,27 @@
+@use "../styles/ui";
+
+// 36px 둥근 사각 + 흰 아이콘. 색은 아래 짝 클래스가 정한다
+.chip {
+  @include ui.icon-chip(lime, 36px, 12px);
+}
+
+.lime {
+  @include ui.icon-chip(lime, 36px, 12px);
+}
+.amber {
+  @include ui.icon-chip(amber, 36px, 12px);
+}
+.blue {
+  @include ui.icon-chip(blue, 36px, 12px);
+}
+.purple {
+  @include ui.icon-chip(purple, 36px, 12px);
+}
+.pink {
+  @include ui.icon-chip(pink, 36px, 12px);
+}
+// 잠김: 회색 상자 + 흐린 아이콘
+.locked {
+  @include ui.icon-chip(grey, 36px, 12px);
+  color: var(--tab-idle);
+}

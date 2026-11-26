@@ -1,0 +1,128 @@
+// * 리디자인 공통 모양 (mixin). 컴포넌트 .module.scss에서 이렇게 쓴다:
+//     @use "../styles/ui";
+//     .feed { @include ui.chunky(amber); }
+//
+// ? 왜 공통 컴포넌트(<Button>)가 아니라 mixin일까?
+//   시안의 "두툼한 모양"은 button, a, span(알약) 등 여러 태그에 똑같이 붙는다.
+//   모양만 공유하고 태그와 동작은 각 컴포넌트가 정하게 하려고 CSS 쪽에서 나눴다.
+// ! 색은 globals.scss의 토큰 이름(lime, amber …)만 받는다. 여기에도 색 값을 직접 쓰지 않는다.
+
+// 크림 알약: 시안의 HUD 칩(활동력, XP, 배고픔), 로고, 계정 버튼
+@mixin pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  border: 2px solid var(--panel-edge);
+  border-radius: var(--radius-pill);
+  background: var(--panel);
+  box-shadow: 0 3px 0 var(--panel-depth); // * 아래 3px만 진하게 → 납작한 블록처럼 보인다
+  color: var(--ink);
+}
+
+// 큰 크림 패널: 데스크톱 오른쪽 패널, 카드
+@mixin card {
+  border: 2px solid var(--panel-edge);
+  border-radius: var(--radius-card);
+  background: var(--panel);
+  box-shadow:
+    0 5px 0 var(--panel-depth),
+    0 14px 30px var(--drop-panel);
+  color: var(--ink);
+}
+
+// * 두툼한 버튼. $tone = globals.scss의 짝 이름 (lime, amber, blue, pink, red, grey)
+//   면 색 = var(--$tone), 두께 = var(--$tone-depth).
+//   #{...}: Sass 보간. 변수 값을 글자로 끼워 넣어 "var(--amber)" 같은 CSS를 만든다.
+@mixin chunky($tone, $ink: ink) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  margin-bottom: 5px; // 두께(5px 그림자)만큼 아래 공간을 비워 둔다 (그림자는 레이아웃 크기에 안 들어간다)
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--radius-btn);
+  background: var(--#{$tone});
+  box-shadow:
+    0 5px 0 var(--#{$tone}-depth),
+    0 10px 18px var(--drop);
+  color: var(--#{$ink});
+  font-family: var(--font-display);
+  font-weight: 400;
+  cursor: pointer;
+  transition:
+    transform 80ms ease-out,
+    box-shadow 80ms ease-out;
+
+  // * 누르는 동안: 3px 내려가고 두께가 2px로 줄어든다 → 실제로 눌린 블록처럼 보인다
+  &:active:not(:disabled) {
+    transform: translateY(3px);
+    box-shadow:
+      0 2px 0 var(--#{$tone}-depth),
+      0 4px 8px var(--drop);
+  }
+
+  // * 비활성: 회색 짝으로 바꾼다 (시안 grey #E7E0D3 / #CEC4B0). 글자는 muted
+  &:disabled {
+    background: var(--grey);
+    box-shadow: 0 5px 0 var(--grey-depth);
+    color: var(--muted);
+    cursor: not-allowed;
+  }
+
+  // 키보드로 이동했을 때만 테두리 (마우스 클릭에는 안 보임)
+  &:focus-visible {
+    outline: 3px solid var(--ink);
+    outline-offset: 3px;
+  }
+}
+
+// 아이콘을 담는 작은 색 상자 (시안: 해금 줄, 상태 줄 앞의 둥근 사각형). 아래쪽 안쪽 그림자로 입체감
+@mixin icon-chip($tone, $size: 38px, $radius: 12px) {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: $size;
+  height: $size;
+  border-radius: $radius;
+  background: var(--#{$tone});
+  box-shadow: inset 0 -3px 0 var(--#{$tone}-depth);
+  color: var(--white); // 안의 아이콘(currentColor)이 흰색이 된다
+}
+
+// 진행 막대 바탕 + 채움 (XP)
+@mixin track($height: 8px) {
+  display: block;
+  height: $height;
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background: var(--track);
+}
+
+@mixin fill($tone: lime) {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--#{$tone});
+  box-shadow: inset 0 -3px 0 var(--#{$tone}-depth);
+  transition: width 0.6s ease-out; // 밥 주면 XP가 차오르는 연출
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+// 제목·숫자 글꼴 (Jua)
+@mixin display {
+  font-family: var(--font-display);
+  font-weight: 400;
+}
+
+// 주소·해시 글꼴 (JetBrains Mono). tabular-nums: 숫자 폭을 같게 해서 주소가 흔들리지 않는다
+@mixin mono {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}

@@ -42,7 +42,7 @@ export function HomeView() {
   return (
     <main className={styles.main}>
       <section className={styles.hero}>
-        <h1 className={styles.title}>Silo Pets</h1>
+        <h1 className={styles.title}>Mochimals</h1>
         <p className={styles.lead}>펫을 입양하고, 밥을 주고, 훈련시켜 진화시키는 온체인 육성 게임</p>
       </section>
 

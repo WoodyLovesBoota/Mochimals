@@ -1,20 +1,39 @@
 @use "../styles/breakpoints" as bp;
+@use "../styles/ui";
 
-// 알약 모양 활동력 배지
+// 활동력 알약 (시안 02 / D2: 높이 40, 왼쪽 6 · 오른쪽 14 안쪽 여백, Jua 16px)
 .badge {
-  white-space: nowrap; // 좁은 화면에서 "⚡ 10"이 두 줄로 쪼개지지 않게
-  padding: var(--space-1) var(--space-3); // 위아래 4px, 좌우 12px
-  border-radius: var(--radius-pill);
-  background: var(--color-energy-soft);
-  font-size: var(--text-sm);
-  font-weight: 600;
+  @include ui.pill;
+  @include ui.display;
+  height: 40px;
+  padding: 0 14px 0 6px;
+  font-size: var(--text-base);
+  white-space: nowrap;
 }
 
-// "활동력" 글자: 휴대폰에서는 숨기고 640px 이상에서만 보인다
-.label {
-  display: none;
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--amber);
+  box-shadow: inset 0 -2px 0 var(--amber-depth);
+  color: var(--ink); // 번개는 잉크색 (시안)
+}
 
-  @include bp.sm {
-    display: inline;
+// "/10"은 작고 흐리게
+.max {
+  margin-left: -7px; // 알약의 gap(8px)을 상쇄해서 "4/10"처럼 붙여 보이게
+  color: var(--muted);
+  font-size: 0.8125rem; // 13px
+}
+
+.label {
+  margin-right: -4px; // "활동력 4"처럼 한 칸만 띄운다 (gap 8px - 4px)
+
+  @include bp.mobile {
+    display: none;
   }
 }

@@ -1,54 +1,112 @@
 // * CSS Modules: 이 파일의 클래스 이름은 빌드할 때 "Header_header__a1b2c" 처럼 바뀐다.
 //   그래서 다른 컴포넌트에 같은 이름(.header)이 있어도 절대 충돌하지 않는다.
-//   TSX에서는 `import styles from "./Header.module.scss"` 후 className={styles.header}로 쓴다.
 @use "../styles/breakpoints" as bp;
+@use "../styles/ui";
 
+// 헤더 띠. 배경 없이 장면 그림 위에 알약들만 떠 있다 (시안)
 .header {
-  // 자식(로고, 오른쪽 묶음)을 가로로 놓고 양 끝으로 벌린다
-  display: flex;
-  align-items: center; // 세로 가운데
-  justify-content: space-between; // 첫 자식은 왼쪽 끝, 마지막 자식은 오른쪽 끝
-  padding: var(--space-3) var(--space-4); // 위아래 12px, 좌우 16px
-  border-bottom: 1px solid var(--color-line);
+  position: relative;
+  z-index: 10; // 펫 화면 연출(별, 숫자)보다 위
+  padding: 14px 12px 0; // 시안 01: 위 14, 좌우 12
 
-  // 640px 이상에서는 좌우 여백을 24px로
-  @include bp.sm {
-    padding-inline: var(--space-6);
+  @include bp.desktop {
+    padding: 20px 0 0; // 시안 D1: 위 20 (좌우는 .inner가)
+  }
+
+  // 모바일 펫 화면에서는 숨긴다 (HUD가 대신한다)
+  &[data-pet-page="true"] {
+    @include bp.mobile {
+      display: none;
+    }
   }
 }
 
-// 로고 + 랭킹 링크 묶음
-.nav {
+// 가운데 1320px 틀 (데스크톱). 모바일은 꽉 차게
+.inner {
   display: flex;
-  align-items: baseline;
-  gap: var(--space-4);
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+
+  @include bp.desktop {
+    max-width: var(--page-max);
+    margin: 0 auto;
+    padding: 0 var(--space-8);
+    gap: var(--space-4);
+  }
 }
 
+.left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+// 로고 알약: 높이 44, 왼쪽 8 · 오른쪽 16
 .logo {
-  color: inherit;
-  font-size: var(--text-lg);
-  font-weight: 700;
-  text-decoration: none;
+  @include ui.pill;
+  height: 44px;
+  padding: 0 16px 0 8px;
+
+  &:focus-visible {
+    outline: 3px solid var(--ink);
+    outline-offset: 3px;
+  }
+}
+
+.logoText {
+  @include ui.display;
+  font-size: 1.1875rem; // 19px
+}
+
+// 메뉴 알약 3개: 데스크톱에서만
+.nav {
+  display: none;
+
+  @include bp.desktop {
+    display: flex;
+    gap: var(--space-2);
+    margin-left: var(--space-3);
+  }
 }
 
 .navLink {
-  color: var(--color-muted);
-  font-size: var(--text-sm);
-  font-weight: 700;
-  text-decoration: none;
+  @include ui.pill;
+  @include ui.display;
+  gap: 6px;
+  height: 44px;
+  padding: 0 16px 0 10px;
+  font-size: 1.0625rem; // 17px
 
   &:hover {
-    color: var(--color-ink);
+    background: var(--white);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--ink);
+    outline-offset: 3px;
   }
 }
 
-// 활동력 배지 + 지갑 버튼 묶음
+// 지금 화면: 라임 알약 (테두리·두께도 라임 짙은색)
+.navActive {
+  composes: navLink;
+  border-color: var(--lime-depth);
+  background: var(--lime);
+  box-shadow: 0 3px 0 var(--lime-depth);
+
+  &:hover {
+    background: var(--lime);
+  }
+}
+
+// 활동력 + 지갑 버튼 묶음
 .actions {
   display: flex;
   align-items: center;
-  gap: var(--space-2); // 휴대폰: 8px
+  gap: var(--space-2);
 
-  @include bp.sm {
-    gap: var(--space-3); // 640px 이상: 12px
+  @include bp.desktop {
+    gap: 10px;
   }
 }

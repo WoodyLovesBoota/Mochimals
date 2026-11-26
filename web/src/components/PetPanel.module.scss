@@ -1,0 +1,240 @@
+@use "../styles/ui";
+
+// 크림 카드 (시안 D2: 안쪽 20, 간격 14)
+.panel {
+  @include ui.card;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: var(--space-5);
+}
+
+// 시트 안: 카드 모양 없이 내용만
+.flat {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.heading {
+  @include ui.display;
+  font-size: var(--text-lg);
+}
+
+// ---------------------------------------------------------------
+// 상태 줄: [아이콘 상자] [이름 ··· 값 / 막대]
+// ---------------------------------------------------------------
+.stat {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.chipLime {
+  @include ui.icon-chip(lime);
+}
+.chipAmber {
+  @include ui.icon-chip(amber);
+}
+.chipPink {
+  @include ui.icon-chip(pink);
+}
+
+.statBody {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.statHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.statLabel {
+  @include ui.display;
+  font-size: var(--text-base);
+}
+
+.statLabelGrow {
+  composes: statLabel;
+  flex: 1;
+}
+
+.statValue {
+  @include ui.display;
+  font-size: 0.9375rem; // 15px
+  white-space: nowrap;
+}
+
+.dim {
+  color: var(--muted);
+}
+
+.xpTrack {
+  @include ui.track(12px);
+}
+
+.xpFill {
+  @include ui.fill(lime);
+  min-width: 12px;
+}
+
+// 활동력 10칸
+.cells {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.cell {
+  height: 12px;
+  border-radius: 4px;
+  background: var(--track);
+}
+
+.cellOn {
+  composes: cell;
+  background: var(--amber);
+  box-shadow: inset 0 -3px 0 var(--amber-depth);
+}
+
+// 구분선 2px
+.divider {
+  height: 2px;
+  margin: 0;
+  border: 0;
+  background: var(--panel-edge);
+}
+
+// ---------------------------------------------------------------
+// 해금
+// ---------------------------------------------------------------
+.sectionHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+// "7/24 · 전체 보기 ›": 버튼이지만 링크처럼 보인다
+.more {
+  @include ui.display;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--link);
+  font-size: var(--text-sm);
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--ink);
+    outline-offset: 2px;
+  }
+}
+
+.unlocks {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0;
+  list-style: none;
+}
+
+.unlockRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 48px;
+  padding: 0 var(--space-2);
+}
+
+// "다음" 줄: 연한 노랑 바탕
+.unlockRowNext {
+  composes: unlockRow;
+  border-radius: 14px;
+  background: var(--row-next);
+}
+
+.unlockLv {
+  @include ui.display;
+  width: 44px;
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
+.unlockLabel {
+  flex: 1;
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+// 열림 ✓: 라임 동그라미
+.done {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--lime);
+  box-shadow: inset 0 -2px 0 var(--lime-depth);
+  color: var(--ink);
+}
+
+.nextTag {
+  @include ui.display;
+  padding: 5px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--amber);
+  box-shadow: 0 2px 0 var(--amber-depth);
+  font-size: 0.8125rem; // 13px
+}
+
+// ---------------------------------------------------------------
+// 정보
+// ---------------------------------------------------------------
+.info {
+  display: flex;
+  flex-direction: column;
+}
+
+.infoRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 36px;
+  border-bottom: 2px dashed var(--panel-edge);
+
+  dt {
+    color: var(--muted);
+    font-size: 0.8125rem;
+    font-weight: 700;
+  }
+}
+
+.mono {
+  @include ui.mono;
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.links {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+// 흰 두툼한 버튼 (두께 #DCD3C2 = --white-depth)
+.linkBtn {
+  @include ui.chunky(white);
+  flex-direction: row;
+  gap: var(--space-2);
+  height: 42px;
+  font-size: var(--text-sm);
+}

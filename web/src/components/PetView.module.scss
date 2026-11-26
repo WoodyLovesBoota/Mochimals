@@ -1,20 +1,177 @@
 @use "../styles/breakpoints" as bp;
+@use "../styles/ui";
 
-// 화면 본문: 가운데 정렬, 휴대폰에서는 꽉 차게, 넓은 화면에서는 카드 폭을 제한한다
+// =====================================================================
+// 화면 틀
+// =====================================================================
+// * 모바일: 한 칸 (.play가 화면 전체). 데스크톱: [놀이 영역 | 패널 380px] 두 칸
 .main {
   flex: 1; // layout.module.scss의 .shell(세로 flex)에서 남은 높이를 채운다
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-4);
-  padding: var(--space-4);
+  // 탭 바(88px)를 뺀 화면 높이만큼은 채운다 → 펫과 버튼이 항상 화면 아래쪽에 붙는다
+  min-height: calc(100dvh - var(--tabbar-height));
 
-  @include bp.sm {
-    padding: var(--space-8) var(--space-6);
+  @include bp.desktop {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--panel-width);
+    gap: var(--space-6);
+    width: 100%;
+    max-width: var(--page-max);
+    min-height: 0;
+    margin: 0 auto;
+    padding: var(--space-8) var(--space-8) 36px; // 헤더(64) + 32 = 시안 D2의 본문 시작 96px, 아래 36px
   }
 }
 
-.readonly {
-  color: var(--color-muted);
+// 놀이 영역: HUD(위) → 알림 → 펫(남은 높이, 아래 붙임) → 행동 버튼
+.play {
+  position: relative; // 옆 버튼(.side)을 이 영역 기준으로 띄운다
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 14px 12px 7px; // 시안 02: 위 14, 좌우 12. 아래 7 + 버튼 두께 5 = 탭 바 위 12px
+
+  @include bp.desktop {
+    padding: 0;
+  }
+}
+
+// 펫 무대 (PetCard): 남은 높이를 모두 차지하고 펫을 바닥에 세운다
+.stage {
+  flex: 1;
+  // ? 아트(400×400)는 발 아래에 여백이 약 12% 있다. 그 여백까지 계산해서 시안의 간격에 맞춘다
+  margin-bottom: 0; // 시안 02: 펫 발끝 ↔ 버튼 약 50px (아트 아래 여백이 대신한다)
+
+  @include bp.desktop {
+    margin-bottom: -24px; // 시안 D2: 펫 아래 150px. 아트 아래 여백(약 58px)을 조금 겹친다
+  }
+}
+
+// 행동 버튼 자리: 모바일 좌우 16px (화면 여백 12 + 4), 데스크톱 가운데
+.tray {
+  display: flex;
+  justify-content: center;
+  padding: 0 var(--space-1);
+
+  @include bp.desktop {
+    padding: 0;
+  }
+}
+
+// 데스크톱 오른쪽 패널. 모바일에서는 숨긴다 ("펫 정보" 시트로)
+.panel {
+  align-self: start;
+
+  @include bp.mobile {
+    display: none;
+  }
+}
+
+// =====================================================================
+// 새 해금 알림 (시안 02: HUD 아래 16px, 크림 알약 + 라임 아이콘 상자)
+// =====================================================================
+// 자리는 늘 비워 둔다: 알림이 떴다 사라질 때 아래 내용이 들썩이지 않게
+.toastSlot {
+  min-height: 56px;
+  padding-top: var(--space-4);
+}
+
+.toast {
+  @include ui.pill;
+  gap: 10px;
+  padding: 10px 16px 10px 10px;
+  box-shadow: 0 4px 0 var(--panel-depth);
   font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+.toastIcon {
+  @include ui.icon-chip(lime, 30px, 10px);
+}
+
+// =====================================================================
+// 모바일 옆 버튼 (시안 02: 오른쪽 12px, 위 150px, 52×52, 간격 14)
+// =====================================================================
+.side {
+  position: absolute;
+  top: 150px;
+  right: 12px;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  @include bp.desktop {
+    display: none;
+  }
+}
+
+.sideBtn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border: 2px solid var(--panel-edge);
+  border-radius: var(--radius-md);
+  background: var(--panel);
+  box-shadow: 0 4px 0 var(--panel-depth);
+  color: var(--ink);
+  cursor: pointer;
+
+  &:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 var(--panel-depth);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--ink);
+    outline-offset: 2px;
+  }
+}
+
+// 빨간 숫자 딱지 (새 해금 개수)
+.badge {
+  @include ui.display;
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: var(--radius-pill);
+  background: var(--red);
+  box-shadow: 0 2px 0 var(--red-depth);
+  color: var(--white);
+  font-size: var(--text-xs);
+}
+
+// =====================================================================
+// 기타
+// =====================================================================
+// 구경 문구 (TODO 2단계: 시안 11)
+.readonly {
+  @include ui.pill;
+  align-self: center;
+  padding: var(--space-2) var(--space-4);
+  color: var(--muted);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+// 로딩·에러 문구 (TODO 2단계: 시안 12)
+.message {
+  @include ui.display;
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  color: var(--white);
+  font-size: var(--text-xl);
+  text-shadow: 0 2px 0 var(--ink);
 }

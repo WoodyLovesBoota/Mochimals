@@ -30,3 +30,18 @@ export function formatRemaining(ms: number): string | null {
   if (h === 0) return `${m}분`;
   return m === 0 ? `${h}시간` : `${h}시간 ${m}분`;
 }
+
+/**
+ * * 남은 시간을 시계 모양 "HH:MM"으로. HUD의 배고픔 알약("23:57 남음")에 쓴다 (리디자인 시안 02).
+ *   분 단위로 버린다 (1분마다 갱신하는 useHungerTimer와 맞춘다).
+ * @returns 0 이하면 null (이미 배고플 시각)
+ * 예: 23시간 57분 → "23:57", 5분 → "00:05", 30초 → "00:00"
+ */
+export function formatClock(ms: number): string | null {
+  if (ms <= 0) return null;
+  const totalMin = Math.floor(ms / 60_000);
+  // padStart(2, "0"): 한 자리면 앞에 0을 붙인다 (5 → "05")
+  const hh = String(Math.floor(totalMin / 60)).padStart(2, "0");
+  const mm = String(totalMin % 60).padStart(2, "0");
+  return `${hh}:${mm}`;
+}

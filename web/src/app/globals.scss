@@ -1,71 +1,145 @@
 // 앱 전체에 적용되는 전역 스타일. layout.tsx가 한 번만 import한다.
 // ! 여기에는 "태그 기본 스타일"과 "디자인 토큰"만 둔다. 컴포넌트 모양은 각 컴포넌트의 .module.scss에 둔다.
+// ! 색은 이 파일에만 쓴다. 컴포넌트 scss/tsx에 #2D2645 같은 값을 직접 쓰지 않는다 (리디자인 완료 기준 5번).
 
 // =====================================================================
-// 디자인 토큰 (SPEC 12장 "UI 톤")
+// 디자인 토큰 (Mochimals 리디자인, Claude Design 캔버스 기준)
 // =====================================================================
-// * CSS 변수(custom property)로 둔다. 모든 .module.scss에서 var(--color-ink)처럼 쓴다.
+// * CSS 변수(custom property)로 둔다. 모든 .module.scss에서 var(--ink)처럼 쓴다.
 // ? 왜 Sass 변수($ink)가 아니라 CSS 변수일까?
 //   - 브라우저 개발자 도구에서 값이 보이고 바로 바꿔 볼 수 있다.
 //   - 모듈마다 @use를 안 해도 어디서나 쓸 수 있다.
-//   - 나중에 JS(예: 펫 종별 무대 배경색)에서 style={{ "--stage-bg": ... }}로 바꿀 수 있다.
+//   - JS에서 style={{ "--ring": "30%" }}처럼 값만 넘길 수 있다.
 //   (단, @media 조건에는 CSS 변수를 못 써서 화면 폭 기준만 styles/_breakpoints.scss의 Sass 변수로 둔다.)
-// ! 색이나 간격을 바꿀 때는 여기 한 곳만 고친다. 컴포넌트에 #22252F 같은 값을 직접 쓰지 않는다.
 :root {
-  // 글자색
-  --color-ink: #22252f; // 본문, 주 버튼 배경
-  --color-muted: #6b7080; // 보조 설명
-  --color-line: rgb(34 37 47 / 10%); // 구분선 (ink를 10% 불투명도로)
-  --color-surface: #fff; // 카드 배경 (SPEC: 흰 배경)
-  --color-on-ink: #fff; // ink 배경 위의 글자 (레벨 배지, 주 버튼)
-  --color-stage-fallback: #f1f2f5; // 펫 무대 기본 배경 (아트 세트가 background()를 안 줄 때)
+  // ---------------------------------------------------------------
+  // 기본 색 (시안의 "잉크 + 크림 패널")
+  // ---------------------------------------------------------------
+  --ink: #2d2645; // 본문 글자, 레벨 링 안쪽, 어두운 배지
+  --muted: #655c7c; // 보조 글자 ("/10", "새싹 집사")
+  --panel: #fffaf0; // 크림 패널 (알약, 카드, 탭 바)
+  --panel-edge: #eadfcb; // 패널 테두리 2px
+  --panel-depth: #dccdb0; // 패널 아래 그림자 (0 3px 0 이 색 → "두께"처럼 보인다)
+  --white: #fff;
+  --white-depth: #dcd3c2; // 흰 버튼(OpenSea, Basescan)의 두께
+  --tab-idle: #b5ac9a; // 탭 바의 선택 안 된 아이콘
+  --link: #4f7d0e; // 패널 안 초록 글자 링크 ("전체 보기 ›")
+  --row-next: #fff1d2; // 해금 목록의 "다음" 줄 배경
+  --track: rgb(45 38 69 / 12%); // 빈 막대 (XP, 활동력 칸). ink 12%
+  --drop: rgb(45 38 69 / 20%); // 큰 버튼 아래 번지는 그림자
+  --drop-panel: rgb(45 38 69 / 22%); // 큰 패널 아래 번지는 그림자
+  --drop-sheet: rgb(45 38 69 / 30%); // 아래에서 올라오는 시트 그림자
+  --scrim: rgb(45 38 69 / 55%); // 모달 뒤를 덮는 막 (RainbowKit modalBackdrop과 같은 값)
+  --ring-empty: rgb(255 255 255 / 75%); // 레벨 링의 빈 부분
+  --logo-leaf: #6dba4a; // 로고 새싹 잎
 
-  // 게임 수치
-  --color-energy: #ffc93c; // 활동력 칸
-  --color-energy-soft: rgb(255 201 60 / 25%); // 활동력 배지 배경 (energy 25%)
-  --color-xp: #3faf5e; // XP 바
+  // ---------------------------------------------------------------
+  // 두툼한(chunky) 버튼 색 짝: 면(face) + 두께(depth)
+  // ---------------------------------------------------------------
+  // * 버튼 = background: face + box-shadow: 0 5px 0 depth. 아래로 5px 두꺼운 "블록"처럼 보인다.
+  //   styles/_ui.scss의 chunky() mixin이 이 짝을 받아 쓴다.
+  --lime: #b8ee3a; // 주 행동 (입양, 지갑 연결, 선택된 탭)
+  --lime-depth: #84b51a;
+  --amber: #ffc247; // 밥 주기, 활동력
+  --amber-depth: #d9921a;
+  --blue: #5dbeff; // 훈련
+  --blue-depth: #2c8fd3;
+  --pink: #ff8fb8; // 배고픔 하트
+  --pink-depth: #d95c8c;
+  --red: #ff6b6b; // 알림 숫자, 연결 해제, 실패
+  --red-depth: #d44646;
+  --grey: #e7e0d3; // 비활성 버튼, 잠긴 해금
+  --grey-depth: #cec4b0;
+  --purple: #9c8cff; // 칭호 해금 아이콘 (시안 16)
+  --purple-depth: #6e5ce0;
 
-  // 밥 주기 버튼 (배경 / 글자)
-  --color-feed: #fff0e0;
-  --color-feed-ink: #b85c00;
+  // 배고픔 알약의 연한 분홍 (시안 04 "배고파요")
+  --pink-soft: #ffe6ef;
+  --pink-edge: #ffc2d6;
 
-  // 연출·강조
-  --color-overlay: rgb(14 16 24 / 92%); // 진화 연출 배경 (화면이 어두워짐)
-  --color-highlight: rgb(63 175 94 / 12%); // 랭킹의 내 펫 행 (xp 초록 12%)
-  --color-silver: #aab2c0; // 랭킹 테두리 Lv 10 이상 (SPEC 12장 해금표)
-  --color-gold: #e2b33a; // 랭킹 테두리 Lv 20
+  // 계정 아바타 (시안: 주소별 그림 대신 산호색 구슬)
+  --avatar: radial-gradient(circle at 35% 30%, #ffb0a0, var(--red) 60%);
 
-  // * 해금 배경 (SPEC 12장: "배경은 CSS 그라데이션으로"). 펫 무대의 background에 그대로 넣는다.
-  //   Lv 1 "기본 배경"은 아트 세트의 종별 색(ArtSet.background)이라 여기 없다.
+  // ---------------------------------------------------------------
+  // 장면 배경 (public/game). 화면 폭에 따라 모바일/데스크톱 그림을 고른다
+  // ---------------------------------------------------------------
+  // * url()은 CSS 변수에 넣어도 된다. 경로는 public/ 기준 (Next.js가 /game/...로 제공한다)
+  --scene-mobile-day: url("/game/scene-mobile-day.png");
+  --scene-mobile-night: url("/game/scene-mobile-night.png");
+  --scene-desktop-day: url("/game/scene-desktop-day.png");
+  --scene-desktop-night: url("/game/scene-desktop-night.png");
+
+  // ---------------------------------------------------------------
+  // 예전 토큰 이름 (아직 리디자인 전인 화면이 쓰는 것). 값만 새 팔레트로 바꿔 둔다
+  // ---------------------------------------------------------------
+  // TODO 2단계(홈·랭킹·연출 리디자인)에서 이 이름들을 쓰는 곳을 새 토큰으로 옮기고 지운다
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--track);
+  --color-surface: var(--panel);
+  --color-on-ink: var(--white);
+  --color-stage-fallback: var(--panel);
+  --color-energy: var(--amber);
+  --color-energy-soft: var(--row-next);
+  --color-xp: var(--lime-depth);
+  --color-feed: var(--amber);
+  --color-feed-ink: var(--red-depth);
+  --color-overlay: rgb(45 38 69 / 92%);
+  --color-highlight: rgb(184 238 58 / 20%);
+  --color-silver: #d7dee8;
+  --color-gold: #ffd23f;
+
+  // * 해금 배경 (SPEC 12장: "배경은 CSS 그라데이션으로"). 랭킹 썸네일 등 아직 쓰는 곳이 있다.
   --bg-field: linear-gradient(180deg, #dff3ff 0%, #eaf8e6 60%, #b9e3a6 100%); // Lv 6 들판
   --bg-sunset: linear-gradient(180deg, #ffd3a5 0%, #fca9a0 55%, #c98bb9 100%); // Lv 10 노을 언덕
   --bg-night: radial-gradient(circle at 30% 20%, #3b4a8a 0%, #1d2350 55%, #0f1330 100%); // Lv 14 밤하늘
   --bg-crystal: linear-gradient(160deg, #d9c8ff 0%, #a8e0f0 50%, #7d7fd8 100%); // Lv 17 수정 동굴
 
+  // ---------------------------------------------------------------
+  // 글꼴 (layout.tsx의 next/font가 --font-jua 등 변수를 <html>에 만든다)
+  // ---------------------------------------------------------------
+  // * 세 가지만 쓴다: Jua = 제목·버튼·숫자, Noto Sans KR = 본문, JetBrains Mono = 주소·트랜잭션 해시
+  --font-display: var(--font-jua), var(--font-noto), sans-serif;
+  --font-body: var(--font-noto), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+
+  // ---------------------------------------------------------------
   // 간격 (4px 단위). 숫자 × 4px
+  // ---------------------------------------------------------------
   --space-1: 0.25rem; // 4px
   --space-2: 0.5rem; // 8px
   --space-3: 0.75rem; // 12px
   --space-4: 1rem; // 16px
+  --space-5: 1.25rem; // 20px
   --space-6: 1.5rem; // 24px
   --space-8: 2rem; // 32px
 
   // 모서리
-  --radius-card: 1.5rem; // 카드 (SPEC: 24~28px)
-  --radius-pill: 9999px; // 알약 모양 (배지, 칩)
+  --radius-sm: 0.625rem; // 10px (작은 배지)
+  --radius-md: 1rem; // 16px (이름판, 사각 버튼)
+  --radius-btn: 1.125rem; // 18px (두툼한 버튼)
+  --radius-card: 1.625rem; // 26px (큰 패널)
+  --radius-sheet: 1.875rem; // 30px (아래 시트 위쪽 모서리)
+  --radius-pill: 9999px; // 알약
 
   // 글자 크기
+  --text-xs: 0.75rem; // 12px
   --text-sm: 0.875rem; // 14px
   --text-base: 1rem; // 16px
   --text-lg: 1.125rem; // 18px
+  --text-xl: 1.25rem; // 20px
   --text-2xl: 1.5rem; // 24px
+
+  // 화면 틀 (데스크톱 시안: 가운데 1320px, 좌우 32px, 오른쪽 패널 380px)
+  --page-max: 82.5rem; // 1320px
+  --panel-width: 23.75rem; // 380px
+  --tabbar-height: 5.5rem; // 88px (모바일 하단 탭 바)
 }
 
 // =====================================================================
 // 기본 초기화 (reset)
 // =====================================================================
 // * 브라우저마다 다른 기본 여백·크기 계산을 맞춘다.
-//   (Tailwind를 쓸 때는 Tailwind의 preflight가 이 일을 해 줬다. 걷어냈으니 직접 둔다.)
 
 // padding, border를 width에 포함시킨다. width: 100px이면 padding을 줘도 100px 그대로다.
 *,
@@ -81,7 +155,9 @@ h2,
 h3,
 p,
 ul,
-ol {
+ol,
+dl,
+dd {
   margin: 0;
 }
 
@@ -96,6 +172,13 @@ svg {
 button,
 input {
   font: inherit;
+  color: inherit;
+}
+
+// 링크는 글자색을 물려받고 밑줄을 없앤다 (시안: a{color:inherit;text-decoration:none})
+a {
+  color: inherit;
+  text-decoration: none;
 }
 
 // =====================================================================
@@ -109,8 +192,8 @@ html {
 
 // 헤더 + 본문의 세로 배치는 body가 아니라 layout.module.scss의 .shell이 맡는다
 body {
-  background: #fff; // SPEC: 흰 배경 (다크 모드 없음)
-  color: var(--color-ink);
-  // layout.tsx의 next/font가 <html>에 --font-geist-sans 변수를 만든다
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  // * 장면 그림이 늦게 뜰 때 잠깐 보이는 색. 시안 바깥 배경과 같은 잉크색
+  background: var(--ink);
+  color: var(--ink);
+  font-family: var(--font-body);
 }

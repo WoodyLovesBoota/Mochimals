@@ -14,7 +14,7 @@ import styles from "./page.module.scss";
 //   ? 캐시 키 "ranking"에 컨트랙트 주소를 넣는 이유: anvil을 다시 배포하거나 체인을 바꾸면 다른 랭킹이어야 한다.
 const getRankingCached = unstable_cache(getRanking, ["ranking", petNft.address], { revalidate: 30 });
 
-export const metadata: Metadata = { title: "랭킹 · Silo Pets" };
+export const metadata: Metadata = { title: "랭킹" };
 
 export default async function RankingPage() {
   // ! RPC가 죽었거나 (anvil을 껐거나) 빌드 시점에 체인이 없으면 읽기가 실패한다.

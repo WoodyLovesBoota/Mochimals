@@ -3,9 +3,13 @@
 
 import { useAccount, useReadContract } from "wagmi";
 import { energy } from "@/lib/contracts";
+import { BoltIcon } from "./icons";
 import styles from "./EnergyBadge.module.scss";
 
-// * 헤더의 활동력 표시. 연결된 지갑의 Energy 잔액(= 활동력)을 읽는다.
+// PetNFT.MAX_ENERGY = 10. "4/10"의 분모 (constant라 컨트랙트에서 읽지 않는다. PetPanel과 같은 이유)
+const MAX_ENERGY = 10;
+
+// * 활동력 알약. 연결된 지갑의 Energy 잔액(= 활동력)을 읽는다.
 //   SPEC 12장: "모든 화면 헤더에 ConnectButton과 활동력 표시"
 export function EnergyBadge() {
   // address: 연결된 계정 주소. 연결 안 됐으면 undefined
@@ -30,10 +34,16 @@ export function EnergyBadge() {
 
   return (
     // * 반환값은 bigint다 (uint256은 JS number 범위를 넘을 수 있어서). decimals가 0이라 그대로 글자로 바꾼다.
-    <span className={styles.badge}>
-      {/* styles.label: 휴대폰에서는 숨기고, 640px 이상에서만 보인다 (EnergyBadge.module.scss) */}
-      ⚡ <span className={styles.label}>활동력 </span>
+    //   aria-label: 화면 글자 "4/10"만으로는 스크린리더가 뜻을 모르니 문장으로 읽어 준다
+    <span className={styles.badge} role="img" aria-label={`활동력 ${balance} / ${MAX_ENERGY}`}>
+      {/* 호박색 동그라미 안의 번개 (시안: 28px 원, 아래 안쪽 그림자) */}
+      <span className={styles.icon}>
+        <BoltIcon size={16} />
+      </span>
+      {/* "활동력" 글자는 데스크톱에서만 (시안 D2 "활동력 4/10", 모바일 02는 "4/10") */}
+      <span className={styles.label}>활동력</span>
       {balance.toString()}
+      <span className={styles.max}>/{MAX_ENERGY}</span>
     </span>
   );
 }

@@ -1,0 +1,95 @@
+@use "../styles/breakpoints" as bp;
+@use "../styles/ui";
+
+.wrap {
+  display: flex;
+
+  // 준비 전에는 안 보이게만 한다 (자리는 차지 → 준비 후 옆 요소가 밀리지 않는다)
+  &[data-ready="false"] {
+    opacity: 0;
+    pointer-events: none;
+    user-select: none;
+  }
+}
+
+// 연결 전: 라임 버튼 (시안 01 높이 44, 데스크톱 D1 높이 46)
+.connect {
+  @include ui.chunky(lime);
+  flex-direction: row;
+  gap: var(--space-2);
+  height: 44px;
+  margin-bottom: 0; // 헤더 줄 맞춤 (두께 그림자는 아래로 넘쳐도 된다)
+  font-size: var(--text-base);
+
+  @include bp.desktop {
+    height: 46px;
+    font-size: 1.0625rem; // 17px
+  }
+}
+
+// 아이콘은 데스크톱에서만
+.connectIcon {
+  display: none;
+
+  @include bp.desktop {
+    display: block;
+  }
+}
+
+// 잘못된 체인: 빨간 버튼 (흰 글자)
+.wrong {
+  @include ui.chunky(red, white);
+  height: 44px;
+  margin-bottom: 0;
+  font-size: var(--text-base);
+}
+
+// 연결됨: 크림 알약 + 아바타 + 주소
+.account {
+  @include ui.pill;
+  height: 44px;
+  padding: 0 14px 0 5px;
+  cursor: pointer;
+
+  // 모바일에서는 주소를 숨기고 동그란 버튼만 (시안 01·02의 44×44 원)
+  @include bp.mobile {
+    justify-content: center;
+    width: 44px;
+    padding: 0;
+
+    .address {
+      display: none;
+    }
+  }
+}
+
+// 모바일 HUD 전용: 항상 동그란 아바타만
+.avatarOnly {
+  @include ui.pill;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  cursor: pointer;
+}
+
+.account,
+.avatarOnly {
+  &:focus-visible {
+    outline: 3px solid var(--ink);
+    outline-offset: 3px;
+  }
+}
+
+.avatar {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--avatar);
+}
+
+.address {
+  @include ui.mono;
+  font-size: 0.8125rem; // 13px
+}

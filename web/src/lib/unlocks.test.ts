@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { canDance, currentBackground, currentTitle, rankBorder, UNLOCKS, unlocksAt } from "./unlocks";
+import { canDance, currentBackground, currentTitle, rankBorder, UNLOCKS, unlocksAt, unlockToast } from "./unlocks";
 
 describe("UNLOCKS 표", () => {
   it("레벨 오름차순이다 (latest가 이 순서를 믿는다)", () => {
@@ -13,7 +13,7 @@ describe("UNLOCKS 표", () => {
 
 describe("unlocksAt", () => {
   it("Lv 10은 배경과 은색 테두리 두 가지", () => {
-    expect(unlocksAt(10).map((u) => u.label)).toEqual(["배경: 노을 언덕", "랭킹 은색 테두리"]);
+    expect(unlocksAt(10).map((u) => u.label)).toEqual(["배경 · 노을 언덕", "랭킹 은색 테두리"]);
   });
 });
 
@@ -54,5 +54,15 @@ describe("rankBorder, canDance", () => {
   it("춤: 16부터", () => {
     expect(canDance(15)).toBe(false);
     expect(canDance(16)).toBe(true);
+  });
+});
+
+describe("unlockToast", () => {
+  it("진화는 문장으로, 조사는 받침에 맞게", () => {
+    expect(unlockToast(7)).toBe("Lv 7 해금 · 어린이로 진화!");
+    expect(unlockToast(12)).toBe("Lv 12 해금 · 어른으로 진화! · 종 시그니처 아이템");
+  });
+  it("해금이 없는 레벨은 null", () => {
+    expect(unlockToast(21)).toBeNull();
   });
 });

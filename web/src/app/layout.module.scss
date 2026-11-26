@@ -1,4 +1,6 @@
-// * 앱 전체 껍데기: 헤더 + 본문을 세로로 쌓는다.
+@use "../styles/breakpoints" as bp;
+
+// * 앱 전체 껍데기: 헤더 + 본문 (+ 모바일 탭 바)을 세로로 쌓고, 뒤에 장면 그림을 깐다.
 // ? 왜 body에 flex를 주지 않고 이 div를 따로 둘까?
 //   RainbowKitProvider가 자식을 <div data-rk>로 한 번 감싼다 (테마 CSS 변수를 거는 용도).
 //   그래서 body를 flex로 만들어도 헤더와 main은 body의 "직속 자식"이 아니라서 flex가 적용되지 않는다.
@@ -8,4 +10,14 @@
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
+  // * 장면 그림 (시안 .sm). 아래 가운데를 기준으로 화면을 덮는다 → 길이 화면 아래에서 시작한다.
+  //   --scene은 펫 화면이 밤 장면으로 바꿀 때 덮어쓴다 (PetView가 style로 넘기는 게 아니라 data 속성 + CSS로).
+  background: var(--scene, var(--scene-mobile-day)) center bottom / cover no-repeat;
+  // 모바일 탭 바(fixed, 88px) 아래로 내용이 숨지 않게 그만큼 비워 둔다
+  padding-bottom: var(--tabbar-height);
+
+  @include bp.desktop {
+    background-image: var(--scene-desktop, var(--scene-desktop-day));
+    padding-bottom: 0; // 데스크톱은 탭 바가 없다
+  }
 }

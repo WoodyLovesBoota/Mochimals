@@ -10,6 +10,7 @@ import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
 import { WagmiProvider, type State } from "wagmi";
+import { rainbowTheme } from "@/lib/rainbowTheme";
 import { config } from "@/lib/wagmi";
 
 type Props = {
@@ -33,7 +34,9 @@ export function Providers({ children, initialState }: Props) {
       <QueryClientProvider client={queryClient}>
         {/* locale: 지갑 선택 창 문구를 한국어로 (SPEC: UI 문구는 한국어) */}
         {/* showRecentTransactions: usePetAction이 addRecentTransaction으로 넣은 트랜잭션을 계정 버튼 스피너와 계정 창 목록으로 보여준다 */}
-        <RainbowKitProvider locale="ko-KR" showRecentTransactions>
+        {/* theme: 시안 색·글꼴로 칠한 테마 (lib/rainbowTheme.ts). 구조는 그대로, 값만 바꾼다 */}
+        {/* modalSize="compact": 지갑 목록만 보이는 좁은 창. 시안 14의 "목록 + 안내 한 칸" 모양에 가장 가깝다 */}
+        <RainbowKitProvider locale="ko-KR" showRecentTransactions theme={rainbowTheme} modalSize="compact">
           {children}
         </RainbowKitProvider>
       </QueryClientProvider>

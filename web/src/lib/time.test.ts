@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatRemaining, hungryAtMs } from "./time";
+import { formatClock, formatRemaining, hungryAtMs } from "./time";
 
 describe("hungryAtMs", () => {
   it("lastFedAt + 24시간 + 1초 (컨트랙트의 > 비교와 맞춤)", () => {
@@ -24,5 +24,17 @@ describe("formatRemaining", () => {
   });
   it("딱 떨어지는 시간", () => {
     expect(formatRemaining(24 * 3_600_000)).toBe("24시간");
+  });
+});
+
+describe("formatClock", () => {
+  const min = 60_000;
+  it("시:분 두 자리씩", () => {
+    expect(formatClock((23 * 60 + 57) * min)).toBe("23:57");
+    expect(formatClock(5 * min)).toBe("00:05");
+  });
+  it("1분 미만은 00:00, 0 이하는 null", () => {
+    expect(formatClock(30_000)).toBe("00:00");
+    expect(formatClock(0)).toBeNull();
   });
 });

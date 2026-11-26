@@ -9,9 +9,11 @@ import type { PetState } from "@/hooks/usePet";
 import { chain } from "@/lib/chain";
 import { toPetEffect, type PetEffect } from "@/lib/effects";
 import { toErrorMessage } from "@/lib/errors";
+import { txUrl } from "@/lib/links";
+import { BoltIcon, BowlIcon, DumbbellIcon } from "./icons";
 import styles from "./PetActions.module.scss";
 
-// PetNFT 상수 (constant라 컨트랙트에서 읽지 않는다. PetStats의 MAX_ENERGY와 같은 이유)
+// PetNFT 상수 (constant라 컨트랙트에서 읽지 않는다. PetPanel의 MAX_ENERGY와 같은 이유)
 const FEED_COST = 1n;
 const FEED_XP = 10;
 const TRAIN_COST = 3n;
@@ -56,9 +58,15 @@ export function PetActions({ petId, pet, onEffect }: Props) {
   if (wrongNetwork) {
     return (
       <section className={styles.actions}>
-        <button className={styles.primary} disabled={switching} onClick={() => switchChain({ chainId: chain.id })}>
-          {switching ? "지갑에서 확인" : `${chain.name}로 전환`}
-        </button>
+        <div className={styles.buttons}>
+          <button
+            className={styles.switch}
+            disabled={switching}
+            onClick={() => switchChain({ chainId: chain.id })}
+          >
+            {switching ? "지갑에서 확인" : `${chain.name}로 전환`}
+          </button>
+        </div>
       </section>
     );
   }
@@ -68,27 +76,30 @@ export function PetActions({ petId, pet, onEffect }: Props) {
   const errorText = action.error ? toErrorMessage(action.error) : null;
 
   // 확정 대기 중 블록 탐색기 링크 (anvil은 탐색기가 없어서 undefined → 링크 안 보임)
-  const explorer = chain.blockExplorers?.default.url;
+  const pendingTxUrl = action.phase === "confirming" && action.hash ? txUrl(action.hash) : undefined;
 
   return (
     <section className={styles.actions}>
       <div className={styles.buttons}>
         <ActionButton
           className={styles.feed}
+          icon={<BowlIcon size={24} />}
           label="밥 주기"
-          hint={`활동력 ${FEED_COST} · +${FEED_XP}`}
+          // 시안: 번개 아이콘 + "1 · +10 XP" (번개 = 활동력)
+          hint={`${FEED_COST} · +${FEED_XP} XP`}
           disabled={busy || !canFeed}
           phase={pressed === "feed" ? action.phase : "idle"}
           onClick={() => run({ fn: "feed", petId })}
         />
         <ActionButton
-          className={styles.primary}
+          className={styles.train}
+          icon={<DumbbellIcon size={24} />}
           label="훈련"
           // 배고프면 XP 절반 (PetNFT.train: isHungry ? TRAIN_XP / 2 : TRAIN_XP)
           hint={
             !canTrain
-              ? `활동력 ${TRAIN_COST} 필요`
-              : `활동력 ${TRAIN_COST} · ${pet.hungry ? `+${TRAIN_XP / 2} (배고픔)` : `+${TRAIN_XP}`}`
+              ? `${TRAIN_COST} 필요`
+              : `${TRAIN_COST} · ${pet.hungry ? `+${TRAIN_XP / 2} XP (배고픔)` : `+${TRAIN_XP} XP`}`
           }
           disabled={busy || !canTrain}
           phase={pressed === "train" ? action.phase : "idle"}
@@ -100,6 +111,7 @@ export function PetActions({ petId, pet, onEffect }: Props) {
       {empty && (
         <ActionButton
           className={styles.refill}
+          icon={<BoltIcon size={24} />}
           label="무료 충전 +10"
           hint="활동력을 다 썼어요"
           disabled={busy}
@@ -115,9 +127,9 @@ export function PetActions({ petId, pet, onEffect }: Props) {
         </p>
       )}
 
-      {action.phase === "confirming" && action.hash && explorer && (
-        <a className={styles.link} href={`${explorer}/tx/${action.hash}`} target="_blank" rel="noreferrer">
-          오래 걸리면 탐색기에서 확인하기 ↗
+      {pendingTxUrl && (
+        <a className={styles.link} href={pendingTxUrl} target="_blank" rel="noreferrer">
+          오래 걸리면 탐색기에서 확인하기 ›
         </a>
       )}
     </section>
@@ -133,22 +145,28 @@ const PHASE_LABEL: Record<Exclude<ActionPhase, "idle">, string> = {
 
 function ActionButton(props: {
   className: string;
+  icon: React.ReactNode;
   label: string;
   hint: string;
   disabled: boolean;
   phase: ActionPhase;
   onClick: () => void;
 }) {
-  const { className, label, hint, disabled, phase, onClick } = props;
+  const { className, icon, label, hint, disabled, phase, onClick } = props;
   const active = phase !== "idle";
   return (
     // * aria-busy: 이 버튼이 처리 중이라는 걸 보조기기에 알린다
     <button className={className} disabled={disabled} onClick={onClick} aria-busy={active}>
       <span className={styles.label}>
-        {phase === "confirming" && <span className={styles.spinner} aria-hidden />}
+        {phase === "confirming" ? <span className={styles.spinner} aria-hidden /> : icon}
         {active ? PHASE_LABEL[phase] : label}
       </span>
-      {!active && <span className={styles.hint}>{hint}</span>}
+      {!active && (
+        <span className={styles.hint}>
+          <BoltIcon size={12} />
+          {hint}
+        </span>
+      )}
     </button>
   );
 }

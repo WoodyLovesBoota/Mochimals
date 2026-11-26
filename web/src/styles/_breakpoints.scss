@@ -30,3 +30,21 @@ $lg: 1024px; // PC
     @content;
   }
 }
+
+// * 리디자인 기준 폭 (Mochimals). 900px 미만 = 모바일 레이아웃(HUD + 하단 탭 바),
+//   900px 이상 = 데스크톱 레이아웃(위쪽 내비 + 오른쪽 패널 + 아래 행동 트레이).
+// ! 위의 sm/md/lg는 리디자인 전 화면이 아직 쓴다. 새 화면은 desktop / mobile만 쓴다.
+$desk: 900px;
+
+@mixin desktop {
+  @media (min-width: $desk) {
+    @content;
+  }
+}
+
+// 모바일에서만 (900px 미만). max-width는 899.98px: 900px 정각에서 두 조건이 겹치지 않게 소수점을 둔다
+@mixin mobile {
+  @media (max-width: ($desk - 0.02px)) {
+    @content;
+  }
+}
