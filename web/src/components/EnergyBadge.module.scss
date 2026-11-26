@@ -1,7 +1,7 @@
 @use "../styles/breakpoints" as bp;
 @use "../styles/ui";
 
-// 활동력 알약 (시안 02 / D2: 높이 40, 왼쪽 6 · 오른쪽 14 안쪽 여백, Jua 16px)
+// 활동력 알약 (시안 02 / D2: 높이 40, 왼쪽 6 · 오른쪽 14 안쪽 여백, display 글꼴 16px)
 .badge {
   @include ui.pill;
   @include ui.display;

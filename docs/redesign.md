@@ -18,7 +18,7 @@ Claude Design 캔버스("Mochimals — Game UI", 모바일 01–16 / 데스크�
 
 두툼한 버튼은 [styles/_ui.scss](../web/src/styles/_ui.scss)의 `chunky(tone)` mixin: `background: var(--tone)` + `box-shadow: 0 5px 0 var(--tone-depth)`. 비활성은 grey 짝.
 
-글꼴은 [layout.tsx](../web/src/app/layout.tsx)의 `next/font`: Jua(제목·버튼·숫자) `--font-display`, Noto Sans KR(본문) `--font-body`, JetBrains Mono(주소·해시) `--font-mono`.
+글꼴은 [layout.tsx](../web/src/app/layout.tsx)의 `next/font`: 라틴·숫자는 Bricolage Grotesque(가변, opsz 12–96, wght 500–800), 한글은 Pretendard Variable(unicode-range로 한글만). 스택은 `'Bricolage Grotesque', 'Pretendard', sans-serif` 하나(`--font-sans`)이고 `--font-display`·`--font-body`·`--font-mono`가 모두 이걸 가리킨다. 제목·버튼·숫자는 굵기 800 + 자간 -0.015em(`ui.display`), 본문은 600, 주소는 고정폭 글꼴 없이 `tabular-nums`(`ui.mono`).
 
 화면 폭 기준은 900px 하나 ([_breakpoints.scss](../web/src/styles/_breakpoints.scss)의 `desktop` / `mobile` mixin). 900px 미만 = HUD + 아래 탭 바, 이상 = 위쪽 내비 + 오른쪽 패널 + 아래 행동 트레이.
 
@@ -91,7 +91,7 @@ Claude Design 캔버스("Mochimals — Game UI", 모바일 01–16 / 데스크�
 - 지갑 연결: `modalSize="compact"`로 좁은 창을 골랐다 (RainbowKit 옵션이며 마크업은 그대로). 원래 기본값은 `wide`.
 - 계정 메뉴: 시안의 "Base · 펫 2마리 · 활동력 4" 줄, "최근 활동" 목록 모양(아이콘 상자 + 펫 이름), 빨간 "연결 해제" 두툼한 버튼을 그릴 수 없다. RainbowKit의 잔액 줄, 주소 복사·연결 해제 버튼, 최근 트랜잭션 목록이 대신한다.
 - 계정 메뉴: 아바타는 RainbowKit이 주소별 그림을 그린다 (시안은 산호색 구슬). 헤더 버튼의 아바타만 시안대로 구슬이다.
-- 글꼴: 모달 전체가 Jua 하나다. 주소를 JetBrains Mono로 따로 줄 수 없다.
+- 글꼴: 모달 전체가 `--font-display` 스택 하나다. 주소에 고정폭 글꼴을 쓰지 않기로 했으므로 차이는 없다.
 - 그림자: `0 5px 0` 두께는 모달 카드와 계정 메뉴 버튼에만 들어간다. 지갑 목록 줄에는 테마 값이 없다.
 
 ## 미결 (정할 것)

@@ -127,12 +127,16 @@
   --scene-d-crystal: var(--tint-crystal), var(--scene-desktop-night);
 
   // ---------------------------------------------------------------
-  // 글꼴 (layout.tsx의 next/font가 --font-jua 등 변수를 <html>에 만든다)
+  // 글꼴 (layout.tsx의 next/font가 --font-bricolage, --font-pretendard 변수를 <html>에 만든다)
   // ---------------------------------------------------------------
-  // * 세 가지만 쓴다: Jua = 제목·버튼·숫자, Noto Sans KR = 본문, JetBrains Mono = 주소·트랜잭션 해시
-  --font-display: var(--font-jua), var(--font-noto), sans-serif;
-  --font-body: var(--font-noto), system-ui, sans-serif;
-  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+  // * 스택 하나만 쓴다: 'Bricolage Grotesque', 'Pretendard', sans-serif
+  //   라틴·숫자 = Bricolage, 한글 = Pretendard (Pretendard는 unicode-range로 한글에만 걸려 있다)
+  //   제목·버튼·숫자와 본문은 글꼴이 아니라 "굵기"로 나눈다 (_ui.scss의 display 믹스인 800, 본문 600).
+  //   주소·해시도 고정폭 글꼴 없이 같은 글꼴 + tabular-nums (_ui.scss의 mono 믹스인)
+  --font-sans: var(--font-bricolage), var(--font-pretendard), sans-serif;
+  --font-display: var(--font-sans);
+  --font-body: var(--font-sans);
+  --font-mono: var(--font-sans);
 
   // ---------------------------------------------------------------
   // 간격 (4px 단위). 숫자 × 4px
@@ -227,4 +231,5 @@ body {
   background: var(--ink);
   color: var(--ink);
   font-family: var(--font-body);
+  font-weight: 600; // * 본문 기본 굵기
 }
