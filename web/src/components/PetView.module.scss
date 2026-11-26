@@ -71,7 +71,10 @@
 }
 
 // 데스크톱 오른쪽 패널. 모바일에서는 숨긴다 ("펫 정보" 시트로)
-.panel {
+// ! 선택자를 `.main .panel`(클래스 2개)로 쓴다. PetPanel 루트에는 PetPanel.module.scss의 `.panel { display: flex }`도
+//   같이 붙는데, 둘 다 클래스 1개면 우선순위가 같아서 "나중에 로드된 CSS"가 이긴다. Next가 CSS 조각을 어떤 순서로
+//   넣느냐에 따라 display: none이 지고, 모바일에서 패널이 오른쪽에 붙어 화면을 밀어낸다 (펫·버튼이 아래로 잘림).
+.main .panel {
   align-self: start;
 
   @include bp.mobile {
@@ -203,7 +206,8 @@
 // 기타
 // =====================================================================
 // 구경 카드: 모바일만 (데스크톱은 오른쪽 패널 맨 위에 같은 내용)
-.visitorMobile {
+// ! `.play .visitorMobile`(클래스 2개): VisitorCard.module.scss의 `.sheet { display: flex }`를 로드 순서와 상관없이 이긴다 (위 .panel과 같은 이유)
+.play .visitorMobile {
   @include bp.desktop {
     display: none;
   }
