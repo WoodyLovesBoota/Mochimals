@@ -1,5 +1,5 @@
 // * 내 펫 목록 (리디자인 시안 04 / D4). 펫이 2마리 이상일 때만 홈이 보여준다 (1마리면 바로 그 펫 화면으로).
-//   모바일: 가로 카드 세로로 쌓기 / 데스크톱: 세로 카드 가로로 + "마켓에서 데려오기" 점선 카드
+//   모바일: 가로 카드 세로로 쌓기 / 데스크톱: 세로 카드 가로로 + "Get one from the market" 점선 카드
 "use client";
 
 import Link from "next/link";
@@ -24,7 +24,7 @@ export function MyPetList({ ids, viewer }: { ids: bigint[]; viewer: Address }) {
 
   return (
     <main className={styles.main}>
-      <Ribbon>내 펫 {ids.length}마리</Ribbon>
+      <Ribbon>My pets · {ids.length}</Ribbon>
 
       <ul className={styles.list}>
         {ids.map((id) => (
@@ -39,7 +39,7 @@ export function MyPetList({ ids, viewer }: { ids: bigint[]; viewer: Address }) {
               <span className={styles.marketIcon}>
                 <EggIcon size={32} />
               </span>
-              <strong>마켓에서 데려오기</strong>
+              <strong>Get one from the market</strong>
               <span>
                 OpenSea <ExternalIcon size={12} />
               </span>
@@ -56,11 +56,11 @@ export function MyPetList({ ids, viewer }: { ids: bigint[]; viewer: Address }) {
           </span>
         }
       >
-        활동력은 내 펫 모두가 같이 써요
+        Energy is shared by all your pets
         {energy !== undefined && (
           <span className={styles.desktopOnly}>
             {" "}
-            · 지금 {energy.toString()}/{MAX_ENERGY}
+            · now {energy.toString()}/{MAX_ENERGY}
           </span>
         )}
       </Notice>
@@ -114,7 +114,7 @@ function MyPetCardBody({ id, pet, onHungry }: { id: bigint; pet: PetState; onHun
           <span
             className={styles.track}
             role="progressbar"
-            aria-label="다음 레벨까지 경험치"
+            aria-label="XP to next level"
             aria-valuemin={0}
             aria-valuemax={100}
             aria-valuenow={percent}
@@ -127,7 +127,7 @@ function MyPetCardBody({ id, pet, onHungry }: { id: bigint; pet: PetState; onHun
       {/* 배고프면 호박색 버튼 (밥 먼저 주라는 뜻), 아니면 라임 */}
       <Link href={`/pet/${id}`} className={pet.hungry ? styles.goHungry : styles.go}>
         <PawIcon size={24} />
-        돌보러 가기
+        Go take care
       </Link>
     </article>
   );
@@ -139,7 +139,7 @@ function HungerPill({ hungry, ms, className }: { hungry: boolean; ms: number; cl
       <span className={styles.heart}>
         <HeartIcon size={14} />
       </span>
-      {hungry ? "배고파요" : `${formatClock(ms) ?? "곧"} 남음`}
+      {hungry ? "Hungry" : `${formatClock(ms) ?? "soon"} left`}
     </span>
   );
 }

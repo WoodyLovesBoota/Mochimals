@@ -1,12 +1,11 @@
 // * 진화·부화 연출 (4강 7교시 4부, 리디자인 시안 08 / D8 부화, 09 / D9 진화).
-//   화면 전체를 밤 장면으로 덮는다: ① 흔들림(1.8초) → ② 공개: 리본 "부화!"/"진화!" + 새 모습 + "새로 열렸어요" 카드 + "좋아요!"
-//   닫기: "좋아요!", 오른쪽 위 "건너뛰기", Esc. (공개 뒤에는 저절로 닫히지 않는다: 카드를 읽을 시간을 준다)
+//   화면 전체를 밤 장면으로 덮는다: ① 흔들림(1.8초) → ② 공개: 리본 "부화!"/"진화!" + 새 모습 + "New unlocks" 카드 + "Nice!"
+//   닫기: "Nice!", 오른쪽 위 "Skip", Esc. (공개 뒤에는 저절로 닫히지 않는다: 카드를 읽을 시간을 준다)
 //   ! 동작 줄이기: MotionConfig(PetView)가 transform을 건너뛰어 흔들림·튀어나옴 없이 페이드만 남는다. 빛줄기·색종이도 멈춘다.
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
-import { euro, iGa } from "@/lib/josa";
 import { openseaUrl } from "@/lib/links";
 import { getPetLook, SPECIES_NAME, STAGE_NAME, type Stage } from "@/lib/look";
 import { unlocksAt } from "@/lib/unlocks";
@@ -27,7 +26,7 @@ type Props = {
   /** 지금 레벨 (그 레벨에서 함께 열린 해금을 카드에 보여준다) */
   level: number;
   petId: string;
-  /** "좋아요!"·건너뛰기·Esc → usePetEffect.clear("evolve") */
+  /** "Nice!"·Skip·Esc → usePetEffect.clear("evolve") */
   onDone: () => void;
 };
 
@@ -52,7 +51,7 @@ export function EvolveOverlay({ dna, from, to, level, petId, onDone }: Props) {
     return () => clearTimeout(reveal);
   }, []);
 
-  // * 키보드: 열리자마자 "건너뛰기"에 포커스 (Enter/Space로 바로 닫을 수 있게) + Esc로 닫기
+  // * 키보드: 열리자마자 "Skip"에 포커스 (Enter/Space로 바로 닫을 수 있게) + Esc로 닫기
   useEffect(() => {
     skipRef.current?.focus();
     const onKey = (e: KeyboardEvent) => {
@@ -63,16 +62,16 @@ export function EvolveOverlay({ dna, from, to, level, petId, onDone }: Props) {
   }, []);
 
   // 공개 문구 (시안: "개구리가 태어났어요!", "어린이가 됐어요!")
-  const title = hatch ? `${iGa(species)} 태어났어요!` : to === 4 ? "각성했어요!" : `${iGa(STAGE_NAME[to])} 됐어요!`;
+  const title = hatch ? `A ${species} was born!` : to === 4 ? "Awakened!" : `Evolved into ${STAGE_NAME[to]}!`;
 
-  // * "새로 열렸어요" 카드의 줄. 부화는 시안 그대로 두 줄, 진화는 새 모습 + 같은 레벨의 다른 해금
+  // * "New unlocks" 카드의 줄. 부화는 시안 그대로 두 줄, 진화는 새 모습 + 같은 레벨의 다른 해금
   const items: { key: string; icon: React.ReactNode; label: string }[] = hatch
     ? [
-        { key: "species", icon: <Chip tone="lime" icon={<SparkleIcon size={18} />} />, label: `종 공개 · ${species}` },
-        { key: "face", icon: <Chip tone="pink" icon={<HeartIcon size={18} />} />, label: "표정이 생겨요" },
+        { key: "species", icon: <Chip tone="lime" icon={<SparkleIcon size={18} />} />, label: `Species revealed · ${species}` },
+        { key: "face", icon: <Chip tone="pink" icon={<HeartIcon size={18} />} />, label: "Now shows emotions" },
       ]
     : [
-        { key: "look", icon: <Chip tone="lime" icon={<SparkleIcon size={18} />} />, label: `${STAGE_NAME[to]} 모습` },
+        { key: "look", icon: <Chip tone="lime" icon={<SparkleIcon size={18} />} />, label: `${STAGE_NAME[to]} look` },
         ...unlocksAt(level)
           .filter((u) => u.kind !== "evolve")
           .map((u) => ({ key: u.label, icon: <UnlockIcon kind={u.kind} />, label: u.label })),
@@ -84,7 +83,7 @@ export function EvolveOverlay({ dna, from, to, level, petId, onDone }: Props) {
       className={styles.backdrop}
       role="dialog"
       aria-modal="true"
-      aria-label={hatch ? "부화" : "진화"}
+      aria-label={hatch ? "Hatch" : "Evolution"}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
@@ -93,7 +92,7 @@ export function EvolveOverlay({ dna, from, to, level, petId, onDone }: Props) {
       {revealed && <Confetti />}
 
       <button ref={skipRef} type="button" className={styles.skip} onClick={() => doneRef.current()}>
-        건너뛰기
+        Skip
       </button>
 
       {/* 리본: 공개 뒤에 튀어나온다 */}
@@ -106,7 +105,7 @@ export function EvolveOverlay({ dna, from, to, level, petId, onDone }: Props) {
               transition={{ type: "spring", stiffness: 380, damping: 16 }}
             >
               <Ribbon as="p" size="lg">
-                {hatch ? "부화!" : "진화!"}
+                {hatch ? "Hatch!" : "Evolve!"}
               </Ribbon>
             </motion.div>
           )}
@@ -145,7 +144,7 @@ export function EvolveOverlay({ dna, from, to, level, petId, onDone }: Props) {
       <div className={styles.bottom}>
         {/* 공개 문구. role="status"로 스크린리더가 읽는다 */}
         <p className={styles.title} role="status">
-          {revealed ? title : hatch ? "알이 흔들려요…" : "몸이 빛나기 시작했어요…"}
+          {revealed ? title : hatch ? "The egg is wobbling…" : "It's starting to glow…"}
         </p>
 
         <AnimatePresence>
@@ -164,7 +163,7 @@ export function EvolveOverlay({ dna, from, to, level, petId, onDone }: Props) {
               </div>
 
               <div className={styles.card}>
-                <span className={styles.cardTitle}>새로 열렸어요</span>
+                <span className={styles.cardTitle}>New unlocks</span>
                 <ul className={styles.items}>
                   {items.map((it) => (
                     <li key={it.key}>
@@ -175,13 +174,13 @@ export function EvolveOverlay({ dna, from, to, level, petId, onDone }: Props) {
                 </ul>
                 {opensea && (
                   <a className={styles.nft} href={opensea} target="_blank" rel="noreferrer">
-                    NFT 그림도 새 모습으로 바뀌었어요 · OpenSea <ExternalIcon size={12} />
+                    The NFT image has been updated too · OpenSea <ExternalIcon size={12} />
                   </a>
                 )}
               </div>
 
               <button type="button" className={styles.ok} onClick={() => doneRef.current()}>
-                좋아요!
+                Nice!
               </button>
             </motion.div>
           )}
@@ -189,7 +188,7 @@ export function EvolveOverlay({ dna, from, to, level, petId, onDone }: Props) {
       </div>
       {/* 화면 낭독용: 진화 단계 문장 */}
       <span className={styles.srOnly}>
-        {hatch ? `${euro(species)} 부화했어요` : `${euro(STAGE_NAME[to])} 진화했어요`}
+        {hatch ? `Hatched into a ${species}` : `Evolved into ${STAGE_NAME[to]}`}
       </span>
     </motion.div>
   );

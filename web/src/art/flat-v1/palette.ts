@@ -63,37 +63,37 @@ type SpeciesDef = SpeciesPalette & { name: string; alt: Partial<SpeciesPalette> 
 
 export const SPECIES: Record<Species, SpeciesDef> = {
   polar: {
-    name: "북극곰", base: "#FBFDFF", shade: "#D3E0F0", limb: "#FBFDFF", limb_shade: "#D3E0F0", ears: "round", ear_in: "#FFC7D3",
+    name: "Polar Bear", base: "#FBFDFF", shade: "#D3E0F0", limb: "#FBFDFF", limb_shade: "#D3E0F0", ears: "round", ear_in: "#FFC7D3",
     muzzle: "#F4F8FD", nose: "bear", pad: "#FFB8C6", bg: "#E6F0FB", egg_spot: "#CFE0F5", item: "fish",
     alt: { base: "#FFF6E8", shade: "#EADBC2", limb: "#FFF6E8", limb_shade: "#EADBC2", muzzle: "#FFFBF3" },
   },
   panda: {
-    name: "판다", base: "#FFFFFF", shade: "#ECE7E0", limb: "#353543", limb_shade: "#26262F", ears: "round_dark", ear_in: null,
+    name: "Panda", base: "#FFFFFF", shade: "#ECE7E0", limb: "#353543", limb_shade: "#26262F", ears: "round_dark", ear_in: null,
     muzzle: "#FFFFFF", nose: "bear", pad: "#5A5363", bg: "#E5F4E3", egg_spot: "#353543", item: "bamboo", patches: true,
     alt: { limb: "#8B6A55", limb_shade: "#6F5343", egg_spot: "#8B6A55", pad: "#6F5343" },
   },
   fennec: {
-    name: "사막여우", base: "#F7B877", shade: "#E39A5B", limb: "#E8A161", limb_shade: "#CF8649", ears: "fox", ear_in: "#FFE6CC",
+    name: "Fennec Fox", base: "#F7B877", shade: "#E39A5B", limb: "#E8A161", limb_shade: "#CF8649", ears: "fox", ear_in: "#FFE6CC",
     muzzle: "#FFF4E6", muzzle_big: true, nose: "bear", pad: "#FFB8C6", bg: "#FDF0DF", egg_spot: "#E39A5B", item: "cactus", belly: "#FFF1DE",
     alt: { base: "#F4E6D0", shade: "#DFCBAD", limb: "#E6D2B0", limb_shade: "#CDB792", egg_spot: "#DFCBAD" },
   },
   sloth: {
-    name: "나무늘보", base: "#D6BB98", shade: "#BCA07D", limb: "#A88763", limb_shade: "#8E7050", ears: "none", ear_in: null,
+    name: "Sloth", base: "#D6BB98", shade: "#BCA07D", limb: "#A88763", limb_shade: "#8E7050", ears: "none", ear_in: null,
     muzzle: null, mask: "#F3E6D2", stripes: "#8A6A52", nose: "bear", pad: "#8E7050", bg: "#F1ECE2", egg_spot: "#A88763", item: "mug",
     alt: { base: "#CFC6BC", shade: "#B4AA9E", limb: "#958A7E", limb_shade: "#7C7267", egg_spot: "#958A7E" },
   },
   whale: {
-    name: "고래상어", base: "#7FA8D6", shade: "#6590C2", limb: "#6F99CB", limb_shade: "#5A82B5", ears: "fin", ear_in: null,
+    name: "Whale Shark", base: "#7FA8D6", shade: "#6590C2", limb: "#6F99CB", limb_shade: "#5A82B5", ears: "fin", ear_in: null,
     muzzle: null, nose: "none", mouth_w: 1.8, pad: null, bg: "#E3F1FB", egg_spot: "#FFFFFF", item: "wand", belly: "#EAF3FC", spots: true,
     alt: { base: "#9C9EE0", shade: "#8083C9", limb: "#8E91D6", limb_shade: "#7376BE" },
   },
   pig: {
-    name: "돼지", base: "#FFD0D8", shade: "#F4AEBB", limb: "#FFC0CB", limb_shade: "#EE9EAD", ears: "pig", ear_in: "#F4AEBB",
+    name: "Pig", base: "#FFD0D8", shade: "#F4AEBB", limb: "#FFC0CB", limb_shade: "#EE9EAD", ears: "pig", ear_in: "#F4AEBB",
     muzzle: null, nose: "snout", pad: "#F48FA3", bg: "#FFEFF2", egg_spot: "#F4AEBB", item: "apple",
     alt: { base: "#F2E3D5", shade: "#E1C9B5", limb: "#EAD6C4", limb_shade: "#D6BDA6", egg_spot: "#C9A98E" },
   },
   frog: {
-    name: "개구리", base: "#9ADB72", shade: "#78C056", limb: "#86CF62", limb_shade: "#6BB34C", ears: "frog", ear_in: null,
+    name: "Frog", base: "#9ADB72", shade: "#78C056", limb: "#86CF62", limb_shade: "#6BB34C", ears: "frog", ear_in: null,
     muzzle: null, nose: "dots", eye_up: true, mouth_w: 1.6, pad: null, bg: "#EAF7E0", egg_spot: "#6BB34C", item: "lotus", belly: "#E6F6C6",
     alt: { base: "#FFD36B", shade: "#F0B94A", limb: "#FFC94D", limb_shade: "#E8AD3A", egg_spot: "#E8AD3A" },
   },

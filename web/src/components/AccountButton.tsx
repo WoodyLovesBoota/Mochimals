@@ -31,18 +31,18 @@ export function AccountButton({ compact = false }: Props) {
               <button type="button" className={styles.connect} onClick={openConnectModal}>
                 {/* 시안: 데스크톱만 지갑 아이콘이 있다 (모바일 01은 글자만) */}
                 <WalletIcon size={24} className={styles.connectIcon} />
-                지갑 연결
+                Connect Wallet
               </button>
             ) : chain.unsupported ? (
               <button type="button" className={styles.wrong} onClick={openChainModal}>
-                네트워크 확인
+                Check Network
               </button>
             ) : (
               <button
                 type="button"
                 className={compact ? styles.avatarOnly : styles.account}
                 onClick={openAccountModal}
-                aria-label={`계정 ${account.displayName}`}
+                aria-label={`Account ${account.displayName}`}
               >
                 {/* 아바타 구슬. 시안은 주소별 그림 대신 한 가지 그라데이션 (--avatar 토큰) */}
                 <span className={styles.avatar} aria-hidden />

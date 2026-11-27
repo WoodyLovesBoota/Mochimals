@@ -23,7 +23,7 @@ describe("UNLOCKS 표", () => {
 
 describe("unlocksAt", () => {
   it("Lv 10은 배경과 은색 테두리 두 가지", () => {
-    expect(unlocksAt(10).map((u) => u.label)).toEqual(["배경 · 노을 언덕", "랭킹 은색 테두리"]);
+    expect(unlocksAt(10).map((u) => u.label)).toEqual(["Background · Sunset Hill", "Silver ranking border"]);
   });
 });
 
@@ -44,11 +44,11 @@ describe("currentBackground: 해금된 것 중 최신", () => {
 describe("currentTitle", () => {
   it.each([
     [3, null],
-    [4, "새싹 집사"],
-    [12, "든든한 집사"],
-    [13, "숙련 집사"],
-    [18, "베테랑 집사"],
-    [20, "전설의 집사"],
+    [4, "Sprout Keeper"],
+    [12, "Trusty Keeper"],
+    [13, "Skilled Keeper"],
+    [18, "Veteran Keeper"],
+    [20, "Legendary Keeper"],
   ])("Lv %i → %s", (level, expected) => {
     expect(currentTitle(level)).toBe(expected);
   });
@@ -69,8 +69,8 @@ describe("rankBorder, canDance", () => {
 
 describe("unlockToast", () => {
   it("진화는 문장으로, 조사는 받침에 맞게", () => {
-    expect(unlockToast(7)).toBe("Lv 7 해금 · 어린이로 진화!");
-    expect(unlockToast(12)).toBe("Lv 12 해금 · 어른으로 진화! · 종 시그니처 아이템");
+    expect(unlockToast(7)).toBe("Lv 7 unlocked · Evolved into Kid!");
+    expect(unlockToast(12)).toBe("Lv 12 unlocked · Evolved into Adult! · Species signature item");
   });
   it("해금이 없는 레벨은 null", () => {
     expect(unlockToast(21)).toBeNull();
@@ -79,8 +79,8 @@ describe("unlockToast", () => {
 
 describe("unlockReward", () => {
   it("이름만, 조사는 받침에 맞게", () => {
-    expect(unlockReward(8)).toBe("Lv 8 보상 · 스카프를 받았어요!");
-    expect(unlockReward(14)).toBe("Lv 14 보상 · 밤하늘을 받았어요!");
+    expect(unlockReward(8)).toBe("Lv 8 reward · You got Scarf!");
+    expect(unlockReward(14)).toBe("Lv 14 reward · You got Night Sky!");
   });
   it("해금이 없으면 null", () => {
     expect(unlockReward(21)).toBeNull();

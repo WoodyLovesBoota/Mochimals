@@ -40,7 +40,7 @@ export function PetHud({ petId, pet, subtitle, hungryInMs, isOwner }: Props) {
           {/* 이름판. SPEC 12장: 이름은 Mochi #id (이름 짓기 기능은 없다) */}
           <div className={styles.nameplate}>
             <h1 className={styles.name}>Mochi #{petId}</h1>
-            <p className={styles.subtitle}>{isOwner ? subtitle : `${tinyAddress(pet.owner)} 님의 펫`}</p>
+            <p className={styles.subtitle}>{isOwner ? subtitle : `${tinyAddress(pet.owner)}'s pet`}</p>
           </div>
         </div>
         {/* 모바일에서만 (데스크톱은 위쪽 헤더에 같은 것이 있다) */}
@@ -57,7 +57,7 @@ export function PetHud({ petId, pet, subtitle, hungryInMs, isOwner }: Props) {
             <span className={styles.eye}>
               <EyeIcon size={14} />
             </span>
-            <span className={styles.pillText}>구경 중</span>
+            <span className={styles.pillText}>Visiting</span>
           </span>
         )}
         {/* ① XP 알약: "XP" 딱지 + 70px 막대 + 0/170 */}
@@ -67,7 +67,7 @@ export function PetHud({ petId, pet, subtitle, hungryInMs, isOwner }: Props) {
           <span
             className={styles.xpTrack}
             role="progressbar"
-            aria-label="다음 레벨까지 경험치"
+            aria-label="XP to next level"
             aria-valuemin={0}
             aria-valuemax={100}
             aria-valuenow={percent}
@@ -94,7 +94,7 @@ export function PetHud({ petId, pet, subtitle, hungryInMs, isOwner }: Props) {
               <HeartIcon size={14} />
             </span>
             <span className={styles.pillText}>
-              {pet.hungry ? "배고파요" : `${formatClock(hungryInMs) ?? "곧"} 남음`}
+              {pet.hungry ? "Hungry" : `${formatClock(hungryInMs) ?? "soon"} left`}
             </span>
           </span>
         )}

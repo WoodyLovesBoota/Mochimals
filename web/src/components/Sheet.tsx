@@ -52,7 +52,7 @@ export function Sheet({ open, onClose, title, titleSuffix, wide = false, icon, c
             {title}
             {titleSuffix && <span className={styles.suffix}>{titleSuffix}</span>}
           </h2>
-          <button type="button" className={styles.close} onClick={onClose} aria-label="닫기">
+          <button type="button" className={styles.close} onClick={onClose} aria-label="Close">
             <CloseIcon size={20} />
           </button>
         </div>

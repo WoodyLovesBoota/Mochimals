@@ -1,6 +1,6 @@
 // * 레벨업 연출 (리디자인 시안 07 / D7). 펫 무대 위에 겹친다 (PetView의 .stageWrap 안, position: absolute).
 //   리본 "레벨 업!" → 큰 레벨 링 → "+40 XP" → 보상 알약 "Lv 8 보상 · 스카프를 받았어요!" + 빛줄기·색종이.
-//   진화가 아닌 레벨업일 때만 뜬다 (진화면 EvolveOverlay). 2.6초 뒤 저절로 닫히고, "건너뛰기"·Esc로 바로 닫을 수 있다.
+//   진화가 아닌 레벨업일 때만 뜬다 (진화면 EvolveOverlay). 2.6초 뒤 저절로 닫히고, "Skip"·Esc로 바로 닫을 수 있다.
 //   ! 동작 줄이기: MotionConfig(PetView)가 transform을 건너뛰어 페이드만 남고, 색종이·빛줄기 CSS 애니메이션도 멈춘다.
 "use client";
 
@@ -58,7 +58,7 @@ export function LevelUpOverlay({ level, xpGained, onOpenUnlocks, onDone }: Props
       exit={{ opacity: 0 }}
       transition={{ duration: 0.25 }}
       role="status"
-      aria-label={`레벨 업! Lv ${level}`}
+      aria-label={`Level up! Lv ${level}`}
     >
       <motion.div
         className={styles.back}
@@ -72,7 +72,7 @@ export function LevelUpOverlay({ level, xpGained, onOpenUnlocks, onDone }: Props
         <Confetti />
 
         <button type="button" className={styles.skip} onClick={onDone}>
-          건너뛰기
+          Skip
         </button>
 
         <div className={styles.top}>
@@ -82,7 +82,7 @@ export function LevelUpOverlay({ level, xpGained, onOpenUnlocks, onDone }: Props
             animate={{ scale: 1, y: 0 }}
             transition={{ type: "spring", stiffness: 380, damping: 16 }}
           >
-            <Ribbon as="p">레벨 업!</Ribbon>
+            <Ribbon as="p">Level up!</Ribbon>
           </motion.div>
           <motion.div
             initial={{ scale: 0.5 }}

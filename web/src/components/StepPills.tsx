@@ -15,7 +15,7 @@ type Props = {
 export function StepPills({ steps, active, stretch = false }: Props) {
   return (
     // ol: 순서가 있는 목록. 스크린리더가 "3개 중 1번째"처럼 읽는다
-    <ol className={`${styles.steps} ${stretch ? styles.stretch : ""}`} aria-label="진행 단계">
+    <ol className={`${styles.steps} ${stretch ? styles.stretch : ""}`} aria-label="Progress steps">
       {steps.map((label, i) => {
         const state = i < active ? "done" : i === active ? "active" : "todo";
         return (

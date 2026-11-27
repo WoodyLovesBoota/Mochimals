@@ -11,7 +11,6 @@ import { useEffect, useMemo, useState } from "react";
 import { isAddressEqual } from "viem";
 import { useAccount, useWatchContractEvent } from "wagmi";
 import { petNft } from "@/lib/contracts";
-import { euro } from "@/lib/josa";
 import { tinyAddress } from "@/lib/links";
 import { getPetLook, SPECIES_NAME, STAGE_NAME, stageFromLevel, type Stage } from "@/lib/look";
 import type { RankRow } from "@/lib/ranking";
@@ -80,8 +79,8 @@ export function RankingList({ rows }: { rows: RankRow[] | null }) {
       <main className={styles.center}>
         <StatusCard
           kind="error"
-          title="불러오지 못했어요"
-          detail="랭킹을 읽지 못했어요"
+          title="Couldn't load"
+          detail="Couldn't read the ranking"
           onRetry={() => router.refresh()}
         />
       </main>
@@ -96,13 +95,13 @@ export function RankingList({ rows }: { rows: RankRow[] | null }) {
   return (
     <main className={styles.main}>
       <div className={styles.left}>
-        <Ribbon>레벨 랭킹</Ribbon>
+        <Ribbon>Level Ranking</Ribbon>
 
         {/* 모바일: 최신 소식 한 줄 (aria-live: 새 소식이 오면 스크린리더가 읽는다) */}
         <div className={styles.latest} aria-live="polite">
           <span className={styles.liveDot} aria-hidden />
           <span className={styles.latestText}>
-            {latest ? <FeedText item={latest} /> : "레벨업 소식을 기다리는 중이에요"}
+            {latest ? <FeedText item={latest} /> : "Waiting for level-up news"}
           </span>
           {latest && <span className={styles.ago}>{ago(latest.at, now)}</span>}
         </div>
@@ -110,18 +109,18 @@ export function RankingList({ rows }: { rows: RankRow[] | null }) {
         <section className={styles.board} aria-labelledby="season-title">
           <div className={styles.boardHead}>
             <h2 id="season-title" className={styles.boardTitle}>
-              이번 시즌
+              This season
             </h2>
             <span className={styles.boardNote}>
-              30초마다 갱신<span className={styles.desktopOnly}> · Lv 10부터 은색, Lv 20 금색 테두리</span>
+              Updates every 30s<span className={styles.desktopOnly}> · Silver border from Lv 10, gold at Lv 20</span>
             </span>
           </div>
           {rows.length === 0 ? (
             <StatusCard
               kind="empty"
-              title="아직 입양된 펫이 없어요"
-              detail="첫 집사가 되어 보세요!"
-              action={{ href: "/", label: "입양" }}
+              title="No pets adopted yet"
+              detail="Be the first keeper!"
+              action={{ href: "/", label: "Adopt" }}
             />
           ) : (
             <ol className={styles.list}>
@@ -142,12 +141,12 @@ export function RankingList({ rows }: { rows: RankRow[] | null }) {
         <section className={styles.feedCard} aria-labelledby="feed-title">
           <div className={styles.feedHead}>
             <h2 id="feed-title" className={styles.boardTitle}>
-              실시간 소식
+              Live feed
             </h2>
             <span className={styles.liveDot} aria-hidden />
           </div>
           {feed.length === 0 ? (
-            <p className={styles.feedEmpty}>누군가 레벨업하면 여기에 바로 떠요</p>
+            <p className={styles.feedEmpty}>Level-ups show up here as they happen</p>
           ) : (
             <ul className={styles.feedList}>
               <AnimatePresence initial={false}>
@@ -166,8 +165,8 @@ export function RankingList({ rows }: { rows: RankRow[] | null }) {
                         Mochi #{f.id}{" "}
                         <span>
                           {f.evolved
-                            ? `${euro(STAGE_NAME[stageFromLevel(f.level) as Stage])} 진화`
-                            : `Lv ${f.level}가 됐어요`}
+                            ? `evolved into ${STAGE_NAME[stageFromLevel(f.level) as Stage]}`
+                            : `reached Lv ${f.level}`}
                         </span>
                       </span>
                       <span className={styles.feedMeta}>
@@ -188,7 +187,7 @@ export function RankingList({ rows }: { rows: RankRow[] | null }) {
         <Link href={`/pet/${myBest.id}`} className={styles.myBar}>
           <PetThumb look={getPetLook({ dna: myBest.dna, stage: myBest.stage as Stage, emotion: "idle" })} size={40} />
           <span className={styles.myBarText}>
-            내 순위 {myBest.rank}위 · Mochi #{myBest.id}
+            My rank #{myBest.rank} · Mochi #{myBest.id}
           </span>
           <span className={styles.myBarLv}>Lv {myBest.level}</span>
           <ChevronRightIcon size={18} />
@@ -202,17 +201,17 @@ export function RankingList({ rows }: { rows: RankRow[] | null }) {
 function FeedText({ item }: { item: FeedItem }) {
   const who = item.owner ? (
     <>
-      <span className={styles.mono}>{tinyAddress(item.owner)}</span>의 모치
+      <span className={styles.mono}>{tinyAddress(item.owner)}</span>&apos;s Mochi
     </>
   ) : (
     `Mochi #${item.id}`
   );
   return (
     <>
-      {who}가{" "}
+      {who}{" "}
       {item.evolved
-        ? `${euro(STAGE_NAME[stageFromLevel(item.level) as Stage])} 진화했어요`
-        : `Lv ${item.level}가 됐어요`}
+        ? `evolved into ${STAGE_NAME[stageFromLevel(item.level) as Stage]}`
+        : `reached Lv ${item.level}`}
     </>
   );
 }
@@ -235,7 +234,7 @@ function RankRowView({ row, mine }: { row: RankRow; mine: boolean }) {
       <span className={styles.nameCol}>
         <span className={styles.name}>
           Mochi #{row.id}
-          {mine && <span className={styles.meTag}>내 펫</span>}
+          {mine && <span className={styles.meTag}>My pet</span>}
         </span>
         {/* 모바일: 종 · 주소를 이름 아래 한 줄로 */}
         <span className={styles.metaMobile}>
@@ -255,9 +254,9 @@ function MyRankCard({ row, topLevel }: { row: RankRow; topLevel: number }) {
   const look = getPetLook({ dna: row.dna, stage: row.stage as Stage, emotion: "happy" });
   const gap = topLevel - row.level;
   const note =
-    row.rank === 1 ? "1위예요! 자리를 지켜 주세요" : gap > 0 ? `1위까지 ${gap}레벨 남았어요` : "1위와 같은 레벨이에요";
+    row.rank === 1 ? "You're #1! Hold your spot" : gap > 0 ? `${gap} level${gap === 1 ? "" : "s"} behind #1` : "Same level as #1";
   return (
-    <section className={styles.myCard} aria-label="내 순위">
+    <section className={styles.myCard} aria-label="My rank">
       {/* 내 펫 레벨의 장면 (globals.scss 장면 토큰) */}
       <div
         className={styles.myScene}
@@ -267,12 +266,12 @@ function MyRankCard({ row, topLevel }: { row: RankRow; topLevel: number }) {
       </div>
       <div className={styles.myHead}>
         <span className={styles.myName}>Mochi #{row.id}</span>
-        <span className={styles.myRank}>{row.rank}위</span>
+        <span className={styles.myRank}>#{row.rank}</span>
       </div>
       <p className={styles.myNote}>{note}</p>
       <Link href={`/pet/${row.id}`} className={styles.myGo}>
         <PawIcon size={24} />
-        돌보러 가기
+        Go take care
       </Link>
     </section>
   );
@@ -281,7 +280,7 @@ function MyRankCard({ row, topLevel }: { row: RankRow; topLevel: number }) {
 /** 받은 시각 → "방금" / "3분 전" / "2시간 전" */
 function ago(at: number, now: number): string {
   const min = Math.floor((now - at) / 60_000);
-  if (min < 1) return "방금";
-  if (min < 60) return `${min}분 전`;
-  return `${Math.floor(min / 60)}시간 전`;
+  if (min < 1) return "just now";
+  if (min < 60) return `${min}m ago`;
+  return `${Math.floor(min / 60)}h ago`;
 }

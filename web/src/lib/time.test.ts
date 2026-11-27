@@ -13,17 +13,17 @@ describe("formatRemaining", () => {
     expect(formatRemaining(0)).toBeNull();
     expect(formatRemaining(-5)).toBeNull();
   });
-  it("1분 미만", () => {
-    expect(formatRemaining(30_000)).toBe("1분 미만");
+  it("under 1 min", () => {
+    expect(formatRemaining(30_000)).toBe("under 1 min");
   });
   it("분만", () => {
-    expect(formatRemaining(45 * 60_000)).toBe("45분");
+    expect(formatRemaining(45 * 60_000)).toBe("45 min");
   });
   it("시간과 분 (초는 버림)", () => {
-    expect(formatRemaining((3 * 60 + 20) * 60_000 + 59_000)).toBe("3시간 20분");
+    expect(formatRemaining((3 * 60 + 20) * 60_000 + 59_000)).toBe("3 hr 20 min");
   });
   it("딱 떨어지는 시간", () => {
-    expect(formatRemaining(24 * 3_600_000)).toBe("24시간");
+    expect(formatRemaining(24 * 3_600_000)).toBe("24 hr");
   });
 });
 

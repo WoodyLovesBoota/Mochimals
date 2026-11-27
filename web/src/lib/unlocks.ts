@@ -3,7 +3,6 @@
 //     레벨은 체인에 있으니, 해금은 레벨에서 언제든 다시 계산할 수 있다 (SPEC 14장: 레벨·단계 저장 추가 금지와 같은 생각).
 //   SPEC: "액세서리와 배경은 해금된 것 중 최신 것을 자동 적용". 이번 범위에서 액세서리는 그림 없이 이름만 보여준다.
 
-import { eulReul, euro } from "./josa";
 
 /** 해금 배경 id. globals.scss의 장면 변수(--scene-m-<id>)와 이름이 같다 */
 export type BackgroundId = "field" | "sunset" | "night" | "crystal";
@@ -31,33 +30,33 @@ export type Unlock = {
     | { kind: "dance" };
 };
 
-// * SPEC 12장 표를 옮긴 것. 문구는 리디자인 시안 16 표기로 바꿨다 (시안이 우선: "액세서리: 리본" → "액세서리 · 리본"). 한 레벨에 해금이 둘이면 두 줄로 쓴다 (Lv 10, 12, 20).
+// * SPEC 12장 표를 옮긴 것. 문구는 리디자인 시안 16 표기로 바꿨다 (시안이 우선: "액세서리: 리본" → "Accessory · Ribbon"). 한 레벨에 해금이 둘이면 두 줄로 쓴다 (Lv 10, 12, 20).
 //   순서: 레벨 오름차순. 아래 함수들은 이 순서를 믿는다 ("최신 것" = 조건에 맞는 마지막 줄).
 export const UNLOCKS: readonly Unlock[] = [
-  { level: 1, label: "입양 · 기본 배경", kind: "background" },
-  { level: 2, label: "알에 금이 감", kind: "egg" },
-  { level: 3, label: "부화 · 종 공개", kind: "evolve" },
-  { level: 4, label: "칭호 · 새싹 집사", kind: "title", effect: { kind: "title", title: "새싹 집사" } },
-  { level: 5, label: "액세서리 · 리본", kind: "accessory" },
-  { level: 6, label: "배경 · 들판", kind: "background", effect: { kind: "background", id: "field" } },
-  { level: 7, label: "진화 · 어린이", kind: "evolve" },
-  { level: 8, label: "액세서리 · 스카프", kind: "accessory" },
-  { level: 9, label: "칭호 · 든든한 집사", kind: "title", effect: { kind: "title", title: "든든한 집사" } },
-  { level: 10, label: "배경 · 노을 언덕", kind: "background", effect: { kind: "background", id: "sunset" } },
-  { level: 10, label: "랭킹 은색 테두리", kind: "rank", effect: { kind: "border", border: "silver" } },
-  { level: 11, label: "액세서리 · 모자", kind: "accessory" },
-  { level: 12, label: "진화 · 어른", kind: "evolve" },
-  { level: 12, label: "종 시그니처 아이템", kind: "accessory" },
-  { level: 13, label: "칭호 · 숙련 집사", kind: "title", effect: { kind: "title", title: "숙련 집사" } },
-  { level: 14, label: "배경 · 밤하늘", kind: "background", effect: { kind: "background", id: "night" } },
-  { level: 15, label: "액세서리 · 망토", kind: "accessory" },
-  { level: 16, label: "특수 모션 · 춤", kind: "motion", effect: { kind: "dance" } },
-  { level: 17, label: "배경 · 수정 동굴", kind: "background", effect: { kind: "background", id: "crystal" } },
-  { level: 18, label: "칭호 · 베테랑 집사", kind: "title", effect: { kind: "title", title: "베테랑 집사" } },
-  { level: 19, label: "액세서리 · 별 왕관", kind: "accessory" },
-  { level: 20, label: "각성", kind: "evolve" },
-  { level: 20, label: "칭호 · 전설의 집사", kind: "title", effect: { kind: "title", title: "전설의 집사" } },
-  { level: 20, label: "랭킹 금색 테두리", kind: "rank", effect: { kind: "border", border: "gold" } },
+  { level: 1, label: "Adoption · Basic background", kind: "background" },
+  { level: 2, label: "Egg cracks", kind: "egg" },
+  { level: 3, label: "Hatch · Species revealed", kind: "evolve" },
+  { level: 4, label: "Title · Sprout Keeper", kind: "title", effect: { kind: "title", title: "Sprout Keeper" } },
+  { level: 5, label: "Accessory · Ribbon", kind: "accessory" },
+  { level: 6, label: "Background · Meadow", kind: "background", effect: { kind: "background", id: "field" } },
+  { level: 7, label: "Evolution · Kid", kind: "evolve" },
+  { level: 8, label: "Accessory · Scarf", kind: "accessory" },
+  { level: 9, label: "Title · Trusty Keeper", kind: "title", effect: { kind: "title", title: "Trusty Keeper" } },
+  { level: 10, label: "Background · Sunset Hill", kind: "background", effect: { kind: "background", id: "sunset" } },
+  { level: 10, label: "Silver ranking border", kind: "rank", effect: { kind: "border", border: "silver" } },
+  { level: 11, label: "Accessory · Hat", kind: "accessory" },
+  { level: 12, label: "Evolution · Adult", kind: "evolve" },
+  { level: 12, label: "Species signature item", kind: "accessory" },
+  { level: 13, label: "Title · Skilled Keeper", kind: "title", effect: { kind: "title", title: "Skilled Keeper" } },
+  { level: 14, label: "Background · Night Sky", kind: "background", effect: { kind: "background", id: "night" } },
+  { level: 15, label: "Accessory · Cape", kind: "accessory" },
+  { level: 16, label: "Special move · Dance", kind: "motion", effect: { kind: "dance" } },
+  { level: 17, label: "Background · Crystal Cave", kind: "background", effect: { kind: "background", id: "crystal" } },
+  { level: 18, label: "Title · Veteran Keeper", kind: "title", effect: { kind: "title", title: "Veteran Keeper" } },
+  { level: 19, label: "Accessory · Star Crown", kind: "accessory" },
+  { level: 20, label: "Awakening", kind: "evolve" },
+  { level: 20, label: "Title · Legendary Keeper", kind: "title", effect: { kind: "title", title: "Legendary Keeper" } },
+  { level: 20, label: "Gold ranking border", kind: "rank", effect: { kind: "border", border: "gold" } },
 ];
 
 /** 정확히 이 레벨에서 새로 열리는 것 (레벨업 연출의 "새 해금 카드"용) */
@@ -119,18 +118,18 @@ export function unlockToast(level: number): string | null {
   const list = unlocksAt(level);
   if (list.length === 0) return null;
   const parts = list.map((u) => {
-    // "진화 · 어린이" → "어린이로 진화!", "진화 · 어른" → "어른으로 진화!" (조사는 lib/josa.ts)
-    if (u.kind === "evolve" && u.label.startsWith("진화 · ")) {
-      return `${euro(u.label.slice("진화 · ".length))} 진화!`;
+    // "Evolution · Kid" → "어린이로 진화!", "Evolution · Adult" → "어른으로 진화!" (조사는 lib/josa.ts)
+    if (u.kind === "evolve" && u.label.startsWith("Evolution · ")) {
+      return `Evolved into ${u.label.slice("Evolution · ".length)}!`;
     }
     return u.label;
   });
-  return `Lv ${level} 해금 · ${parts.join(" · ")}`;
+  return `Lv ${level} unlocked · ${parts.join(" · ")}`;
 }
 
 /**
  * * 레벨업 연출의 보상 알약 문구 (시안 07 "Lv 8 보상 · 스카프를 받았어요!").
- *   "분류 · 이름"이면 이름만 쓴다 ("액세서리 · 스카프" → "스카프"). 여러 개면 쉼표로 잇는다.
+ *   "분류 · 이름"이면 이름만 쓴다 ("Accessory · Scarf" → "스카프"). 여러 개면 쉼표로 잇는다.
  * @returns 이 레벨에 해금이 없으면 null
  */
 export function unlockReward(level: number): string | null {
@@ -139,8 +138,8 @@ export function unlockReward(level: number): string | null {
   const last = names.at(-1)!;
   // 을/를: 받침 있으면 "을", 없으면 "를"
   // 을/를: 마지막 이름의 받침으로 고른다 (lib/josa.ts)
-  return `Lv ${level} 보상 · ${names
+  return `Lv ${level} reward · You got ${names
     .slice(0, -1)
     .map((n) => n + ", ")
-    .join("")}${eulReul(last)} 받았어요!`;
+    .join("")}${last}!`;
 }

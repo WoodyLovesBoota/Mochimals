@@ -19,7 +19,7 @@ export async function GET(_: Request, { params }: RouteContext<"/api/pet/[id]">)
   return Response.json(
     {
       name: `Mochi #${id}`,
-      description: "Mochimals에서 키우는 온체인 펫. 밥 주고 훈련하면 진화해요.",
+      description: "An onchain pet raised on Mochimals. Feed and train it to evolve.",
       image,
       attributes: [
         { trait_type: "Level", value: Number(level), display_type: "number" },

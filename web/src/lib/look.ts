@@ -34,34 +34,34 @@ export type PetLook = {
 // =====================================================================
 
 export const SPECIES_NAME: Record<Species, string> = {
-  polar: "북극곰",
-  panda: "판다",
-  fennec: "사막여우",
-  sloth: "나무늘보",
-  pig: "돼지",
-  frog: "개구리",
-  whale: "고래상어",
+  polar: "Polar Bear",
+  panda: "Panda",
+  fennec: "Fennec Fox",
+  sloth: "Sloth",
+  pig: "Pig",
+  frog: "Frog",
+  whale: "Whale Shark",
 };
 
 export const PERSONALITY_NAME: Record<Personality, string> = {
-  active: "활발",
-  calm: "느긋",
-  foodie: "먹보",
-  shy: "수줍음",
+  active: "Active",
+  calm: "Calm",
+  foodie: "Foodie",
+  shy: "Shy",
 };
 
 export const COLOR_NAME: Record<Color, string> = {
-  base: "기본",
-  alt: "변종",
-  shiny: "반짝이",
+  base: "Basic",
+  alt: "Variant",
+  shiny: "Shiny",
 };
 
 export const STAGE_NAME: Record<Stage, string> = {
-  0: "알",
-  1: "아기",
-  2: "어린이",
-  3: "어른",
-  4: "각성",
+  0: "Egg",
+  1: "Baby",
+  2: "Kid",
+  3: "Adult",
+  4: "Awakened",
 };
 
 // =====================================================================

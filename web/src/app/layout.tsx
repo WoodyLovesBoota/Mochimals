@@ -53,7 +53,7 @@ const pretendard = localFont({
   adjustFontFallback: false,
 });
 
-const DESCRIPTION = "밥 주고 훈련하면 진화하는 온체인 펫. 모치를 입양해서 키워 보세요.";
+const DESCRIPTION = "Onchain pets that evolve as you feed and train them. Adopt a Mochi and raise it.";
 
 // * 브라우저 탭 제목, 검색 엔진 설명, 링크 미리보기(OG) 태그
 export const metadata: Metadata = {
@@ -68,7 +68,7 @@ export const metadata: Metadata = {
     siteName: "Mochimals",
     title: "Mochimals",
     description: DESCRIPTION,
-    locale: "ko_KR",
+    locale: "en_US",
   },
   twitter: { card: "summary_large_image", title: "Mochimals", description: DESCRIPTION },
 };
@@ -83,7 +83,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   const initialState = cookieToInitialState(serverConfig, (await headers()).get("cookie"));
 
   return (
-    <html lang="ko" className={`${rubik.variable} ${pretendard.variable}`}>
+    <html lang="en" className={`${rubik.variable} ${pretendard.variable}`}>
       <body>
         {/* Providers는 클라이언트 컴포넌트지만, 그 안의 children(페이지)은 여전히 서버 컴포넌트일 수 있다 */}
         <Providers initialState={initialState}>

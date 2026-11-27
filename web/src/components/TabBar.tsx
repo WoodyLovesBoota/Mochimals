@@ -22,7 +22,7 @@ export function TabBar() {
     <>
       {/* 탭 바는 화면에 고정(fixed)이라 자리를 차지하지 않는다. 같은 높이의 빈칸을 둬서 내용이 탭 바 뒤로 숨지 않게 한다 */}
       <div className={styles.spacer} aria-hidden />
-      <nav className={styles.bar} aria-label="탭 메뉴">
+      <nav className={styles.bar} aria-label="Tab menu">
         {items.map(({ key, label, href, active }) => {
           const Icon = NAV_ICON[key];
           return (

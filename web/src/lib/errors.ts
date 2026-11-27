@@ -8,17 +8,17 @@ import { BaseError, ContractFunctionRevertedError, UnauthorizedProviderError, Us
 //   ERC20InsufficientBalance는 PetNFT가 아니라 Energy(OZ ERC20)의 에러다.
 //   contracts.ts 39줄에서 Energy 에러를 PetNFT ABI에 합쳐 둔 덕분에 viem이 이 이름을 읽는다.
 const MESSAGES: Record<string, string> = {
-  ERC20InsufficientBalance: "활동력이 부족해요. 충전하고 다시 해보세요",
-  StillHasEnergy: "활동력을 다 쓴 뒤에 충전할 수 있어요",
-  AlreadyAdopted: "이미 입양한 지갑이에요",
-  NotPetOwner: "이 펫의 주인만 돌볼 수 있어요",
+  ERC20InsufficientBalance: "Not enough Energy. Refill and try again",
+  StillHasEnergy: "You can refill only after using up all your Energy",
+  AlreadyAdopted: "This wallet has already adopted",
+  NotPetOwner: "Only this pet's owner can take care of it",
 };
 
 // 지갑이 이 사이트에 계정 권한을 안 준 상태 (EIP-1193 에러 코드 4100). usePetAction이 연결을 끊는다
-export const UNAUTHORIZED_MESSAGE = "지갑 연결이 풀렸어요. 다시 연결해 주세요";
+export const UNAUTHORIZED_MESSAGE = "Your wallet was disconnected. Please reconnect";
 
 // TX_REVERTED(블록에 들어갔지만 실패)와 그 밖의 모든 에러
-const FALLBACK = "처리하지 못했어요. 다시 시도해주세요";
+const FALLBACK = "Something went wrong. Please try again";
 
 /**
  * @returns 화면에 보여줄 문구. 사용자가 지갑에서 "거절"했으면 null (문구 없이 버튼만 되돌린다).

@@ -35,7 +35,7 @@ export function WrongNetworkSheet() {
     <Sheet
       open={open}
       onClose={() => setDismissedFor(chainId)}
-      title="네트워크를 바꿔 주세요"
+      title="Please switch networks"
       icon={
         <span className={styles.icon} aria-hidden>
           <ChainIcon size={34} />
@@ -43,14 +43,14 @@ export function WrongNetworkSheet() {
       }
     >
       <p className={styles.desc}>
-        지금 지갑이 다른 체인에 있어요. {chain.name}로 바꿔야 밥 주기 · 훈련을 할 수 있어요.
+        Your wallet is on a different chain. Switch to {chain.name} to feed and train.
       </p>
       {/* 지금 체인 → 바꿀 체인 */}
       <div className={styles.chains}>
         <span className={styles.from}>
           <span className={styles.dotRed} aria-hidden />
           {/* config에 없는 체인이면 wagmi가 이름을 모른다 → 흔한 체인 표, 그래도 없으면 번호로 */}
-          {walletChain?.name ?? (chainId !== undefined ? KNOWN_CHAINS[chainId] : undefined) ?? `체인 ${chainId}`}
+          {walletChain?.name ?? (chainId !== undefined ? KNOWN_CHAINS[chainId] : undefined) ?? `Chain ${chainId}`}
         </span>
         <ChevronRightIcon size={20} />
         <span className={styles.to}>
@@ -64,11 +64,11 @@ export function WrongNetworkSheet() {
         disabled={isPending}
         onClick={() => switchChain({ chainId: chain.id })}
       >
-        {chain.name}로 전환
+        Switch to {chain.name}
       </button>
       <p className={styles.hint}>
         {isPending && <Spinner size={14} />}
-        {isPending ? "지갑에서 확인해 주세요" : "누르면 지갑에서 확인해요"}
+        {isPending ? "Confirm in your wallet" : "Tap to confirm in your wallet"}
       </p>
     </Sheet>
   );
