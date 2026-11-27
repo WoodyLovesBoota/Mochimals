@@ -19,16 +19,16 @@ export function hungryAtMs(lastFedAt: bigint): number {
 /**
  * 남은 시간을 짧은 한국어로. 화면 문구 "배고파지기까지 3시간"에 쓴다.
  * @returns 0 이하면 null (이미 배고플 시각)
- * 예: 3시간 20분 → "3시간 20분", 45분 → "45분", 30초 → "1분 미만"
+ * 예: 3시간 20분 → "3시간 20분", 45분 → "45분", 30초 → "under 1 min"
  */
 export function formatRemaining(ms: number): string | null {
   if (ms <= 0) return null;
   const totalMin = Math.floor(ms / 60_000);
-  if (totalMin < 1) return "1분 미만";
+  if (totalMin < 1) return "under 1 min";
   const h = Math.floor(totalMin / 60);
   const m = totalMin % 60;
-  if (h === 0) return `${m}분`;
-  return m === 0 ? `${h}시간` : `${h}시간 ${m}분`;
+  if (h === 0) return `${m} min`;
+  return m === 0 ? `${h} hr` : `${h} hr ${m} min`;
 }
 
 /**

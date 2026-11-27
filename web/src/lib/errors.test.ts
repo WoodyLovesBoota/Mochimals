@@ -34,14 +34,14 @@ function revertError(errorName: string, args?: readonly unknown[], useAbi: reado
 
 describe("toErrorMessage", () => {
   it("커스텀 에러 이름을 문구로 바꾼다", () => {
-    expect(toErrorMessage(revertError("NotPetOwner"))).toBe("이 펫의 주인만 돌볼 수 있어요");
-    expect(toErrorMessage(revertError("StillHasEnergy"))).toBe("활동력을 다 쓴 뒤에 충전할 수 있어요");
-    expect(toErrorMessage(revertError("AlreadyAdopted"))).toBe("이미 입양한 지갑이에요");
+    expect(toErrorMessage(revertError("NotPetOwner"))).toBe("Only this pet's owner can take care of it");
+    expect(toErrorMessage(revertError("StillHasEnergy"))).toBe("You can refill only after using up all your Energy");
+    expect(toErrorMessage(revertError("AlreadyAdopted"))).toBe("This wallet has already adopted");
   });
 
   it("Energy의 ERC20InsufficientBalance도 읽는다 (Energy 에러를 ABI에 합쳤기 때문)", () => {
     const err = revertError("ERC20InsufficientBalance", ["0x0000000000000000000000000000000000000001", 1n, 3n]);
-    expect(toErrorMessage(err)).toBe("활동력이 부족해요. 충전하고 다시 해보세요");
+    expect(toErrorMessage(err)).toBe("Not enough Energy. Refill and try again");
   });
 
   // ? contracts.ts 39줄의 "Energy 에러 합치기"를 빼면 어떻게 되는지 보여주는 테스트
@@ -51,7 +51,7 @@ describe("toErrorMessage", () => {
       ["0x0000000000000000000000000000000000000001", 1n, 3n],
       petNftAbi, // ← Energy 에러를 안 합친 ABI로 해석
     );
-    expect(toErrorMessage(err)).toBe("처리하지 못했어요. 다시 시도해주세요");
+    expect(toErrorMessage(err)).toBe("Something went wrong. Please try again");
   });
 
   it("지갑에서 거절하면 null (문구 없이 버튼만 되돌림)", () => {
@@ -67,11 +67,11 @@ describe("toErrorMessage", () => {
     } as never);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const err = new ContractFunctionExecutionError(inner, { abi: abi as any, functionName: "train", args: [1n] });
-    expect(toErrorMessage(err)).toBe("지갑 연결이 풀렸어요. 다시 연결해 주세요");
+    expect(toErrorMessage(err)).toBe("Your wallet was disconnected. Please reconnect");
   });
 
   it("TX_REVERTED와 알 수 없는 에러는 기본 문구", () => {
-    expect(toErrorMessage(new Error("TX_REVERTED"))).toBe("처리하지 못했어요. 다시 시도해주세요");
-    expect(toErrorMessage("이상한 값")).toBe("처리하지 못했어요. 다시 시도해주세요");
+    expect(toErrorMessage(new Error("TX_REVERTED"))).toBe("Something went wrong. Please try again");
+    expect(toErrorMessage("이상한 값")).toBe("Something went wrong. Please try again");
   });
 });

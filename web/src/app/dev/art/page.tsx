@@ -34,9 +34,9 @@ export default function ArtDevPage() {
 
   return (
     <main className={styles.main}>
-      <h1>아트 확인 (flat-v1)</h1>
+      <h1>Art check (flat-v1)</h1>
 
-      <h2>종 × 단계</h2>
+      <h2>Species × Stage</h2>
       <div className={styles.grid} style={{ gridTemplateColumns: `repeat(${STAGES.length + 1}, auto)` }}>
         <span />
         {STAGES.map((s) => (
@@ -53,7 +53,7 @@ export default function ArtDevPage() {
         ))}
       </div>
 
-      <h2>표정 (아기)</h2>
+      <h2>Emotions (Baby)</h2>
       <div className={styles.grid} style={{ gridTemplateColumns: `repeat(${EMOTIONS.length + 1}, auto)` }}>
         <span />
         {EMOTIONS.map((e) => (
@@ -70,7 +70,7 @@ export default function ArtDevPage() {
         ))}
       </div>
 
-      <h2>색 (어른)</h2>
+      <h2>Colors (Adult)</h2>
       <div className={styles.grid} style={{ gridTemplateColumns: `repeat(${COLORS.length + 1}, auto)` }}>
         <span />
         {COLORS.map((c) => (

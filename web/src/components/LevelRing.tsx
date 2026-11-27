@@ -22,7 +22,7 @@ export function LevelRing({ level, percent, size, className }: Props) {
       //   --ring-p: conic-gradient의 라임 구간 끝 (예: 30%), --ring-size: 지름
       style={{ "--ring-p": `${percent}%`, ...(size && { "--ring-size": `${size}px` }) } as React.CSSProperties}
       role="img"
-      aria-label={`레벨 ${level}, 다음 레벨까지 ${percent}%`}
+      aria-label={`Level ${level}, ${percent}% to next level`}
     >
       <span className={styles.core}>
         <span className={styles.lv}>Lv</span>

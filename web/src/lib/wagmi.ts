@@ -24,7 +24,7 @@ export const config = getDefaultConfig({
   chains: [chain],
   wallets: [
     {
-      groupName: "추천",
+      groupName: "Recommended",
       wallets: [
         // * Base Account: 확장 프로그램 없이 패스키(지문, Face ID)로 스마트 지갑을 만든다.
         //   SPEC의 `coinbaseWallet.preference = 'smartWalletOnly'`와 같은 역할이다.

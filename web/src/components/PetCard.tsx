@@ -77,7 +77,7 @@ export function PetCard({ pet, isOwner, fx, className }: Props) {
               400×400 좌표를 %로 바꿔 그림 크기가 바뀌어도 같은 자리에 붙는다: 330/400 = 82.5%, 96/400 = 24% */}
         {pet.hungry && (
           <p className={styles.bubble} role="status">
-            배고파요…
+            Hungry…
           </p>
         )}
       </div>

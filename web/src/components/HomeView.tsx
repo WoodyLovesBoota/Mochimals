@@ -1,6 +1,6 @@
 // * 홈 (5강, 리디자인 시안 01 / D1, 05 / D5, 04 / D4).
 //   상태 네 가지:
-//   ① 미연결            → 01: 큰 제목 + 펫 + 크림 시트(게임 소개, 진화 단계, "무료로 입양하기")
+//   ① 미연결            → 01: 큰 제목 + 펫 + 크림 시트(게임 소개, 진화 단계, "Adopt for free")
 //   ② 연결됨 + 펫 없음  → 05: 흔들리는 알 + 크림 시트(입양하기, 진행 단계)
 //   ③ 펫 1마리          → 그 펫 화면(/pet/{id})으로 바로 이동 (목록을 보여줄 이유가 없다)
 //   ④ 펫 2마리 이상     → 04: 내 펫 목록 (MyPetList.tsx)
@@ -59,7 +59,7 @@ export function HomeView() {
   if (myPets.isPending || onlyOne !== null) {
     return (
       <main className={styles.center}>
-        <StatusCard kind="loading" title="불러오는 중" detail="내 펫을 찾고 있어요" />
+        <StatusCard kind="loading" title="Loading" detail="Looking for your pets" />
       </main>
     );
   }
@@ -68,8 +68,8 @@ export function HomeView() {
       <main className={styles.center}>
         <StatusCard
           kind="error"
-          title="불러오지 못했어요"
-          detail="네트워크를 확인해 주세요"
+          title="Couldn't load"
+          detail="Please check your network"
           onRetry={() => void myPets.refetch()}
         />
       </main>
@@ -91,12 +91,12 @@ function Intro() {
     <main className={styles.home}>
       <div className={styles.hero}>
         <h1 className={styles.logo}>Mochimals</h1>
-        <p className={styles.tagline}>밥 주고 훈련하면 진화하는 온체인 펫</p>
+        <p className={styles.tagline}>Onchain pets that evolve as you feed and train them</p>
       </div>
 
       <div className={styles.scene}>
         <div className={styles.petWrap}>
-          <p className={styles.bubble}>같이 놀자!</p>
+          <p className={styles.bubble}>Let&apos;s play!</p>
           <PetSprite
             look={getPetLook({ dna: PREVIEW_DNA, stage: 1, emotion: "happy" })}
             size={320}
@@ -108,11 +108,11 @@ function Intro() {
       <section className={styles.sheet} aria-labelledby="intro-title">
         <span className={styles.grabber} aria-hidden />
         <h2 id="intro-title" className={styles.sheetTitle}>
-          모치를 입양해서 키워 보세요
+          Adopt a Mochi and raise it
         </h2>
         {/* 데스크톱에서만 보이는 설명 (시안 D1) */}
         <p className={styles.sheetDesc}>
-          밥 주고 훈련할수록 레벨이 오르고, 다섯 번 모습이 바뀌어요. 성장 기록은 전부 체인에 남아요.
+          Feed and train it to level up and watch it change through five stages. Every bit of growth is recorded onchain.
         </p>
 
         {/* 규칙 세 칸 (예전 홈의 규칙 목록을 시안의 카드로) */}
@@ -121,27 +121,27 @@ function Intro() {
             <span className={styles.chipAmber}>
               <BowlIcon size={20} />
             </span>
-            <strong>밥 +10</strong>
-            <span>활동력 1</span>
+            <strong>Feed +10</strong>
+            <span>1 Energy</span>
           </li>
           <li>
             <span className={styles.chipBlue}>
               <DumbbellIcon size={20} />
             </span>
-            <strong>훈련 +40</strong>
-            <span>활동력 3</span>
+            <strong>Train +40</strong>
+            <span>3 Energy</span>
           </li>
           <li>
             <span className={styles.chipPink}>
               <HeartIcon size={20} />
             </span>
-            <strong>24시간</strong>
-            <span>굶으면 배고파요</span>
+            <strong>24 hours</strong>
+            <span>without food = hungry</span>
           </li>
         </ul>
 
         {/* 진화 단계 미리보기: 같은 DNA를 단계만 바꿔 다섯 번 그린다 (SPEC 6-3) */}
-        <ol className={styles.stages} aria-label="진화 단계">
+        <ol className={styles.stages} aria-label="Evolution stages">
           {STAGES.map((stage) => (
             <li key={stage}>
               <span className={stage === 4 ? styles.stageThumbGold : styles.stageThumb}>
@@ -156,10 +156,10 @@ function Intro() {
         {/* * 미연결 상태의 입양 버튼 = 지갑 연결 창 열기. 연결되면 홈이 ② 입양 화면으로 바뀐다 */}
         <button type="button" className={styles.cta} onClick={openConnectModal}>
           <EggIcon size={24} />
-          무료로 입양하기
+          Adopt for free
         </button>
         <a className={styles.help} href="https://ethereum.org/ko/wallets/" target="_blank" rel="noreferrer">
-          지갑이 처음이에요? ›
+          New to wallets? ›
         </a>
       </section>
     </main>
@@ -169,7 +169,7 @@ function Intro() {
 // =====================================================================
 // ② 05 / D5 입양
 // =====================================================================
-const ADOPT_STEPS = ["지갑 확인", "블록 확정", "부화장 이동"] as const;
+const ADOPT_STEPS = ["Confirm in wallet", "Block confirmed", "To the hatchery"] as const;
 
 function Adopt({ adopted }: { adopted: boolean }) {
   const router = useRouter();
@@ -192,10 +192,10 @@ function Adopt({ adopted }: { adopted: boolean }) {
   // 진행 단계: 확인·서명 = 0, 블록 확정 = 1 (확정이 끝나면 바로 펫 화면으로 이동하니 2는 이동 중에 잠깐)
   const step = action.phase === "confirming" ? 1 : 0;
   const label = {
-    idle: "입양하기",
-    simulating: "확인 중…",
-    signing: "지갑에서 확인해 주세요",
-    confirming: "부화장으로 가는 중…",
+    idle: "Adopt",
+    simulating: "Checking…",
+    signing: "Confirm in your wallet",
+    confirming: "Heading to the hatchery…",
   }[action.phase];
   const errorText = action.error ? toErrorMessage(action.error) : null;
 
@@ -212,35 +212,35 @@ function Adopt({ adopted }: { adopted: boolean }) {
               className={styles.egg}
             />
           </span>
-          <p className={styles.bubbleEgg}>알이 흔들려요!</p>
+          <p className={styles.bubbleEgg}>The egg is wobbling!</p>
         </div>
       </div>
 
       <section className={styles.sheet} aria-labelledby="adopt-title">
         <span className={styles.grabber} aria-hidden />
         <h1 id="adopt-title" className={styles.sheetTitle}>
-          알 하나를 받을 수 있어요
+          You can get one egg
         </h1>
-        <p className={styles.sheetSub}>어떤 종이 나올지는 Lv 3에 부화할 때 알 수 있어요</p>
+        <p className={styles.sheetSub}>You&apos;ll find out the species when it hatches at Lv 3</p>
 
         <ul className={styles.facts}>
           <li>
             <span className={styles.factLime}>
               <EggIcon size={14} />
             </span>
-            무료 · 가스비만
+            Free · gas only
           </li>
           <li>
             <span className={styles.factAmber}>
               <BoltIcon size={14} />
             </span>
-            활동력 +10
+            +10 Energy
           </li>
           <li>
             <span className={styles.factBlue}>
               <PawIcon size={14} />
             </span>
-            지갑당 1마리
+            1 per wallet
           </li>
         </ul>
 
@@ -252,12 +252,12 @@ function Adopt({ adopted }: { adopted: boolean }) {
               </span>
             }
           >
-            이미 입양한 지갑이에요. 펫을 다른 지갑으로 보냈다면 그 지갑에서 볼 수 있어요
+            This wallet has already adopted. If you sent your pet to another wallet, you can see it there
           </Notice>
         ) : wrongNetwork ? (
           // 잘못된 네트워크: 지갑 체인 ≠ 앱 체인이면 전환 버튼만 (시안 13의 전환 시트도 같이 뜬다)
           <button className={styles.cta} disabled={switching} onClick={() => switchChain({ chainId: chain.id })}>
-            {switching ? "지갑에서 확인해 주세요" : `${chain.name}로 전환`}
+            {switching ? "Confirm in your wallet" : `Switch to ${chain.name}`}
           </button>
         ) : (
           <>

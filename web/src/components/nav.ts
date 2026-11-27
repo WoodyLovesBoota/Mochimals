@@ -37,13 +37,13 @@ export function useNavItems(): NavItem[] {
     // 펫 화면(/pet/…)에 있으면 "내 펫"이 켜진다 (남의 펫을 구경할 때도 같은 화면이라 켜 둔다)
     {
       key: "pets",
-      label: "내 펫",
+      label: "My Pets",
       href: petsHref,
       active: pathname.startsWith("/pet/") || homeIsList,
     },
     {
       key: "ranking",
-      label: "랭킹",
+      label: "Ranking",
       href: "/ranking",
       active: pathname.startsWith("/ranking"),
     },

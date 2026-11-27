@@ -220,8 +220,8 @@ function parseEvents(logs: Parameters<typeof parseEventLogs>[0]["logs"]) {
 
 // RainbowKit 최근 트랜잭션 목록에 보일 설명
 const DESCRIPTION: Record<PetActionArgs["fn"], string> = {
-  adopt: "펫 입양",
-  feed: "밥 주기",
-  train: "훈련",
-  refill: "활동력 충전",
+  adopt: "Pet adoption",
+  feed: "Feeding",
+  train: "Training",
+  refill: "Energy refill",
 };

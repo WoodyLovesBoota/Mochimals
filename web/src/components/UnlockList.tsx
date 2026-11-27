@@ -21,7 +21,7 @@ export function UnlockList({ level }: { level: number }) {
       <span
         className={styles.track}
         role="progressbar"
-        aria-label="해금 진행"
+        aria-label="Unlock progress"
         aria-valuemin={0}
         aria-valuemax={UNLOCKS.length}
         aria-valuenow={opened}
@@ -40,13 +40,13 @@ export function UnlockList({ level }: { level: number }) {
               <span className={styles.label}>{u.label}</span>
               {/* 글자로도 상태를 알린다 (색만으로 구분하지 않기: 색약 사용자 고려) */}
               {open ? (
-                <span className={styles.done} role="img" aria-label="열림">
+                <span className={styles.done} role="img" aria-label="Unlocked">
                   <CheckIcon size={18} />
                 </span>
               ) : isNext ? (
-                <span className={styles.nextTag}>다음</span>
+                <span className={styles.nextTag}>Next</span>
               ) : (
-                <span className={styles.lock} role="img" aria-label="잠김">
+                <span className={styles.lock} role="img" aria-label="Locked">
                   <LockIcon size={18} />
                 </span>
               )}

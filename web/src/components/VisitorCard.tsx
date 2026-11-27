@@ -19,36 +19,36 @@ export function VisitorCard({ className, flat = false }: { className?: string; f
   const petsHref = usePetsHref();
 
   return (
-    <section className={`${flat ? styles.flat : styles.sheet} ${className ?? ""}`} aria-label="구경 안내">
+    <section className={`${flat ? styles.flat : styles.sheet} ${className ?? ""}`} aria-label="Visitor info">
       {!flat && <span className={styles.grabber} aria-hidden />}
-      <h2 className={styles.title}>{hasPets ? "다른 집사의 펫이에요" : "나도 모치를 키워볼래요?"}</h2>
+      <h2 className={styles.title}>{hasPets ? "This is another keeper's pet" : "Want to raise a Mochi too?"}</h2>
       <p className={styles.desc}>
         {hasPets
-          ? "구경만 할 수 있어요. 내 펫도 돌봐 주세요."
-          : "다른 집사의 펫은 구경만 할 수 있어요. 입양은 무료예요."}
+          ? "You can only look. Go take care of your own pets too."
+          : "You can only look at other keepers' pets. Adopting is free."}
       </p>
       {hasPets ? (
         <Link href={petsHref} className={styles.primary}>
-          <PawIcon size={24} />내 펫 보러 가기
+          <PawIcon size={24} />See my pets
         </Link>
       ) : isConnected ? (
         // 연결됨 + 펫 없음 → 홈(입양 화면)으로
         <Link href="/" className={styles.primary}>
           <EggIcon size={24} />
-          무료로 입양하기
+          Adopt for free
         </Link>
       ) : (
         // 미연결 → 지갑 연결부터 (연결되면 홈에서 입양)
         <button type="button" className={styles.primary} onClick={openConnectModal}>
           <EggIcon size={24} />
-          무료로 입양하기
+          Adopt for free
         </button>
       )}
       {/* 데스크톱 패널(flat)에는 랭킹 버튼이 없다 (위쪽 메뉴에 있음, 시안 D11) */}
       {!flat && (
         <Link href="/ranking" className={styles.secondary}>
           <TrophyIcon size={24} />
-          랭킹 더 보기
+          See more ranking
         </Link>
       )}
     </section>

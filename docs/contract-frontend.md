@@ -210,7 +210,7 @@ Home ([HomeView.tsx](../web/src/components/HomeView.tsx)): if `hasAdopted` is tr
 
 The cost scales with the number of pets, not blocks. Once there are tens of thousands of pets, an indexer is the right tool (SPEC Section 14 excludes it from this scope).
 
-[HomeView.tsx](../web/src/components/HomeView.tsx): line 41 uses `hasAdopted(me)` to warn up front about an "이미 입양한 지갑" ("wallet that has already adopted") (one adoption per wallet). Line 46: if `useMyPets` returns 1 pet, navigate straight to that pet's screen; 2 or more shows [MyPetList.tsx](../web/src/components/MyPetList.tsx). Lines 183–184 navigate straight to `/pet/<id>` using `Adopted.args.petId` from the adoption receipt (faster than a log search). Line 187 resumes only adoption.
+[HomeView.tsx](../web/src/components/HomeView.tsx): line 41 uses `hasAdopted(me)` to warn up front about a "wallet that has already adopted" (one adoption per wallet). Line 46: if `useMyPets` returns 1 pet, navigate straight to that pet's screen; 2 or more shows [MyPetList.tsx](../web/src/components/MyPetList.tsx). Lines 183–184 navigate straight to `/pet/<id>` using `Adopted.args.petId` from the adoption receipt (faster than a log search). Line 187 resumes only adoption.
 
 ## 12. Reading on the server: `publicClient` + `readMany`
 

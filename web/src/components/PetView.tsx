@@ -55,20 +55,20 @@ export function PetView({ petId }: Props) {
   if (isPending) {
     return (
       <main className={styles.message}>
-        <StatusCard kind="loading" title="불러오는 중" detail={`Mochi #${petId}를 찾고 있어요`} />
+        <StatusCard kind="loading" title="Loading" detail={`Looking for Mochi #${petId}`} />
       </main>
     );
   }
 
   // ② 에러: 없는 펫이면 ownerOf가 revert한다 (usePet의 allowFailure: false) → 시안 12 404 화면
   if (error) {
-    if (isNonexistentToken(error)) return <NotFoundView title={`Mochi #${petId}는 아직 없어요`} />;
+    if (isNonexistentToken(error)) return <NotFoundView title={`Mochi #${petId} doesn't exist yet`} />;
     return (
       <main className={styles.message}>
         <StatusCard
           kind="error"
-          title="불러오지 못했어요"
-          detail="네트워크를 확인하고 다시 시도해 주세요"
+          title="Couldn't load"
+          detail="Check your network and try again"
           onRetry={() => void refetch()}
         />
       </main>
@@ -83,9 +83,9 @@ export function PetView({ petId }: Props) {
 }
 
 // 알림 줄 문구에 쓰는 행동 이름
-const ACTION_NAME: Record<PetActionArgs["fn"], string> = { feed: "밥", train: "훈련", refill: "충전", adopt: "입양" };
+const ACTION_NAME: Record<PetActionArgs["fn"], string> = { feed: "Feed", train: "Train", refill: "Refill", adopt: "Adopt" };
 // 시안 06의 진행 단계
-const TX_STEPS = ["지갑 서명", "블록 확정", "반영"] as const;
+const TX_STEPS = ["Wallet signature", "Block confirmed", "Updated"] as const;
 
 /**
  * 데이터가 다 있을 때의 화면.
@@ -151,8 +151,8 @@ function PetScreen(props: { petId: string; id: bigint; pet: PetState; isOwner: b
               <>
                 <Notice icon={<Spinner size={22} />} trailing={<span className={styles.stepCount}>{step + 1}/3</span>}>
                   {action.phase === "confirming"
-                    ? `${ACTION_NAME[pressed]} 기록 중 · 블록 확정을 기다려요`
-                    : `${ACTION_NAME[pressed]} · 지갑에서 서명을 기다려요`}
+                    ? `${ACTION_NAME[pressed]} · waiting for block confirmation`
+                    : `${ACTION_NAME[pressed]} · waiting for wallet signature`}
                 </Notice>
                 <StepPills steps={TX_STEPS} active={step} />
               </>
@@ -166,7 +166,7 @@ function PetScreen(props: { petId: string; id: bigint; pet: PetState; isOwner: b
                   </span>
                 }
               >
-                배고파서 훈련 효과가 절반이에요
+                Hungry, so training gives half XP
               </Notice>
             )}
             {!busy && errorText && (
@@ -207,14 +207,14 @@ function PetScreen(props: { petId: string; id: bigint; pet: PetState; isOwner: b
 
           {/* 모바일 오른쪽 옆 버튼 3개 (데스크톱은 오른쪽 패널이 같은 일을 한다) */}
           <div className={styles.side} hidden={!showSide}>
-            <button type="button" className={styles.sideBtn} aria-label="해금 목록" onClick={() => setSheet("unlocks")}>
+            <button type="button" className={styles.sideBtn} aria-label="Unlocks" onClick={() => setSheet("unlocks")}>
               <GiftIcon size={24} />
               {newUnlocks > 0 && <span className={styles.badge}>{newUnlocks}</span>}
             </button>
-            <button type="button" className={styles.sideBtn} aria-label="펫 정보" onClick={() => setSheet("info")}>
+            <button type="button" className={styles.sideBtn} aria-label="Pet info" onClick={() => setSheet("info")}>
               <InfoIcon size={24} />
             </button>
-            <button type="button" className={styles.sideBtn} aria-label="공유" onClick={() => void share(petId)}>
+            <button type="button" className={styles.sideBtn} aria-label="Share" onClick={() => void share(petId)}>
               <ShareIcon size={24} />
             </button>
           </div>
@@ -256,7 +256,7 @@ function PetScreen(props: { petId: string; id: bigint; pet: PetState; isOwner: b
       <Sheet
         open={sheet === "unlocks"}
         onClose={() => setSheet(null)}
-        title="해금 목록"
+        title="Unlocks"
         titleSuffix={
           <>
             {openedCount(level)}

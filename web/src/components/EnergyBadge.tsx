@@ -16,13 +16,13 @@ export function EnergyBadge() {
   return (
     // * 반환값은 bigint다 (uint256은 JS number 범위를 넘을 수 있어서). decimals가 0이라 그대로 글자로 바꾼다.
     //   aria-label: 화면 글자 "4/10"만으로는 스크린리더가 뜻을 모르니 문장으로 읽어 준다
-    <span className={styles.badge} role="img" aria-label={`활동력 ${balance} / ${MAX_ENERGY}`}>
+    <span className={styles.badge} role="img" aria-label={`Energy ${balance} / ${MAX_ENERGY}`}>
       {/* 호박색 동그라미 안의 번개 (시안: 28px 원, 아래 안쪽 그림자) */}
       <span className={styles.icon}>
         <BoltIcon size={16} />
       </span>
       {/* "활동력" 글자는 데스크톱에서만 (시안 D2 "활동력 4/10", 모바일 02는 "4/10") */}
-      <span className={styles.label}>활동력</span>
+      <span className={styles.label}>Energy</span>
       {balance.toString()}
       <span className={styles.max}>/{MAX_ENERGY}</span>
     </span>

@@ -10,7 +10,7 @@ import styles from "./NotFoundView.module.scss";
 // 홈 미리보기와 같은 예시 DNA (알 그림만 쓴다)
 const EGG = getPetLook({ dna: 0x00030000, stage: 0, emotion: "idle" });
 
-export function NotFoundView({ title = "찾는 페이지가 없어요" }: { title?: string }) {
+export function NotFoundView({ title = "Page not found" }: { title?: string }) {
   return (
     <main className={styles.main} data-scene="night">
       <div className={styles.art} aria-hidden>
@@ -26,15 +26,15 @@ export function NotFoundView({ title = "찾는 페이지가 없어요" }: { titl
       <section className={styles.sheet}>
         <span className={styles.grabber} aria-hidden />
         <h1 className={styles.title}>{title}</h1>
-        <p className={styles.desc}>번호를 다시 확인하거나 랭킹에서 찾아보세요</p>
+        <p className={styles.desc}>Check the number again or look it up in the ranking</p>
         <div className={styles.buttons}>
           <Link href="/ranking" className={styles.primary}>
             <TrophyIcon size={24} />
-            랭킹 보기
+            View ranking
           </Link>
           <Link href="/" className={styles.secondary}>
             <HomeIcon size={24} />
-            홈으로
+            Go home
           </Link>
         </div>
       </section>

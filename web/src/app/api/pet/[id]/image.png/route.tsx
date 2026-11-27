@@ -40,7 +40,7 @@ export async function GET(_: Request, { params }: RouteContext<"/api/pet/[id]/im
   const name = `Mochi #${pet.id}`;
   const { current, needed } = levelProgress(pet.xp);
   const percent = needed === 0 ? 100 : Math.floor((current / needed) * 100);
-  const bubble = pet.hungry ? "배고파요…" : null;
+  const bubble = pet.hungry ? "Hungry…" : null;
 
   // Jua 글꼴: 이 그림에 쓰이는 글자만 받는다
   const font = await loadJua(`Mochimals Lv${level}${name}${bubble ?? ""}`);

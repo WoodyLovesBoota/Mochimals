@@ -23,7 +23,7 @@ export function PetSprite({ look, size, className }: Props) {
   //   React useId()는 "_r_1_" 같은 값을 준다. SVG url(#...)에서 문제가 될 수 있는 글자는 지워서 쓴다.
   const idPrefix = "pet" + useId().replace(/[^a-zA-Z0-9_-]/g, "");
   const out = ACTIVE_ART_SET.render(look, { idPrefix });
-  const label = "펫 그림"; // 스크린리더용. 종 이름 등은 부모가 글자로 따로 보여준다
+  const label = "Pet image"; // 스크린리더용. 종 이름 등은 부모가 글자로 따로 보여준다
 
   // 이미지 세트 (예: 3D 렌더 PNG)
   if (out.kind === "image") {

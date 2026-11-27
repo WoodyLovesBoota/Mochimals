@@ -27,14 +27,14 @@ export function Header() {
       <div className={styles.inner}>
         <div className={styles.left}>
           {/* 로고 = 홈 링크. 크림 알약 + 모치 얼굴 */}
-          <Link href="/" className={styles.logo} aria-label="Mochimals 홈">
+          <Link href="/" className={styles.logo} aria-label="Mochimals home">
             <LogoMark size={30} />
             <span className={styles.logoText}>Mochimals</span>
           </Link>
           {/* 데스크톱 메뉴. aria-current="page": 스크린리더가 "현재 페이지"라고 읽는다 */}
           {/* 비회원이면 메뉴가 없으니 빈 <nav>도 그리지 않는다 */}
           {items.length > 0 && (
-            <nav className={styles.nav} aria-label="주 메뉴">
+            <nav className={styles.nav} aria-label="Main menu">
               {items.map(({ key, label, href, active }) => {
                 const Icon = NAV_ICON[key];
                 return (

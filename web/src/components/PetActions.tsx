@@ -51,7 +51,7 @@ export function PetActions({ petId, pet, action }: Props) {
       <section className={styles.actions}>
         <div className={styles.buttons}>
           <button className={styles.switch} disabled={switching} onClick={() => switchChain({ chainId: chain.id })}>
-            {switching ? "지갑에서 확인해 주세요" : `${chain.name}로 전환`}
+            {switching ? "Confirm in your wallet" : `Switch to ${chain.name}`}
           </button>
         </div>
       </section>
@@ -62,7 +62,7 @@ export function PetActions({ petId, pet, action }: Props) {
   const hash = action.phase === "confirming" ? action.hash : undefined;
 
   return (
-    <section className={styles.actions} aria-label="행동">
+    <section className={styles.actions} aria-label="Actions">
       <div className={styles.buttons}>
         {/* * 활동력 0일 때만 충전 버튼 (SPEC 12장: 그 외에는 숨김). 컨트랙트도 0일 때만 허용한다 (StillHasEnergy).
               시안 10: 두 칸을 다 차지하는 호박색 버튼이 맨 위에 온다 */}
@@ -71,8 +71,8 @@ export function PetActions({ petId, pet, action }: Props) {
             className={styles.refill}
             waiting={busy && pressed !== "refill"}
             icon={<BoltIcon size={24} />}
-            label="활동력 무료 충전 +10"
-            hint="활동력을 다 썼어요"
+            label="Free Energy refill +10"
+            hint="Out of Energy"
             disabled={busy}
             phase={pressed === "refill" ? action.phase : "idle"}
             hash={pressed === "refill" ? hash : undefined}
@@ -83,9 +83,9 @@ export function PetActions({ petId, pet, action }: Props) {
           className={empty ? styles.feedSmall : styles.feed}
           waiting={busy && pressed !== "feed" && canFeed}
           icon={<BowlIcon size={24} />}
-          label="밥 주기"
+          label="Feed"
           // 시안: 번개 아이콘 + "1 · +10 XP" (번개 = 활동력). 모자라면 "활동력 1 필요" (시안 10)
-          hint={canFeed ? `${FEED_COST} · +${FEED_XP} XP` : `활동력 ${FEED_COST} 필요`}
+          hint={canFeed ? `${FEED_COST} · +${FEED_XP} XP` : `Needs ${FEED_COST} Energy`}
           showBolt={canFeed}
           disabled={busy || !canFeed}
           phase={pressed === "feed" ? action.phase : "idle"}
@@ -97,12 +97,12 @@ export function PetActions({ petId, pet, action }: Props) {
           waiting={busy && pressed !== "train" && canTrain}
           lightSpinner
           icon={<DumbbellIcon size={24} />}
-          label="훈련"
+          label="Train"
           // 배고프면 XP 절반 (PetNFT.train: isHungry ? TRAIN_XP / 2 : TRAIN_XP)
           hint={
             !canTrain
-              ? `활동력 ${TRAIN_COST} 필요`
-              : `${TRAIN_COST} · ${pet.hungry ? `+${TRAIN_XP / 2} XP (배고픔)` : `+${TRAIN_XP} XP`}`
+              ? `Needs ${TRAIN_COST} Energy`
+              : `${TRAIN_COST} · ${pet.hungry ? `+${TRAIN_XP / 2} XP (hungry)` : `+${TRAIN_XP} XP`}`
           }
           showBolt={canTrain}
           disabled={busy || !canTrain}
@@ -117,14 +117,14 @@ export function PetActions({ petId, pet, action }: Props) {
 
 // 누른 버튼의 글자 (시안 06: 확정 중에는 스피너 + "확정 중…")
 const PHASE_LABEL: Record<Exclude<ActionPhase, "idle">, string> = {
-  simulating: "확인 중…",
-  signing: "지갑에서 확인",
-  confirming: "확정 중…",
+  simulating: "Checking…",
+  signing: "Confirm in wallet",
+  confirming: "Confirming…",
 };
 
 function ActionButton(props: {
   className: string;
-  /** 다른 행동이 진행 중이라 잠깐 막힌 버튼 → "잠시 기다려요" (활동력이 모자라서 막힌 것과 구분) */
+  /** 다른 행동이 진행 중이라 잠깐 막힌 버튼 → "Please wait" (활동력이 모자라서 막힌 것과 구분) */
   waiting: boolean;
   /** 파란 버튼(흰 글자) 위 스피너는 흰색 */
   lightSpinner?: boolean;
@@ -171,11 +171,11 @@ function ActionButton(props: {
           {active ? <Spinner size={20} light={lightSpinner} /> : icon}
           {active ? PHASE_LABEL[phase as Exclude<ActionPhase, "idle">] : label}
         </span>
-        {/* 비활성 버튼(다른 행동이 진행 중)은 "잠시 기다려요" (시안 06) */}
+        {/* 비활성 버튼(다른 행동이 진행 중)은 "Please wait" (시안 06) */}
         {!active && (
           <span className={styles.hint}>
             {waiting ? (
-              "잠시 기다려요"
+              "Please wait"
             ) : (
               <>
                 {showBolt && <BoltIcon size={12} />}
@@ -199,7 +199,7 @@ function ActionButton(props: {
           href={link}
           target="_blank"
           rel="noreferrer"
-          aria-label="Basescan에서 트랜잭션 보기"
+          aria-label="View transaction on Basescan"
         >
           {shortHash(hash!)} ›
         </a>

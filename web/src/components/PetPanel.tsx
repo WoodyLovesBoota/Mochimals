@@ -69,7 +69,7 @@ export function PetPanel({ petId, pet, isOwner, hungryInMs, onOpenUnlocks, flat 
       .filter(Boolean)
       .join(" · ");
     return (
-      <section className={`${flat ? styles.flat : styles.panel} ${className ?? ""}`} aria-label="펫 정보">
+      <section className={`${flat ? styles.flat : styles.panel} ${className ?? ""}`} aria-label="Pet info">
         {/* 모바일 시트(flat)에서는 구경 카드가 화면 아래에 이미 있어서 빼고 정보만 */}
         {!flat && (
           <>
@@ -77,18 +77,18 @@ export function PetPanel({ petId, pet, isOwner, hungryInMs, onOpenUnlocks, flat 
             <hr className={styles.divider} />
           </>
         )}
-        <h2 className={styles.heading}>Mochi #{petId} 정보</h2>
+        <h2 className={styles.heading}>Mochi #{petId} info</h2>
         <dl className={styles.info}>
           <div className={styles.infoRow}>
-            <dt>주인</dt>
+            <dt>Owner</dt>
             <dd className={styles.mono}>{shortAddress(pet.owner)}</dd>
           </div>
           <div className={styles.infoRow}>
-            <dt>모습</dt>
+            <dt>Look</dt>
             <dd className={styles.plain}>{shape}</dd>
           </div>
           <div className={styles.infoRow}>
-            <dt>토큰</dt>
+            <dt>Token</dt>
             <dd className={styles.mono}>
               {tokenNo(petId)} · {chain.name}
             </dd>
@@ -100,8 +100,8 @@ export function PetPanel({ petId, pet, isOwner, hungryInMs, onOpenUnlocks, flat 
   }
 
   return (
-    <section className={`${flat ? styles.flat : styles.panel} ${className ?? ""}`} aria-label="펫 상태">
-      <h2 className={styles.heading}>상태</h2>
+    <section className={`${flat ? styles.flat : styles.panel} ${className ?? ""}`} aria-label="Pet status">
+      <h2 className={styles.heading}>Status</h2>
 
       {/* ① 경험치 */}
       <div className={styles.stat}>
@@ -110,7 +110,7 @@ export function PetPanel({ petId, pet, isOwner, hungryInMs, onOpenUnlocks, flat 
         </span>
         <div className={styles.statBody}>
           <div className={styles.statHead}>
-            <span className={styles.statLabel}>경험치</span>
+            <span className={styles.statLabel}>XP</span>
             <span className={styles.statValue}>
               {needed === 0 ? (
                 "MAX"
@@ -125,7 +125,7 @@ export function PetPanel({ petId, pet, isOwner, hungryInMs, onOpenUnlocks, flat 
           <span
             className={styles.xpTrack}
             role="progressbar"
-            aria-label="다음 레벨까지 경험치"
+            aria-label="XP to next level"
             aria-valuemin={0}
             aria-valuemax={100}
             aria-valuenow={percent}
@@ -143,13 +143,13 @@ export function PetPanel({ petId, pet, isOwner, hungryInMs, onOpenUnlocks, flat 
           </span>
           <div className={styles.statBody}>
             <div className={styles.statHead}>
-              <span className={styles.statLabel}>활동력</span>
+              <span className={styles.statLabel}>Energy</span>
               <span className={styles.statValue}>
                 {pet.energy.toString()}
                 <span className={styles.dim}>/{MAX_ENERGY}</span>
               </span>
             </div>
-            <div className={styles.cells} role="img" aria-label={`활동력 ${pet.energy} / ${MAX_ENERGY}`}>
+            <div className={styles.cells} role="img" aria-label={`Energy ${pet.energy} / ${MAX_ENERGY}`}>
               {/* Array.from({ length: 10 }, (_, i) => i): [0, 1, ..., 9]. i가 잔액보다 작으면 채운 칸 */}
               {Array.from({ length: MAX_ENERGY }, (_, i) => (
                 <span key={i} className={BigInt(i) < pet.energy ? styles.cellOn : styles.cell} />
@@ -165,15 +165,15 @@ export function PetPanel({ petId, pet, isOwner, hungryInMs, onOpenUnlocks, flat 
           <HeartIcon size={20} />
         </span>
         {/* 시안 D10: 배고프면 같은 줄에 "2시간 14분째" (배고파진 뒤 지난 시간) */}
-        <span className={styles.statLabelGrow}>배고파지기까지</span>
+        <span className={styles.statLabelGrow}>Hungry in</span>
         <span className={pet.hungry ? styles.statValueHungry : styles.statValue}>
           {pet.hungry
             ? (() => {
                 // 배고파진 뒤 지난 시간. 0 이하(블록 시각과 내 시계가 조금 어긋날 때)면 "방금"
                 const since = formatRemaining(now - hungryAtMs(pet.lastFedAt));
-                return since ? `${since}째` : "방금";
+                return since ? `hungry for ${since}` : "just now";
               })()
-            : `${formatRemaining(hungryInMs) ?? "곧"} 남음`}
+            : `${formatRemaining(hungryInMs) ?? "soon"}`}
         </span>
       </div>
 
@@ -181,9 +181,9 @@ export function PetPanel({ petId, pet, isOwner, hungryInMs, onOpenUnlocks, flat 
 
       {/* 해금 요약 */}
       <div className={styles.sectionHead}>
-        <h2 className={styles.heading}>해금</h2>
+        <h2 className={styles.heading}>Unlocks</h2>
         <button type="button" className={styles.more} onClick={onOpenUnlocks}>
-          {opened.length}/{UNLOCKS.length} · 전체 보기 ›
+          {opened.length}/{UNLOCKS.length} · See all ›
         </button>
       </div>
       <ul className={styles.unlocks}>
@@ -193,7 +193,7 @@ export function PetPanel({ petId, pet, isOwner, hungryInMs, onOpenUnlocks, flat 
             <UnlockIcon kind={latest.kind} />
             <span className={styles.unlockLabel}>{latest.label}</span>
             {/* 글자로도 상태를 알린다 (색만으로 구분하지 않기) */}
-            <span className={styles.done} role="img" aria-label="열림">
+            <span className={styles.done} role="img" aria-label="Unlocked">
               <CheckIcon size={18} />
             </span>
           </li>
@@ -203,21 +203,21 @@ export function PetPanel({ petId, pet, isOwner, hungryInMs, onOpenUnlocks, flat 
             <span className={styles.unlockLv}>Lv {next.level}</span>
             <UnlockIcon kind={next.kind} />
             <span className={styles.unlockLabel}>{next.label}</span>
-            <span className={styles.nextTag}>다음</span>
+            <span className={styles.nextTag}>Next</span>
           </li>
         )}
       </ul>
 
       <hr className={styles.divider} />
 
-      <h2 className={styles.heading}>정보</h2>
+      <h2 className={styles.heading}>Info</h2>
       <dl className={styles.info}>
         <div className={styles.infoRow}>
-          <dt>주인</dt>
+          <dt>Owner</dt>
           <dd className={styles.mono}>{shortAddress(pet.owner)}</dd>
         </div>
         <div className={styles.infoRow}>
-          <dt>토큰</dt>
+          <dt>Token</dt>
           <dd className={styles.mono}>
             {tokenNo(petId)} · {chain.name}
           </dd>
