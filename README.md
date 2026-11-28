@@ -95,6 +95,7 @@ For the detailed steps, prerequisites, checklist and troubleshooting, see [docs/
 | `NEXT_PUBLIC_ENERGY_ADDRESS` | `0xa16E…d2be` | Deploy output (`petNft.energy()`) |
 | `NEXT_PUBLIC_DEPLOY_BLOCK` | `0` | Deploy output. Currently unused in code (finding your pets switched to the ownerOf approach). Kept for when log search is used later |
 | `NEXT_PUBLIC_APP_URL` | `http://localhost:3000` | Absolute image URL in the metadata JSON |
+| `RPC_URL` | (empty) | Optional, server-only. RPC for the metadata API and ranking. If empty, the chain's default public RPC. Do not reuse a browser key with an origin allowlist: server requests have no Origin and get rejected |
 | `PAYMASTER_URL` | (empty) | Optional, server-only. Gas sponsorship (not implemented yet) |
 
 Real keys (RPC key, WalletConnect ID, Paymaster URL) are never written in git, chat or docs.
