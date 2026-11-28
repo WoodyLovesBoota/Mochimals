@@ -3,6 +3,7 @@
 //   (예전 PetStats의 수치 표시를 이 패널이 이어받았다)
 "use client";
 
+import { useState } from "react";
 import { useNow } from "@/hooks/useNow";
 import type { PetState } from "@/hooks/usePet";
 import { chain } from "@/lib/chain";
@@ -36,6 +37,31 @@ export function PetPanel({ petId, pet, isOwner, hungryInMs, onOpenUnlocks, flat 
   const { current, needed } = levelProgress(pet.xp);
   const percent = needed === 0 ? 100 : Math.floor((current / needed) * 100);
   const level = Number(pet.level);
+
+  // * 활동력 칸 연출: 방금 줄어든 칸은 "꺼지는" 애니메이션, 방금 늘어난 칸은 "켜지는" 애니메이션.
+  //   그러려면 "직전 잔액"을 알아야 한다. 렌더 중에 이전 값과 비교해 상태를 고치는 React 공식 패턴을 쓴다
+  //   (https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes).
+  //   ? 왜 useRef + useEffect가 아닐까? ref는 effect에서 바로 새 값으로 바뀌어서, 다음 렌더(useNow 1분 틱 등)에
+  //     클래스가 빠지며 애니메이션이 중간에 끊길 수 있다. 상태로 두면 다음 잔액 변화 전까지 클래스가 유지된다.
+  //   * 이 컴포넌트가 처음 그려질 때(시트를 열 때 등)는 prev = 지금 값이라 아무 칸도 튀지 않는다.
+  const [energyPrev, setEnergyPrev] = useState(pet.energy);
+  const [energyDelta, setEnergyDelta] = useState<{ from: bigint; to: bigint } | null>(null);
+  if (pet.energy !== energyPrev) {
+    setEnergyDelta({ from: energyPrev, to: pet.energy });
+    setEnergyPrev(pet.energy);
+  }
+  /** i번째 칸의 클래스: 켜짐/꺼짐 + (방금 바뀐 칸이면) 꺼지는·켜지는 애니메이션 */
+  const cellClass = (i: number) => {
+    const n = BigInt(i);
+    if (n < pet.energy) {
+      // 늘어남 (from ≤ i < to): 새로 켜진 칸
+      const gained = energyDelta !== null && energyDelta.to > energyDelta.from && n >= energyDelta.from;
+      return gained ? styles.cellGain : styles.cellOn;
+    }
+    // 줄어듦 (to ≤ i < from): 방금 꺼진 칸
+    const drained = energyDelta !== null && energyDelta.to < energyDelta.from && n < energyDelta.from;
+    return drained ? styles.cellDrain : styles.cell;
+  };
 
   // * 해금: 열린 것 중 마지막 줄(✓) + 다음에 열릴 줄("다음"). 시안 D2는 이 두 줄만 보여준다.
   const opened = UNLOCKS.filter((u) => u.level <= level);
@@ -150,9 +176,9 @@ export function PetPanel({ petId, pet, isOwner, hungryInMs, onOpenUnlocks, flat 
               </span>
             </div>
             <div className={styles.cells} role="img" aria-label={`Energy ${pet.energy} / ${MAX_ENERGY}`}>
-              {/* Array.from({ length: 10 }, (_, i) => i): [0, 1, ..., 9]. i가 잔액보다 작으면 채운 칸 */}
+              {/* Array.from({ length: 10 }, (_, i) => i): [0, 1, ..., 9]. i가 잔액보다 작으면 채운 칸 (cellClass 참고) */}
               {Array.from({ length: MAX_ENERGY }, (_, i) => (
-                <span key={i} className={BigInt(i) < pet.energy ? styles.cellOn : styles.cell} />
+                <span key={i} className={cellClass(i)} />
               ))}
             </div>
           </div>
