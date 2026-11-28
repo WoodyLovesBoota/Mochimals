@@ -173,7 +173,7 @@ The third test in [errors.test.ts](../web/src/lib/errors.test.ts) shows that wit
 |                                                         | 43~45    | Buttons enabled by balance (`pet.energy`, bigint): feed ≥1, train ≥3, recharge button at 0                                                                                                                                |
 |                                                         | 62, 154  | While confirming, the pressed button shows a spinner + "확정 중…" ("Confirming…") + transaction link `txUrl(hash)` ([links.ts](../web/src/lib/links.ts); anvil has no explorer, so just the hash text)                    |
 
-The OpenSea and Basescan links and the token number in the info panel are also built by [links.ts](../web/src/lib/links.ts) from `petNft.address` and the chain id (anvil has neither → buttons hidden).
+The OpenSea and Basescan links and the token number in the info panel are also built by [links.ts](../web/src/lib/links.ts) from `petNft.address` and the chain id. OpenSea closed its testnet site, so `openseaUrl`/`openseaCollectionUrl` exist only on Base mainnet; on Base Sepolia only Basescan shows, and anvil has neither (buttons hidden).
 
 ## 10. Effects: receipt events → screen
 
@@ -216,7 +216,7 @@ The cost scales with the number of pets, not blocks. Once there are tens of thou
 
 | File                                              | Content                                                                                                                                                                                                             |
 | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [publicClient.ts](../web/src/lib/publicClient.ts) | Server-only viem `createPublicClient`. Chain and RPC are the same as `chain.ts` and env. `import "server-only"` keeps it out of the client bundle                                                                   |
+| [publicClient.ts](../web/src/lib/publicClient.ts) | Server-only viem `createPublicClient`. Chain is the same as `chain.ts`, but the RPC is the server-only `RPC_URL` (empty → chain's public RPC), not `NEXT_PUBLIC_RPC_URL`: that browser key has an origin allowlist, and server requests carry no Origin → rejected → metadata API 500. `import "server-only"` keeps it out of the client bundle                                                                   |
 | [readMany.ts](../web/src/lib/readMany.ts)         | Line 12: if the chain has multicall3, a single `multicall`; line 21: otherwise (anvil), separate reads via `Promise.all`. wagmi hooks handle this automatically, but direct viem calls error out, hence this helper |
 
 ## 13. Ranking: read everything on the server and sort
