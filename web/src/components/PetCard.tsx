@@ -1,12 +1,13 @@
 // * 펫 카드: 무대(그림 + 연출) (4강). PetView에서 분리했다 (SPEC 2장 구조의 PetCard).
 //   리디자인 뒤로 이름·레벨·칭호는 PetHud가, 새 해금 알림은 PetView가 그린다. 여기는 펫과 펫 주변 연출만 남았다.
-//   이 파일이 그리는 연출: XP 숫자, 레벨업 튀기, 배고픔(축 처짐·말풍선), 춤(Lv 16).
+//   이 파일이 그리는 연출: XP 숫자, 레벨업 튀기, 배고픔(축 처짐·말풍선), 춤(Lv 16),
+//   가만히 있을 때 숨쉬기·새싹 살랑·귀 쫑긋(CSS), 펫을 누르면 깡총 + 웃는 얼굴.
 //   레벨업의 리본·링·보상 알약은 LevelUpOverlay(PetView가 무대 위에 겹침)가 그린다.
 //   진화/부화는 화면 전체를 덮어서 PetView가 따로 그린다 (EvolveOverlay).
 "use client";
 
 import { AnimatePresence, motion, useAnimate, useReducedMotion } from "motion/react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import type { PetState } from "@/hooks/usePet";
 import type { usePetEffect } from "@/hooks/usePetEffect";
 import { getPetLook, type Emotion } from "@/lib/look";
@@ -23,10 +24,24 @@ type Props = {
   className?: string;
 };
 
+// 펫을 누르면 웃는 얼굴로 있는 시간
+const POKE_MS = 1200;
+
 export function PetCard({ pet, isOwner, fx, className }: Props) {
+  // * 펫 누르기 (화면에서만 하는 놀이. 체인에는 아무것도 보내지 않는다).
+  //   숫자는 "몇 번째 누름"이다. 값이 바뀔 때마다 아래 effect가 타이머를 새로 건다 → 연달아 누르면 웃는 시간이 늘어난다.
+  //   null이면 안 누른 상태.
+  const [poke, setPoke] = useState<number | null>(null);
+  useEffect(() => {
+    if (poke === null) return;
+    const timer = setTimeout(() => setPoke(null), POKE_MS);
+    return () => clearTimeout(timer); // 다시 누르면 이전 타이머를 지운다 (usePetEffect 표정 타이머와 같은 방식)
+  }, [poke]);
+
   // * 표정. SPEC 5장 우선순위: excited > happy (연출 훅이 잠시 덮어씀) > hungry > sleepy > idle (컨트랙트 값)
   //   ?? : 왼쪽이 null/undefined일 때만 오른쪽을 쓴다. 연출 표정이 없으면 기본 규칙으로.
-  const emotion = fx.emotion ?? pickEmotion(pet, isOwner);
+  //   ? 누르기 웃음은 연출 훅 표정(밥·레벨업)보다 약하고, 배고픔은 덮지 않는다 (배고픈데 활짝 웃으면 상태가 헷갈린다).
+  const emotion = fx.emotion ?? (poke !== null && !pet.hungry ? "happy" : pickEmotion(pet, isOwner));
   const xpGained = fx.current?.effect.xpGained ?? null;
   // * 레벨업 튀기. 단계가 바뀐 레벨업이면 usePetEffect.play가 levelUp을 비워서 여기 안 온다.
   //   그때는 진화 연출(EvolveOverlay, PetView)이 대신 튼다 (SPEC 12장: 레벨업은 "단계 그대로"일 때).
@@ -50,6 +65,17 @@ export function PetCard({ pet, isOwner, fx, className }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fxKey]);
 
+  /** 펫을 눌렀을 때: 깡총 한 번 + 잠깐 웃는 얼굴 */
+  const onPoke = () => {
+    setPoke((n) => (n ?? 0) + 1);
+    // 레벨업 튀기와 같은 요소(scope)를 움직인다. 연출 중에 누르면 새 깡총이 이어받는다.
+    // 동작 줄이기면 깡총은 생략하고 표정만 바꾼다.
+    if (reduceMotion) return;
+    // 배고프면 기운 없이 작게만 들썩
+    const hop = pet.hungry ? [0, -6, 0] : [0, -22, 0, -6, 0];
+    animate(scope.current, { y: hop }, { duration: pet.hungry ? 0.35 : 0.55, ease: "easeOut" });
+  };
+
   // stage는 uint8이라 이미 number다 (usePet 17줄). getPetLook이 0~4를 검사한다.
   const look = getPetLook({ dna: pet.dna, stage: pet.stage, emotion });
 
@@ -59,15 +85,34 @@ export function PetCard({ pet, isOwner, fx, className }: Props) {
   const dancing = canDance(level) && !pet.hungry;
   // * 해금 배경(들판·노을·밤하늘·수정 동굴)은 화면 전체 장면이 된다: PetView의 data-scene → layout .shell (globals.scss 장면 토큰)
 
-  // 그림 감싸는 div의 클래스: 배고프면 축 처짐, 춤 해금이면 흔들흔들 (둘 다 CSS 애니메이션, PetCard.module.scss)
-  const spriteMotion = pet.hungry ? styles.droop : dancing ? styles.dance : "";
+  // 그림 감싸는 div의 클래스 (모두 CSS 애니메이션, PetCard.module.scss):
+  //   배고프면 축 처짐, 춤 해금이면 흔들흔들, 둘 다 아니면 숨쉬기.
+  //   * 배고프지 않으면 .alive를 더해 새싹 살랑·귀 쫑긋도 튼다 (춤추는 중에도 같이 움직인다)
+  const spriteMotion = pet.hungry ? styles.droop : `${dancing ? styles.dance : styles.breathe} ${styles.alive}`;
 
   return (
     // * 무대: 배경 없이 장면 그림 위에 펫만 선다 (시안 02 / D2). 연출(XP 숫자, 배지, 별)은 이 상자 기준으로 띄운다.
     <div className={`${styles.stage} ${className ?? ""}`}>
       {/* 튀기 대상. PetSprite 자체가 아니라 감싼 div를 움직인다 (PetSprite는 그림만 알고 연출은 모르게).
           position: relative라서 말풍선을 그림 좌표 기준으로 띄울 수 있다. */}
-      <div ref={scope} className={styles.spriteBox}>
+      {/* * 누를 수 있는 펫. div에 onClick만 달면 키보드·스크린리더 사용자는 못 누른다.
+            role="button" + tabIndex={0}(Tab으로 갈 수 있게) + Enter/Space 처리까지 해야 버튼과 같아진다.
+            ? 왜 진짜 <button>이 아닐까? 안에 말풍선 <p>가 있는데 <button> 안에는 <p>를 넣을 수 없고,
+              그림 높이가 부모 높이(%)를 따라가는 레이아웃이 <button>에서는 브라우저마다 다르게 계산된다. */}
+      <div
+        ref={scope}
+        className={styles.spriteBox}
+        role="button"
+        tabIndex={0}
+        aria-label="Pet your mochi"
+        onClick={onPoke}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault(); // Space가 페이지를 스크롤하지 않게
+            onPoke();
+          }
+        }}
+      >
         <div className={spriteMotion}>
           {/* size는 최대 해상도용. 실제 크기는 .sprite CSS가 화면 폭에 맞게 정한다 (모바일 380 / 데스크톱 480) */}
           <PetSprite look={look} size={400} className={styles.sprite} />

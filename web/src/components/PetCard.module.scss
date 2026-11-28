@@ -46,6 +46,79 @@
   position: relative;
   display: flex; // 그림의 height: 100%가 이 상자 높이를 기준으로 계산되게
   height: 100%;
+  border-radius: var(--radius-card);
+  cursor: pointer; // 누를 수 있다는 표시 (펫 누르기, PetCard.tsx onPoke)
+  -webkit-tap-highlight-color: transparent; // 모바일에서 누를 때 생기는 회색 사각형 없애기
+
+  &:focus-visible {
+    outline: 3px solid var(--ink);
+    outline-offset: 2px;
+  }
+}
+
+// * 숨쉬기 (가만히 있을 때 기본 연출). 바닥선 기준으로 아주 살짝 위아래로 늘었다 줄었다.
+//   ? 숫자가 작은 이유: 1.5%만 넘어도 "움찔움찔"로 보인다. 숨은 알아챌 듯 말 듯해야 자연스럽다.
+.breathe {
+  transform-origin: 50% 88%; // 발(아트 바닥선 y=352)은 바닥에 붙어 있게
+  animation: breathe 3.2s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    transform: scale(1, 1);
+  }
+  50% {
+    transform: scale(0.99, 1.015); // 들이쉬면 위로 살짝 길어지고 옆은 살짝 좁아진다 (부피 유지 느낌)
+  }
+}
+
+// * 새싹 살랑 + 귀 쫑긋. 레이어 이름표(data-layer, art/compose.ts)를 골라서 그 부분만 움직인다.
+//   ! 아트 코드(art/flat-v1)는 건드리지 않는다. SVG 문자열이 바뀌면 기준 SVG 비교 테스트가 깨지고, NFT 이미지도 달라진다.
+//   :global(): CSS Modules는 클래스 이름을 바꿔 버리는데, data-layer는 우리가 만든 클래스가 아니라 그대로 써야 해서 감싼다.
+//   ? transform-box: fill-box: SVG 요소의 transform-origin 기준을 "그 요소가 그려진 상자"로 바꾼다.
+//     기본값(view-box)이면 기준이 400×400 캔버스 왼쪽 위라서, 새싹이 캔버스 모서리를 축으로 크게 휘둘린다.
+.alive {
+  :global([data-layer="sprout"]) {
+    transform-box: fill-box;
+    transform-origin: 50% 100%; // 새싹 뿌리(아래 가운데)를 축으로
+    animation: sprout-sway 2.6s ease-in-out infinite;
+  }
+
+  // 귀는 두 쪽이 한 레이어(<g>)에 같이 있어서 한쪽씩은 못 움직인다. 둘을 같이 위로 쫑긋 세운다.
+  :global([data-layer="ears"]) {
+    transform-box: fill-box;
+    transform-origin: 50% 100%; // 귀 뿌리(아래)를 기준으로 위로 늘어난다
+    animation: ear-perk 4.5s ease-in-out infinite;
+  }
+}
+
+@keyframes sprout-sway {
+  0%,
+  100% {
+    transform: rotate(-6deg);
+  }
+  50% {
+    transform: rotate(6deg);
+  }
+}
+
+// 4.5초 중 대부분은 가만히 있다가, 끝 무렵에 두 번 쫑긋 (계속 움직이면 산만하다)
+@keyframes ear-perk {
+  0%,
+  78%,
+  100% {
+    transform: scale(1, 1);
+  }
+  83% {
+    transform: scale(0.97, 1.08);
+  }
+  88% {
+    transform: scale(1, 1);
+  }
+  92% {
+    transform: scale(0.98, 1.05);
+  }
 }
 
 // * 배고픔: 펫이 축 처진다 (SPEC 12장). 바닥 가운데를 기준으로 납작해졌다 돌아오기를 천천히 반복.
@@ -88,7 +161,11 @@
     animation: none;
     transform: scale(1.03, 0.92);
   }
-  .dance {
+  .dance,
+  .breathe {
+    animation: none;
+  }
+  .alive :global([data-layer]) {
     animation: none;
   }
 }
